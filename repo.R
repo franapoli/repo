@@ -1,4 +1,5 @@
 library(digest)
+library(tools)
 REPOFNAME <- "R_repo.RDS"
 
 open.repo <- function(root="~/.R_repo")
@@ -28,9 +29,9 @@ open.repo <- function(root="~/.R_repo")
               return(T)
           }
 
-      storeData <- function(res, obj)
+      storeData <- function(name, obj)
           {
-              opath <- buildpath(res$name)
+              opath <- buildpath(name)
               if(!file.exists(do.call(file.path, opath[1:2])))
                   dir.create(do.call(file.path, opath[1:2]))
               if(!file.exists(do.call(file.path, opath[1:3])))
@@ -38,7 +39,8 @@ open.repo <- function(root="~/.R_repo")
               if(!file.exists(do.call(file.path, opath[1:4])))
                   dir.create(do.call(file.path, opath[1:4]))
 
-             saveRDS(obj, file.path(do.call(file.path, opath)))
+              saveRDS(obj, file.path(do.call(file.path, opath)))
+              return(do.call(file.path, opath))
           }
       
       thisEnv <- environment()
@@ -73,7 +75,7 @@ open.repo <- function(root="~/.R_repo")
           ## that I can refer to it later.
           thisEnv = thisEnv,
           
-          list = function()
+        list = function()
           {
 
               entr <- get("entries",thisEnv)
@@ -103,12 +105,25 @@ open.repo <- function(root="~/.R_repo")
                           )
                   }
 
-          },
+            },
 
-          setDefaultTags = function(tags)
-          {
+        export = function(objID, where = "")
+        {
+         entr <- get("getEntry",thisEnv)(objID)
+          files.copy(entr$dump, path(where, paste0(objID, ".RDS")))
+        },
+
+        setDefaultTags = function(tags)
+        {
               return(assign("defTags",tags,thisEnv))
           },
+
+        getEntry = function(name)
+        {
+          entr <- get("entries",thisEnv)
+          w <- match(name, sapply(entr,get,x="name"))
+          return(entr[w])
+        },
 
           rm = function(name)
           {
@@ -124,9 +139,9 @@ open.repo <- function(root="~/.R_repo")
           },
 
           load = function(name)
-          {              
-              ipath = do.call(file.path, buildpath(name))
-              data <- readRDS(ipath) 
+          {
+            entry <- get("getEntry", thisEnv)(name)
+            data <- readRDS(entry$dump) 
               
               return(data)
           },
@@ -177,18 +192,21 @@ open.repo <- function(root="~/.R_repo")
               dims <- length(obj)
               flags <- c(get("defTags", thisEnv), tags, class(obj))
 
+              fname <- get("storeData", thisEnv)(name, obj)
+
               repoE <- list(name = name,
                             description = description,
                             tags = tags,
                             class = class(obj),
                             dims = dims,
                             timestamp = Sys.time(),
+                            dump = fname,
+                            checksum = md5sum(fname),
                             storedfrom = getwd())
+
 
               entr[[length(entries)+1]] <- repoE
               assign("entries", entr, thisEnv)
-
-              get("storeData", thisEnv)(repoE, obj)
               get("storeIndex", thisEnv)()
           },
           ## Define the accessors for the data fields.
