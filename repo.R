@@ -1,7 +1,7 @@
 library(digest)
 REPOFNAME <- "R_repo.RDS"
 
-repo <- function(deftags, root="~/.R_repo")
+open.repo <- function(root="~/.R_repo")
 {
       storeIndex = function()
           {
@@ -42,7 +42,7 @@ repo <- function(deftags, root="~/.R_repo")
           }
       
       thisEnv <- environment()
-      assign("defTags", deftags)
+      assign("defTags", NULL)
       assign("entries", list(), thisEnv)      
       
       repofile <- file.path(root, REPOFNAME)
@@ -62,7 +62,7 @@ repo <- function(deftags, root="~/.R_repo")
               n <- readline("Type \"yes\" to proceed: ")
               if(tolower(n) == "yes") {
                   dir.create(root)
-                  message("Repo root created.")
+                  message("New repo created.")
              } else message("Nothing done.")
           }
 
@@ -125,7 +125,7 @@ repo <- function(deftags, root="~/.R_repo")
 
           load = function(name)
           {              
-              ipath = do.call(file.path, buildpath(digest(name)))
+              ipath = do.call(file.path, buildpath(name))
               data <- readRDS(ipath) 
               
               return(data)
@@ -133,9 +133,9 @@ repo <- function(deftags, root="~/.R_repo")
 
           export = function(name, where=".")
           {
-              ipath = do.call(file.path, buildpath(digest(name)))
+              ipath = do.call(file.path, buildpath(name))
               file.copy(ipath, file.path(where, name))
-          }
+          },
           
           checkIntegrity = function()
           {
@@ -215,9 +215,9 @@ repo <- function(deftags, root="~/.R_repo")
       ## Set the name for the class
       class(me) <- append(class(me),"repo")
 
-      if(!file.exists(repofile))
+      if(!file.exists(repofile)) ## is this check needed?
           {
-              message(paste0("Repo index doesn't exist, creating \"", root, "\"."))
+              ## message(paste0("Repo index doesn't exist, creating \"", root, "\"."))
            saveRDS(get("entries", thisEnv), repofile)
           }
 
