@@ -1,13 +1,44 @@
 library(digest)
 library(tools)
-REPOFNAME <- "R_repo.RDS"
+
 
 open.repo <- function(root="~/.R_repo")
 {
-    storeIndex = function()
+    REPOFNAME <- "R_repo.RDS"
+
+    lockIndex <- function()
         {
+            if(!isIndexLocked())
+                {
+                    lockfile <- file.path(root, paste0(REPOFNAME, ".lock"))
+                    file.create(lockfile)
+                }
+        }
+
+    unlockIndex <- function()
+        {
+            if(isIndexLocked())
+                {
+                    lockfile <- file.path(root, paste0(REPOFNAME, ".lock"))
+                    invisible(file.remove(lockfile))
+                }
+        }
+
+    isIndexLocked <- function()
+    {
+        lockfile <- file.path(root, paste0(REPOFNAME, ".lock"))
+        return(file.exists(lockfile))
+    }
+    
+    storeIndex <- function()
+        {
+            if(isIndexLocked())
+                stop("Repo index is locked")
+
             fname <- get("repofile", thisEnv)
+            lockIndex()
             saveRDS(get("entries", thisEnv), fname)
+            unlockIndex()
         }
 
     buildpath <- function(resname)
@@ -46,7 +77,7 @@ open.repo <- function(root="~/.R_repo")
     thisEnv <- environment()
     assign("defTags", NULL)
     assign("entries", list(), thisEnv)      
-    
+
     repofile <- file.path(root, REPOFNAME)
     assign("repofile", repofile, thisEnv)
     
@@ -107,6 +138,11 @@ open.repo <- function(root="~/.R_repo")
         {
             entr <- get("this",thisEnv)["getEntry"](objID)
             files.copy(entr$dump, path(where, paste0(objID, ".RDS")))
+        },
+
+        unlock = function()
+        {
+            get("unlockIndex", thisEnv)()
         },
 
         setDefaultTags = function(tags)
@@ -186,7 +222,7 @@ open.repo <- function(root="~/.R_repo")
             if(!notexist & force_replace)
                 {
                     get("this", thisEnv)$rm(name)
-                    get("this", thisEnv)$add(obj, name, description="", tags="", force_replace=F)
+                    get("this", thisEnv)$add(obj, name, description, tags, force_replace)
                 }
             
             if(!is.null(dim(obj)))
