@@ -120,6 +120,18 @@ open.repo <- function(root="~/.R_repo")
             } else message("Nothing done.")
         }
 
+    cutString <- function(text, len, dotsafter=T)
+        {
+            if(nchar(text) == len)
+                return(text)
+            if(nchar(text) < len)
+                return(format(text, width = len))
+            text <- substr(text, 1, len-3)
+            if(dotsafter)
+                return(paste0(text ,"...")) else
+            return(paste0("...", text))
+        }
+
     me <- list(
         thisEnv = thisEnv,
         
@@ -132,23 +144,24 @@ open.repo <- function(root="~/.R_repo")
                     message("Repository is empty.")
                     return()
                 }
-            widths <- c(16,10,20)
-            
+
+            widths <- c(20,10,25,25)
+
             message(paste0(
-                format("Name", width=widths[1]),
-                format("Dim", width=widths[2]),
-                format("Time", width=widths[3]),
-                format("From")))
+                cutString("Name", widths[1]),
+                cutString("Dim", widths[2]),
+                cutString("Tags", widths[3]),
+                cutString("From", widths[4], F)))
             
             for(i in 1:length(entr))
                 {
                     entri <- entr[[i]]
                     message(
                         paste0(
-                            format(entri$name, width=widths[1]),
-                            format(paste(entri$dims, collapse="x"), width=widths[2]),
-                            format(as.character(entri$timestamp), width=widths[3]),
-                            format(entri$storedfrom)
+                            cutString(entri$name, widths[1]),
+                            cutString(paste(entri$dims, collapse="x"), widths[2]),
+                            cutString(paste(entri$tags, collapse=","), widths[3]),
+                            cutString(entri$storedfrom, widths[4])
                             )
                         )
                 }
@@ -312,7 +325,7 @@ print.repo <- function(repo) repo$list()
 
 #' Add an R object to the repository.
 #' 
-#' @param repo An object of class Repo.
+#' @param repo An object of cazz Repo.
 #' @param obj The R object to store in the repository.
 #' @param id The name of the R object to store.
 #' @param description An extended description of the R object
