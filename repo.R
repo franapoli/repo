@@ -75,8 +75,9 @@ open.repo <- function(root="~/.R_repo")
             if(!file.exists(do.call(file.path, opath[1:4])))
                 dir.create(do.call(file.path, opath[1:4]))
 
-            saveRDS(obj, file.path(do.call(file.path, opath)))
-            return(do.call(file.path, opath))
+            fpath <- do.call(file.path, opath)
+            saveRDS(obj, fpath)
+            return(list(path=fpath, size=file.info(fpath)$size))
         }
 
     findEntryIndex <- function(name)
@@ -93,6 +94,14 @@ open.repo <- function(root="~/.R_repo")
                 return(NULL)
             }
             return(w)
+        }
+
+    findEntries <- function(tags)
+        {
+            entr <- get("entries", thisEnv)
+            tagsets <- lapply(entr, get, x="tags")
+            w <- sapply(tagsets, function(x)all(tags %in% x))
+            return(which(w))
         }
     
     thisEnv <- environment()
@@ -120,24 +129,42 @@ open.repo <- function(root="~/.R_repo")
             } else message("Nothing done.")
         }
 
+    compressPath <- function(path)
+        {
+            hp <- path.expand("~")
+            return(gsub(paste0("^",hp), "~", path))
+        }
+    
     cutString <- function(text, len, dotsafter=T)
         {
             if(nchar(text) == len)
                 return(text)
             if(nchar(text) < len)
                 return(format(text, width = len))
-            text <- substr(text, 1, len-3)
-            if(dotsafter)
-                return(paste0(text ,"...")) else
-            return(paste0("...", text))
+            if(dotsafter) {
+                text <- substr(text, 1, len-3)
+                return(paste0(text ,"..."))
+            } else {
+                text <- substr(text, nchar(text)-(len-3), nchar(text))
+                return(paste0("...", text))
+            }
+            
         }
 
     me <- list(
-        thisEnv = thisEnv,
-        
-        list = function()
-        {
 
+        thisEnv = thisEnv,
+
+        
+        tags = function()
+        {
+            entr <- get("entries", thisEnv)
+            tagsets <- unlist(unique(lapply(entr, get, x="tags")))
+            message(paste(tagsets, collapse=", "))
+        },
+
+        list = function(tags=NULL)
+        {
             entr <- get("entries",thisEnv)
             if(length(entr)<1)
                 {
@@ -145,13 +172,25 @@ open.repo <- function(root="~/.R_repo")
                     return()
                 }
 
-            widths <- c(20,10,25,25)
+            if(!is.null(tags)) {
+                w <- findEntries(tags)
+                if(length(w)<1)
+                    {
+                        message("Tags not found.")
+                        return()
+                    } else {
+                        entr <- entr[w]
+                    }
+            }
+
+            widths <- c(15,15,20,20,10)
 
             message(paste0(
                 cutString("Name", widths[1]),
-                cutString("Dim", widths[2]),
+                cutString("Dims", widths[2]),
                 cutString("Tags", widths[3]),
-                cutString("From", widths[4], F)))
+                cutString("From", widths[4], F),
+                cutString("Size", widths[5], F)))
             
             for(i in 1:length(entr))
                 {
@@ -159,9 +198,13 @@ open.repo <- function(root="~/.R_repo")
                     message(
                         paste0(
                             cutString(entri$name, widths[1]),
+                            ## cutString(paste(
+                            ##     gsub(" ", "", gsub("B", "", humanReadable(entri$dims, standard="SI", sep="",digits=0))),
+                            ##     collapse=" x "), widths[2]),
                             cutString(paste(entri$dims, collapse="x"), widths[2]),
-                            cutString(paste(entri$tags, collapse=","), widths[3]),
-                            cutString(entri$storedfrom, widths[4])
+                            cutString(paste(entri$tags, collapse=", "), widths[3]),
+                            cutString(compressPath(entri$storedfrom), widths[4], F),
+                            cutString(humanReadable(entri$size, standard="SI", sep="") , widths[5])
                             )
                         )
                 }
@@ -267,7 +310,9 @@ open.repo <- function(root="~/.R_repo")
             dims <- length(obj)
             flags <- c(get("defTags", thisEnv), tags, class(obj))
 
-            fname <- get("storeData", thisEnv)(name, obj)
+            fdata <- get("storeData", thisEnv)(name, obj)
+            fname <- fdata[["path"]]
+            fsize <- fdata[["size"]]
 
             repoE <- list(name = name,
                           description = description,
@@ -276,6 +321,7 @@ open.repo <- function(root="~/.R_repo")
                           dims = dims,
                           timestamp = Sys.time(),
                           dump = fname,
+                          size = fsize,
                           checksum = md5sum(path.expand(fname)),
                           storedfrom = getwd())
 
@@ -321,7 +367,7 @@ open.repo <- function(root="~/.R_repo")
 #' Show a summary of the repository contents.
 #' 
 #' @return Used for side effects.
-print.repo <- function(repo) repo$list()
+print.repo <- function(repo, tags=NULL) repo$list(tags)
 
 #' Add an R object to the repository.
 #' 
