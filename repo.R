@@ -1,7 +1,12 @@
 library(digest)
 library(tools)
 
-
+#' Open an existing repository or create a new one.
+#' 
+#' @param root Path to store data in.
+#' @return An object of class Repo.
+#' @examples
+#' repo <- open.repo()
 open.repo <- function(root="~/.R_repo")
 {
     REPOFNAME <- "R_repo.RDS"
@@ -54,10 +59,10 @@ open.repo <- function(root="~/.R_repo")
     checkName <- function(name)
         {
             entr <- get("entries", thisEnv)
+            if(length(entr)<1)
+                return(T)
             names <- sapply(entr, get, x="name")
-            if(name %in% names)
-                return(F)
-            return(T)
+            return(!(name %in% names))
         }
 
     storeData <- function(name, obj)
@@ -73,10 +78,26 @@ open.repo <- function(root="~/.R_repo")
             saveRDS(obj, file.path(do.call(file.path, opath)))
             return(do.call(file.path, opath))
         }
+
+    findEntryIndex <- function(name)
+        {
+            entr <- get("entries", thisEnv)
+            if(is.null(entr) | length(entr)<1) {
+                message("Repo is empty.")
+                return(NULL)
+            }
+            names <- sapply(entr, get, x="name")
+            w <- match(name, names)
+            if(length(w)<1){
+                message("Entry not found.")
+                return(NULL)
+            }
+            return(w)
+        }
     
     thisEnv <- environment()
     assign("defTags", NULL)
-    assign("entries", list(), thisEnv)      
+    assign("entries", NULL, thisEnv)      
 
     repofile <- file.path(root, REPOFNAME)
     assign("repofile", repofile, thisEnv)
@@ -150,19 +171,25 @@ open.repo <- function(root="~/.R_repo")
             return(assign("defTags",tags,thisEnv))
         },
 
+
         getEntry = function(name)
         {
-            entr <- get("entries",thisEnv)
-            w <- match(name, sapply(entr,get,x="name"))
-            return(entr[[w]])
+            
+            e <- get("findEntryIndex",thisEnv)(name)
+            if(is.null(e))
+                return(invisible(NULL))
+
+            return(get("entries", thisEnv)[[entr[[w]]]])
         },
 
         rm = function(name)
         {
+            e <- get("findEntryIndex",thisEnv)(name)
+            if(is.null(e))
+                return(invisible(NULL))
+            
             entr <- get("entries",thisEnv)
-            w <- match(name, sapply(entr,get,x="name"))
-            entr <- entr[-w]
-            assign("entries", entr, thisEnv)
+            assign("entries", entr[-e], thisEnv)
             
             ipath = do.call(file.path, buildpath(name))
             file.remove(ipath)
@@ -220,11 +247,8 @@ open.repo <- function(root="~/.R_repo")
                 }
 
             if(!notexist & force_replace)
-                {
-                    get("this", thisEnv)$rm(name)
-                    get("this", thisEnv)$add(obj, name, description, tags, force_replace)
-                }
-            
+                get("this", thisEnv)$rm(name)
+
             if(!is.null(dim(obj)))
                 dims <- dim(obj) else
             dims <- length(obj)
@@ -281,13 +305,41 @@ open.repo <- function(root="~/.R_repo")
     return(me)
 }
 
-print.repo <- function(repo)
-{
-    repo$list()
-}
+#' Show a summary of the repository contents.
+#' 
+#' @return Used for side effects.
+print.repo <- function(repo) repo$list()
 
-add.obj <- function(repo, name, description) repo$add(repo, name, description)
-list.obj <- function(repo) repo$list()
-wipe.repo <- function(repo) repo$wipe()
-load.obj <- function(repo, name) repo$load(name)
+#' Add an R object to the repository.
+#' 
+#' @param repo An object of class Repo.
+#' @param obj The R object to store in the repository.
+#' @param id The name of the R object to store.
+#' @param description An extended description of the R object
+#' @return Used for side effects.
+#' @examples
+#' repo <- open.repo()
+#' add.obj(repo, cars, "cars", "R cars dataset")
+#' identical(repo$load("cars"), cars)
+add.obj <- function(repo, obj, id, description) repo$add(repo, id, description)
+
+#' Open an existing repository or create a new one.
+#' 
+#' @param repo An object of class Repo.
+#' @param id The identifier of the object to load.
+#' @examples
+#' repo <- open.repo()
+#' add.obj(repo, cars, "cars", "R cars dataset")
+#' identical(repo$load("cars"), cars)
+load.obj <- function(repo, id) repo$load(name)
+
+#' Open an existing repository or create a new one.
+#' 
+#' @param An object of class Repo.
+#' @examples
+#' repo <- open.repo()
+#' add.obj(repo, cars, "cars", "R cars dataset")
+#' print(repo)
+#' repo$rm("cars")
+#' print(repo)
 rm.obj <- function(repo, name) repo$rm(name)
