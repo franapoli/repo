@@ -1,5 +1,6 @@
-library(digest)
-library(tools)
+library(digest) # digest
+library(tools) # md5sum
+library(gdata) # humanReadable
 
 #' Open an existing repository or create a new one.
 #' 
@@ -145,7 +146,7 @@ open.repo <- function(root="~/.R_repo")
                 text <- substr(text, 1, len-3)
                 return(paste0(text ,"..."))
             } else {
-                text <- substr(text, nchar(text)-(len-3), nchar(text))
+                text <- substr(text, nchar(text)-(len-4), nchar(text))
                 return(paste0("...", text))
             }
             
@@ -155,17 +156,38 @@ open.repo <- function(root="~/.R_repo")
 
         thisEnv = thisEnv,
 
+        check = function()
+        {
+            entr <- entries
+            for(i in 1:length(entr))
+                {
+                    cat(paste0("checking ", entr[[i]]$name, "..."))
+                    md5s <- md5sum(path.expand(entr[[i]]$dump))
+                    if(md5s != entr[[i]]$checksum)
+                        warning("File has changed!") else cat(" ok!")
+                    cat("\n")
+                }
+            allfiles <- file.path(root, list.files(root, recursive=T))
+            dumps <- sapply(entr, get, x="dump")            
+            junk <- setdiff(path.expand(allfiles), path.expand(dumps))
+            if(length(junk)>0){
+                cat("\nThe following files in Repo root have no associated Repo entry:\n")
+                cat(paste(junk, collapse="\n"))
+            }
+            cat("\n")
+            invisible()
+        },
         
         tags = function()
-        {
-            entr <- get("entries", thisEnv)
-            tagsets <- unlist(unique(lapply(entr, get, x="tags")))
+        {            
+            entr <- entries
+            tagsets <- unique(unlist(lapply(entr, get, x="tags")))
             message(paste(tagsets, collapse=", "))
         },
 
         list = function(tags=NULL)
         {
-            entr <- get("entries",thisEnv)
+            entr <- entries
             if(length(entr)<1)
                 {
                     message("Repository is empty.")
@@ -177,26 +199,27 @@ open.repo <- function(root="~/.R_repo")
                 if(length(w)<1)
                     {
                         message("Tags not found.")
-                        return()
+                        return(invisible())
                     } else {
                         entr <- entr[w]
                     }
             }
 
-            widths <- c(15,15,20,20,10)
+            widths <- c(14,14,19,19,10)
 
-            message(paste0(
+            message(paste(
                 cutString("Name", widths[1]),
                 cutString("Dims", widths[2]),
                 cutString("Tags", widths[3]),
-                cutString("From", widths[4], F),
-                cutString("Size", widths[5], F)))
+                cutString("From", widths[4]),
+                cutString("Size", widths[5]),
+                collapse=" "))
             
             for(i in 1:length(entr))
                 {
                     entri <- entr[[i]]
                     message(
-                        paste0(
+                        paste(
                             cutString(entri$name, widths[1]),
                             ## cutString(paste(
                             ##     gsub(" ", "", gsub("B", "", humanReadable(entri$dims, standard="SI", sep="",digits=0))),
@@ -204,19 +227,42 @@ open.repo <- function(root="~/.R_repo")
                             cutString(paste(entri$dims, collapse="x"), widths[2]),
                             cutString(paste(entri$tags, collapse=", "), widths[3]),
                             cutString(compressPath(entri$storedfrom), widths[4], F),
-                            cutString(humanReadable(entri$size, standard="SI", sep="") , widths[5])
+                            cutString(humanReadable(entri$size, standard="SI", sep="") , widths[5]),
+                            collapse=" "
                             )
                         )
                 }
 
         },
 
-        export = function(objID, where = "")
+        export = function(names, where=".", tags=NULL)
         {
-            entr <- get("this",thisEnv)["getEntry"](objID)
-            files.copy(entr$dump, path(where, paste0(objID, ".RDS")))
-        },
+            if(!xor(missing(name),missing(tags)))
+                stop("You must specify eiterh names or tags.")
 
+            if(!is.null(tags)){
+                e <- findEntries(tags)
+                if(length(e)<1)
+                    stop("Tags do not match any entry.")
+                entr <- get("entries",thisEnv)
+                names <- sapply(entr[e], get, x="name")
+                message(paste0("Exporting items: ",
+                               paste(names, collapse=", ")))
+                n <- readline("Type \"yes!\" to confirm: ")
+                if(n == "yes!") {
+                    get("this", thisEnv)$export(names)
+                    return(invisible())
+                } else
+                    {
+                        message("Nothing done.")
+                        return(invisible())
+                    }
+            }
+
+            ipath = do.call(file.path, buildpath(name))
+            file.copy(ipath, file.path(where, name))
+        },
+        
         unlock = function()
         {
             get("unlockIndex", thisEnv)()
@@ -227,10 +273,8 @@ open.repo <- function(root="~/.R_repo")
             return(assign("defTags",tags,thisEnv))
         },
 
-
         getEntry = function(name)
-        {
-            
+        {            
             e <- get("findEntryIndex",thisEnv)(name)
             if(is.null(e))
                 return(invisible(NULL))
@@ -238,13 +282,36 @@ open.repo <- function(root="~/.R_repo")
             return(get("entries", thisEnv)[[entr[[w]]]])
         },
 
-        rm = function(name)
+        rm = function(name = NULL, tags = NULL)        
         {
+            if(!xor(missing(name),missing(tags)))
+                stop("You must specify eiterh a name or tags.")
+
+            if(!is.null(tags)){
+                e <- findEntries(tags)
+                if(length(e)<1)
+                    stop("Tags do not match any entry.")
+                entr <- get("entries",thisEnv)
+                names <- sapply(entr[e], get, x="name")
+                message(paste0("Removing items: ",
+                               paste(names, collapse=", ")))
+                n <- readline("Type \"yes!\" to confirm: ")
+                if(n == "yes!") {
+                    for(i in 1:length(e))
+                        get("this", thisEnv)$rm(names[[i]])
+                    return(invisible())
+                } else
+                    {
+                        message("Nothing done.")
+                        return(invisible())
+                    }
+            }
+            
             e <- get("findEntryIndex",thisEnv)(name)
             if(is.null(e))
                 return(invisible(NULL))
             
-            entr <- get("entries",thisEnv)
+            entr <- entries
             assign("entries", entr[-e], thisEnv)
             
             ipath = do.call(file.path, buildpath(name))
@@ -259,12 +326,6 @@ open.repo <- function(root="~/.R_repo")
             data <- readRDS(entry$dump) 
             
             return(data)
-        },
-
-        export = function(name, where=".")
-        {
-            ipath = do.call(file.path, buildpath(name))
-            file.copy(ipath, file.path(where, name))
         },
         
         checkIntegrity = function()
@@ -402,3 +463,15 @@ load.obj <- function(repo, id) repo$load(name)
 #' repo$rm("cars")
 #' print(repo)
 rm.obj <- function(repo, name) repo$rm(name)
+
+
+createTestRepo <- function()
+    {
+        repo <- open.repo()
+        repo$add(1:10, "item1", "item 1 description", c("tag1", "tag2"))
+        repo$add(1:100, "item2", "item 2 description", c("tag2", "tag3"))
+        repo$add(matrix(runif(100*100), 100, 100), "item3", "item 3 description", c("tag1", "tag2", "tag3"))
+        repo$add(list(1,2,3,4,5), "item4", "item 4 description", c("tag1"))
+        repo$add("string", "item5", "item 5 description", c("tag2"))
+        return(repo)
+    }
