@@ -296,7 +296,7 @@ open.repo <- function(root="~/.R_repo")
             if(is.null(e))
                 return(invisible(NULL))
 
-            return(get("entries", thisEnv)[[entr[[w]]]])
+            return(entries[[e]])
         },
 
         rm = function(name = NULL, tags = NULL)        
@@ -404,16 +404,11 @@ open.repo <- function(root="~/.R_repo")
             fname <- fdata[["path"]]
             fsize <- fdata[["size"]]
 
-            if(!is.null(src))
-                {
-                    assign("rsource", src, thisEnv)
-                    message(paste0("Default source set to: ", rsource))
-                }
-
-            if(is.null(rsource))
-                storedfrom <- getwd() else
-            storedfrom <- rsource
-
+            if(is.null(src)) {
+                if(is.null(rsource))
+                    storedfrom <- getwd() else
+                storedfrom <- rsource
+            } else storedfrom <- src
 
             repoE <- list(name = name,
                           description = description,
