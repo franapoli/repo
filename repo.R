@@ -1,6 +1,5 @@
 library(digest) # digest
 library(tools) # md5sum
-library(gdata) # humanReadable
 
 #' Open an existing repository or create a new one.
 #' 
@@ -11,7 +10,25 @@ library(gdata) # humanReadable
 open.repo <- function(root="~/.R_repo")
 {
     REPOFNAME <- "R_repo.RDS"
+    rsource <- NULL
 
+    hmnRead <- function(bytes)
+        {
+            values <- c(
+                bytes,
+                bytes/2^10,
+                bytes/2^20,
+                bytes/2^30,
+                bytes/2^40,
+                bytes/2^50
+                )
+            names(values) <- c("B","KB", "MB", "GB", "TB", "PB")
+            okvals <- values[values>1]
+            m <- okvals[which.min(okvals)] ## preserves name
+            final <- format(round(m,2), scientific=F)
+            return(paste0(final,names(m)))
+        }
+    
     lockIndex <- function()
         {
             if(!isIndexLocked())
@@ -155,7 +172,7 @@ open.repo <- function(root="~/.R_repo")
     me <- list(
 
         thisEnv = thisEnv,
-
+        
         check = function()
         {
             entr <- entries
@@ -226,8 +243,8 @@ open.repo <- function(root="~/.R_repo")
                             ##     collapse=" x "), widths[2]),
                             cutString(paste(entri$dims, collapse="x"), widths[2]),
                             cutString(paste(entri$tags, collapse=", "), widths[3]),
-                            cutString(compressPath(entri$storedfrom), widths[4], F),
-                            cutString(humanReadable(entri$size, standard="SI", sep="") , widths[5]),
+                            cutString(compressPath(entri$source), widths[4], F),
+                            cutString(hmnRead(entri$size) , widths[5]),
                             collapse=" "
                             )
                         )
@@ -354,8 +371,20 @@ open.repo <- function(root="~/.R_repo")
             return(get("entries",thisEnv))
         },
 
-        add = function(obj, name, description="", tags="", force_replace=F)
+        setDefaultSource = function(src)
         {
+            assign("rsource", src, thisEnv)
+            if(is.null(src))
+                message(paste0("Default source cleared.")) else
+            message(paste0("Default source set to: ", rsource))
+            invisible()
+        },        
+        
+        add = function(obj, name, description, tags, src=NULL, force_replace=F)
+        {
+            if(missing(obj) | missing(name) | missing(description) | missing(tags))
+                stop("You must provide all of: obj, name, description, tags.")
+            
             notexist <- checkName(name)
             if(!notexist & !force_replace)
                 {                    
@@ -375,6 +404,17 @@ open.repo <- function(root="~/.R_repo")
             fname <- fdata[["path"]]
             fsize <- fdata[["size"]]
 
+            if(!is.null(src))
+                {
+                    assign("rsource", src, thisEnv)
+                    message(paste0("Default source set to: ", rsource))
+                }
+
+            if(is.null(rsource))
+                storedfrom <- getwd() else
+            storedfrom <- rsource
+
+
             repoE <- list(name = name,
                           description = description,
                           tags = tags,
@@ -384,7 +424,7 @@ open.repo <- function(root="~/.R_repo")
                           dump = fname,
                           size = fsize,
                           checksum = md5sum(path.expand(fname)),
-                          storedfrom = getwd())
+                          source = storedfrom)
 
             entr <- get("entries", thisEnv)           
             entr[[length(entries)+1]] <- repoE
