@@ -7,11 +7,38 @@ library(tools) # md5sum
 #' @return An object of class Repo.
 #' @examples
 #' repo <- open.repo()
-open.repo <- function(root="~/.R_repo")
+repo_open <- function(root="~/.R_repo")
 {
-    REPOFNAME <- "R_repo.RDS"
-    rsource <- NULL
+    getEntry <- function(name)
+        {            
+            e <- get("findEntryIndex",thisEnv)(name)
+            if(is.null(e))
+                return(invisible(NULL))
+            
+            return(entries[[e]])
+        }
 
+    runWithTags <- function(f, tags, ...)
+        {
+            e <- findEntries(tags)
+            if(length(e)<1)
+                stop("Tags do not match any entry.")
+            entr <- get("entries",thisEnv)
+            names <- sapply(entr[e], get, x="name")
+            message(paste0("Matched entries: ",
+                           paste(names, collapse=", ")))
+                n <- readline("Type \"yes!\" to confirm: ")
+                if(n == "yes!") {
+                    for(i in 1:length(e))
+                        get("this", thisEnv)[[f]](name=names[[i]], ...)
+                    return(invisible())
+                } else
+                    {
+                        message("Nothing done.")
+                        return(invisible())
+                    }
+        }            
+    
     hmnRead <- function(bytes)
         {
             values <- c(
@@ -122,31 +149,6 @@ open.repo <- function(root="~/.R_repo")
             return(which(w))
         }
     
-    thisEnv <- environment()
-    assign("defTags", NULL)
-    assign("entries", NULL, thisEnv)      
-
-    repofile <- file.path(root, REPOFNAME)
-    assign("repofile", repofile, thisEnv)
-    
-    if(file.exists(repofile))
-        {
-            message(paste0("Found repo index in \"",
-                           repofile, "\"."))
-            assign("entries", readRDS(repofile), thisEnv)
-        }
-
-    if(!file.exists(root))
-        {
-            message(paste0(
-                "Repo root (\"", get("root",thisEnv), "\") does not exist. Create it?"))
-            n <- readline("Type \"yes\" to proceed: ")
-            if(tolower(n) == "yes") {
-                dir.create(root)
-                message("New repo created.")
-            } else message("Nothing done.")
-        }
-
     compressPath <- function(path)
         {
             hp <- path.expand("~")
@@ -169,10 +171,35 @@ open.repo <- function(root="~/.R_repo")
             
         }
 
+    REPOFNAME <- "R_repo.RDS"
+    rsource <- NULL
+    thisEnv <- environment()
+    assign("defTags", NULL)
+    assign("entries", NULL, thisEnv)      
+    repofile <- file.path(root, REPOFNAME)
+    assign("repofile", repofile, thisEnv)
+    
+    if(file.exists(repofile))
+        {
+            message(paste0("Found repo index in \"",
+                           repofile, "\"."))
+            assign("entries", readRDS(repofile), thisEnv)
+        }
+
+    if(!file.exists(root))
+        {
+            message(paste0(
+                "Repo root (\"", get("root",thisEnv), "\") does not exist. Create it?"))
+            n <- readline("Type \"yes\" to proceed: ")
+            if(tolower(n) == "yes") {
+                dir.create(root)
+                message("New repo created.")
+            } else message("Nothing done.")
+        }
+
+
     me <- list(
 
-        thisEnv = thisEnv,
-        
         check = function()
         {
             entr <- entries
@@ -198,11 +225,11 @@ open.repo <- function(root="~/.R_repo")
         tags = function()
         {            
             entr <- entries
-            tagsets <- unique(unlist(lapply(entr, get, x="tags")))
-            message(paste(tagsets, collapse=", "))
+            tagset <- unique(unlist(lapply(entr, get, x="tags")))
+            return(tagset)
         },
 
-        list = function(tags=NULL)
+        print = function(tags=NULL)
         {
             entr <- entries
             if(length(entr)<1)
@@ -252,51 +279,22 @@ open.repo <- function(root="~/.R_repo")
 
         },
 
-        export = function(names, where=".", tags=NULL)
+        export = function(name, where=".", tags=NULL)
         {
             if(!xor(missing(name),missing(tags)))
                 stop("You must specify eiterh names or tags.")
 
             if(!is.null(tags)){
-                e <- findEntries(tags)
-                if(length(e)<1)
-                    stop("Tags do not match any entry.")
-                entr <- get("entries",thisEnv)
-                names <- sapply(entr[e], get, x="name")
-                message(paste0("Exporting items: ",
-                               paste(names, collapse=", ")))
-                n <- readline("Type \"yes!\" to confirm: ")
-                if(n == "yes!") {
-                    get("this", thisEnv)$export(names)
-                    return(invisible())
-                } else
-                    {
-                        message("Nothing done.")
-                        return(invisible())
-                    }
+                runWithTags("export", tags, where)
+            } else {
+                ipath = do.call(file.path, buildpath(name))
+                file.copy(ipath, file.path(where, paste0(name, ".RDS")))
             }
-
-            ipath = do.call(file.path, buildpath(name))
-            file.copy(ipath, file.path(where, name))
         },
         
         unlock = function()
         {
             get("unlockIndex", thisEnv)()
-        },
-
-        setDefaultTags = function(tags)
-        {
-            return(assign("defTags",tags,thisEnv))
-        },
-
-        getEntry = function(name)
-        {            
-            e <- get("findEntryIndex",thisEnv)(name)
-            if(is.null(e))
-                return(invisible(NULL))
-
-            return(entries[[e]])
         },
 
         rm = function(name = NULL, tags = NULL)        
@@ -305,80 +303,34 @@ open.repo <- function(root="~/.R_repo")
                 stop("You must specify eiterh a name or tags.")
 
             if(!is.null(tags)){
-                e <- findEntries(tags)
-                if(length(e)<1)
-                    stop("Tags do not match any entry.")
-                entr <- get("entries",thisEnv)
-                names <- sapply(entr[e], get, x="name")
-                message(paste0("Removing items: ",
-                               paste(names, collapse=", ")))
-                n <- readline("Type \"yes!\" to confirm: ")
-                if(n == "yes!") {
-                    for(i in 1:length(e))
-                        get("this", thisEnv)$rm(names[[i]])
-                    return(invisible())
-                } else
-                    {
-                        message("Nothing done.")
-                        return(invisible())
-                    }
-            }
+                dotags <- runWithTags("rm", tags)
+            } else {            
+                e <- get("findEntryIndex",thisEnv)(name)
+                if(is.null(e))
+                    return(invisible(NULL))
             
-            e <- get("findEntryIndex",thisEnv)(name)
-            if(is.null(e))
-                return(invisible(NULL))
+                entr <- entries
+                assign("entries", entr[-e], thisEnv)
             
-            entr <- entries
-            assign("entries", entr[-e], thisEnv)
-            
-            ipath = do.call(file.path, buildpath(name))
-            file.remove(ipath)
+                ipath = do.call(file.path, buildpath(name))
+                file.remove(ipath)
 
-            get("storeIndex", thisEnv)()
+                get("storeIndex", thisEnv)()
+            }
         },
 
         load = function(name)
         {
-            entry <- get("this", thisEnv)[["getEntry"]](name)
+            entry <- getEntry(name)
             data <- readRDS(entry$dump) 
             
             return(data)
         },
-        
-        checkIntegrity = function()
-        {
-            entr <- get("entries", thisEnv)
-            for(i in 1:length(entr))
-                {
-                    message(paste0("Checking object ", entr[[i]]$name, "..."))
-                    invisible(get("load", thisEnv)(entr[[i]]$name))
-                }
-        },
-        
-        wipe = function()
-        {
-            message(paste0(
-                "WARNING: This will completely delete your repo root (\"", get("root",thisEnv), "\") !!!"))
-            n <- readline("Type \"Yes!\" to confirm: ")
-            if(tolower(n) == "yes!") {
-                unlink(root, recursive=T)
-                message("Repo root deleted.")
-            } else message("Nothing done.")
-        },
-
-        getEntries = function()
+                
+        entries = function()
         {
             return(get("entries",thisEnv))
         },
-
-        setDefaultSource = function(src)
-        {
-            assign("rsource", src, thisEnv)
-            if(is.null(src))
-                message(paste0("Default source cleared.")) else
-            message(paste0("Default source set to: ", rsource))
-            invisible()
-        },        
         
         add = function(obj, name, description, tags, src=NULL, force_replace=F)
         {
@@ -426,36 +378,21 @@ open.repo <- function(root="~/.R_repo")
             assign("entries", entr, thisEnv)
             get("storeIndex", thisEnv)()
         },
-        ## Define the accessors for the data fields.
 
-        ## getEnv = function()
-        ## {
-        ##     return(get("thisEnv",thisEnv))
-        ## },
-
-        getRoot = function()
+        root = function()
         {
             return(get("root",thisEnv))
         }
 
-        ## setRoot = function(value)
-        ## {
-        ##     return(assign("root",value,thisEnv))
-        ## }
         )
-
-    ## Define the value of the list within the current environment.
-    assign('this',me,envir=thisEnv)
-
-    ## Set the name for the class
+    
+    assign('this', me, envir=thisEnv)
     class(me) <- append(class(me),"repo")
 
     if(!file.exists(repofile)) ## is this check needed?
         {
-            ## message(paste0("Repo index doesn't exist, creating \"", root, "\"."))
             saveRDS(get("entries", thisEnv), repofile)
         }
-
     
     return(me)
 }
@@ -463,7 +400,7 @@ open.repo <- function(root="~/.R_repo")
 #' Show a summary of the repository contents.
 #' 
 #' @return Used for side effects.
-print.repo <- function(repo, tags=NULL) repo$list(tags)
+print.repo <- function(repo, tags=NULL) repo$print(tags)
 
 #' Add an R object to the repository.
 #' 
@@ -476,7 +413,7 @@ print.repo <- function(repo, tags=NULL) repo$list(tags)
 #' repo <- open.repo()
 #' add.obj(repo, cars, "cars", "R cars dataset")
 #' identical(repo$load("cars"), cars)
-add.obj <- function(repo, obj, id, description) repo$add(repo, id, description)
+repo_add <- function(repo, obj, id, description, src, tags) repo$add(obj, id, description, src, tags)
 
 #' Open an existing repository or create a new one.
 #' 
@@ -486,7 +423,7 @@ add.obj <- function(repo, obj, id, description) repo$add(repo, id, description)
 #' repo <- open.repo()
 #' add.obj(repo, cars, "cars", "R cars dataset")
 #' identical(repo$load("cars"), cars)
-load.obj <- function(repo, id) repo$load(name)
+repo_load <- function(repo, id) repo$load(id)
 
 #' Open an existing repository or create a new one.
 #' 
@@ -497,12 +434,12 @@ load.obj <- function(repo, id) repo$load(name)
 #' print(repo)
 #' repo$rm("cars")
 #' print(repo)
-rm.obj <- function(repo, name) repo$rm(name)
+repo_rm <- function(repo, id) repo$rm(id)
 
 
 createTestRepo <- function()
     {
-        repo <- open.repo()
+        repo <- open.repo("testrepo")
         repo$add(1:10, "item1", "item 1 description", c("tag1", "tag2"))
         repo$add(1:100, "item2", "item 2 description", c("tag2", "tag3"))
         repo$add(matrix(runif(100*100), 100, 100), "item3", "item 3 description", c("tag1", "tag2", "tag3"))
