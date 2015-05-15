@@ -1,3 +1,25 @@
+
+# TODOs:
+# [ ] Attachments
+#     [ ] Attach files
+#     [ ] Attach to resource
+#     [ ] Manage attachments in print
+#     [ ] Manage export attachments
+#     [ ] Open attachments
+# [ ] Text resource:
+#     [ ] Append
+#     [ ] Source
+#     [ ] Export
+#     [ ] Import
+# [ ] Multiple repos
+#     [ ] Manage concurrency (read index everytime before writing)
+#     [ ] Copy to other repo
+# [ ] Manage special flags ("cache")
+# [X] Set entry details
+# [ ] Show entry details
+# [ ] Adjust print: remove from, compute col widths
+
+
 library(digest) # digest
 library(tools) # md5sum
 
@@ -171,10 +193,9 @@ repo_open <- function(root="~/.R_repo")
             
         }
 
+    root <- normalizePath(root)
     REPOFNAME <- "R_repo.RDS"
-    rsource <- NULL
     thisEnv <- environment()
-    assign("defTags", NULL)
     assign("entries", NULL, thisEnv)      
     repofile <- file.path(root, REPOFNAME)
     assign("repofile", repofile, thisEnv)
@@ -300,7 +321,7 @@ repo_open <- function(root="~/.R_repo")
         rm = function(name = NULL, tags = NULL)        
         {
             if(!xor(missing(name),missing(tags)))
-                stop("You must specify eiterh a name or tags.")
+                stop("You must specify either a name or a set of tags.")
 
             if(!is.null(tags)){
                 dotags <- runWithTags("rm", tags)
@@ -308,13 +329,10 @@ repo_open <- function(root="~/.R_repo")
                 e <- get("findEntryIndex",thisEnv)(name)
                 if(is.null(e))
                     return(invisible(NULL))
-            
-                entr <- entries
-                assign("entries", entr[-e], thisEnv)
-            
-                ipath = do.call(file.path, buildpath(name))
-                file.remove(ipath)
 
+                file.remove(entries[[e]]$dump)
+                assign("entries", entries[-e], thisEnv)
+            
                 get("storeIndex", thisEnv)()
             }
         },
@@ -330,6 +348,45 @@ repo_open <- function(root="~/.R_repo")
         entries = function()
         {
             return(get("entries",thisEnv))
+        },
+
+        set = function(name, obj=NULL, newname=NULL, description=NULL, tags=NULL, src=NULL)
+        {
+            if(missing(name) | (missing(newname) & missing(obj) &
+                                missing(description) & missing(tags) & missing(src)))
+                stop("You must provide name and one of: obj, description, tags, src.")
+            if(checkName(name))
+                stop("Identifier not found.")
+
+            w <- findEntryIndex(name)
+            entr <- entries[[w]]
+
+            entr$timestamp <- Sys.time()
+            if(!is.null(newname))
+                entr$name <- newname
+            if(!is.null(description))
+                entr$description <- description
+            if(!is.null(tags))
+                entr$tags <- tags
+            if(!is.null(src))
+                entr$src <- newname
+
+            if(!is.null(obj)) {
+                if(!is.null(dim(obj)))
+                    dims <- dim(obj) else dims <- length(obj)
+                
+                if(!is.null(newname))
+                    file.remove(entr$dump)
+                
+                fdata <- get("storeData", thisEnv)(entr$name, obj)
+                entr$class <- class(obj)
+                entr$dump <- fdata[["path"]]
+                entr$size <- fdata[["size"]]
+                entr$checksum <- md5sum(path.expand(fdata[["path"]]))
+                entr$dims <- dims
+            }
+            entries[[w]] <- entr
+            assign("entries", entries, thisEnv)
         },
         
         add = function(obj, name, description, tags, src=NULL, force_replace=F)
@@ -350,7 +407,6 @@ repo_open <- function(root="~/.R_repo")
             if(!is.null(dim(obj)))
                 dims <- dim(obj) else
             dims <- length(obj)
-            flags <- c(get("defTags", thisEnv), tags, class(obj))
 
             fdata <- get("storeData", thisEnv)(name, obj)
             fname <- fdata[["path"]]
@@ -437,9 +493,10 @@ repo_load <- function(repo, id) repo$load(id)
 repo_rm <- function(repo, id) repo$rm(id)
 
 
-createTestRepo <- function()
+repo_test <- function(where = "./repotest")
     {
-        repo <- open.repo("testrepo")
+        f <- file.path(where)
+        repo <- repo_open(f)
         repo$add(1:10, "item1", "item 1 description", c("tag1", "tag2"))
         repo$add(1:100, "item2", "item 2 description", c("tag2", "tag3"))
         repo$add(matrix(runif(100*100), 100, 100), "item3", "item 3 description", c("tag1", "tag2", "tag3"))
