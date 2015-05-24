@@ -6,19 +6,33 @@
 #     [ ] Manage attachments in print
 #     [ ] Manage export attachments
 #     [ ] Open attachments
+#     [ ] Export
+#     [ ] Import
 # [ ] Text resource:
 #     [ ] Append
 #     [ ] Source
-#     [ ] Export
-#     [ ] Import
 # [ ] Multiple repos
 #     [ ] Manage concurrency (read index everytime before writing)
 #     [ ] Copy to other repo
 # [ ] Manage special flags ("cache")
 # [X] Set entry details
-# [ ] Show entry details
-# [ ] Adjust print: remove from, compute col widths
-
+# [X] Show entry details
+# [ ] Adjust print: convert to data frame
+# [X] Refactor: call "load" "get" and "add" "put"
+# [ ] S3-style methods and documentation
+#     [ ] repo_open
+#     [ ] check
+#     [ ] tags
+#     [ ] print
+#     [ ] export
+#     [ ] unlock
+#     [ ] rm
+#     [ ] get
+#     [ ] entries
+#     [ ] set
+#     [ ] put
+#     [ ] root
+# [ ] Replace "message" with "cat"
 
 library(digest) # digest
 library(tools) # md5sum
@@ -286,9 +300,6 @@ repo_open <- function(root="~/.R_repo")
                     message(
                         paste(
                             cutString(entri$name, widths[1]),
-                            ## cutString(paste(
-                            ##     gsub(" ", "", gsub("B", "", humanReadable(entri$dims, standard="SI", sep="",digits=0))),
-                            ##     collapse=" x "), widths[2]),
                             cutString(paste(entri$dims, collapse="x"), widths[2]),
                             cutString(paste(entri$tags, collapse=", "), widths[3]),
                             cutString(compressPath(entri$source), widths[4], F),
@@ -318,6 +329,34 @@ repo_open <- function(root="~/.R_repo")
             get("unlockIndex", thisEnv)()
         },
 
+        info = function(name = NULL, tags = NULL)
+        {
+            if(!xor(missing(name),missing(tags)))
+                stop("You must specify either a name or a set of tags.")
+
+            if(!is.null(tags)){
+                runWithTags("info", tags)
+            } else {            
+                #e <- get("findEntryIndex",thisEnv)(name)
+                e <- findEntryIndex(name)
+                if(is.null(e))
+                    stop("Identifier not found.")
+
+                labels <- c("ID:", "Description:", "Tags:",
+                            "Dimensions:", "Timestamp:", "Size on disk:",
+                            "Provenance:", "Stored in:", "MD5 checksum:")
+                maxlen <- max(sapply(labels, nchar))
+
+                vals <- c(entries[[e]]$name, entries[[e]]$description,
+                          paste0(entries[[e]]$tags, collapse=", "),
+                          paste(entries[[e]]$dims, collapse="x"),
+                          as.character(entries[[e]]$timestamp), hmnRead(entries[[e]]$size),
+                          entries[[e]]$source, entries[[e]]$dump,
+                          entries[[e]]$checksum)
+                cat(paste0(format(labels, width=maxlen+1), vals, "\n"), sep="")
+            }
+        },
+
         rm = function(name = NULL, tags = NULL)        
         {
             if(!xor(missing(name),missing(tags)))
@@ -337,12 +376,18 @@ repo_open <- function(root="~/.R_repo")
             }
         },
 
-        load = function(name)
+        get = function(name)
         {
             entry <- getEntry(name)
             data <- readRDS(entry$dump) 
             
             return(data)
+        },
+        
+        load = function(name)
+        {
+            warning("load is deprecated, use get.")
+            return(get("this", thisEnv)$get(name))
         },
                 
         entries = function()
@@ -388,8 +433,14 @@ repo_open <- function(root="~/.R_repo")
             entries[[w]] <- entr
             assign("entries", entries, thisEnv)
         },
-        
+
         add = function(obj, name, description, tags, src=NULL, force_replace=F)
+        {
+            warning("add is deprecated, use put.")
+            return(get("this", thisEnv)$put(obj, name, description, tags, src, force_replace))
+        },
+        
+        put = function(obj, name, description, tags, src=NULL, force_replace=F)
         {
             if(missing(obj) | missing(name) | missing(description) | missing(tags))
                 stop("You must provide all of: obj, name, description, tags.")
@@ -413,9 +464,7 @@ repo_open <- function(root="~/.R_repo")
             fsize <- fdata[["size"]]
 
             if(is.null(src)) {
-                if(is.null(rsource))
-                    storedfrom <- getwd() else
-                storedfrom <- rsource
+              storedfrom <- getwd()
             } else storedfrom <- src
 
             repoE <- list(name = name,
@@ -497,10 +546,10 @@ repo_test <- function(where = "./repotest")
     {
         f <- file.path(where)
         repo <- repo_open(f)
-        repo$add(1:10, "item1", "item 1 description", c("tag1", "tag2"))
-        repo$add(1:100, "item2", "item 2 description", c("tag2", "tag3"))
-        repo$add(matrix(runif(100*100), 100, 100), "item3", "item 3 description", c("tag1", "tag2", "tag3"))
-        repo$add(list(1,2,3,4,5), "item4", "item 4 description", c("tag1"))
-        repo$add("string", "item5", "item 5 description", c("tag2"))
+        repo$put(1:10, "item1", "item 1 description", c("tag1", "tag2"))
+        repo$put(1:100, "item2", "item 2 description", c("tag2", "tag3"))
+        repo$put(matrix(runif(100*100), 100, 100), "item3", "item 3 description", c("tag1", "tag2", "tag3"))
+        repo$put(list(1,2,3,4,5), "item4", "item 4 description", c("tag1"))
+        repo$put("string", "item5", "item 5 description", c("tag2"))
         return(repo)
     }
