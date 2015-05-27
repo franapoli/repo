@@ -1,41 +1,52 @@
 
-# TODOs:
-# [ ] Attachments
-#     [ ] Attach files
-#     [ ] Attach to resource
-#     [ ] Manage attachments in print
-#     [ ] Manage export attachments
-#     [ ] Open attachments
-#     [ ] Export
-#     [ ] Import
-# [ ] Text resource:
-#     [ ] Append
-#     [ ] Source
-# [ ] Multiple repos
-#     [ ] Manage concurrency (read index everytime before writing)
-#     [ ] Copy to other repo
-# [ ] Manage special flags ("cache")
-# [X] Set entry details
-# [X] Show entry details
-# [ ] Adjust print: convert to data frame
-# [X] Refactor: call "load" "get" and "add" "put"
-# [ ] S3-style methods and documentation
-#     [ ] repo_open
-#     [ ] check
-#     [ ] tags
-#     [ ] print
-#     [ ] export
-#     [ ] unlock
-#     [ ] rm
-#     [ ] get
-#     [ ] entries
-#     [ ] set
-#     [ ] put
-#     [ ] root
-# [ ] Replace "message" with "cat"
+## TODOs:
+## [ ] Add general repo info at "info" without arguments
+## [X] Add optional confirmation to runwithtags
+##     [X] Disable confirmation in print
+## [ ] Add a function for each object (loads as default)
+##     id <- "item1"; assign(id, function(f="get") a[[f]](name=id))
+## [ ] Attachments
+##     [ ] Attach files
+##     [ ] Attach to resource
+##     [ ] Manage attachments in print
+##     [ ] Manage export attachments
+##     [ ] Open attachments
+##     [ ] Export
+##     [ ] Import
+## [ ] Text resource:
+##     [ ] Append
+##     [ ] Source
+## [+] Multiple repos
+##     [+] Manage concurrency
+##         [X] Make repo_close()
+##         [ ] Use MD5
+##     [ ] Copy to other repo
+## [X] Manage special flags ("hide")
+## [ ] Check environments (are the "get"-s and "assign"-s necessary?)
+## [X] Set entry details
+## [X] Show entry details
+## [X] Adjust print: convert to data frame
+## [X] Refactor: call "load" "get" and "add" "put"
+## [ ] Externalize methods ("me" list)
+## [ ] Check the use of "message" (maybe replace with "cat")
+## [ ] S3-style methods and documentation
+##     [ ] repo_open
+##     [ ] check
+##     [ ] tags
+##     [ ] print
+##     [ ] export
+##     [ ] unlock
+##     [ ] rm
+##     [ ] get
+##     [ ] entries
+##     [ ] set
+##     [ ] put
+##     [ ] root
+
 
 library(digest) # digest
 library(tools) # md5sum
+source("~/git/bbuck/repo/repoS3.R")
 
 #' Open an existing repository or create a new one.
 #' 
@@ -45,86 +56,96 @@ library(tools) # md5sum
 #' repo <- open.repo()
 repo_open <- function(root="~/.R_repo")
 {
-    getEntry <- function(name)
-        {            
-            e <- get("findEntryIndex",thisEnv)(name)
+    instID <- format(as.numeric(Sys.time()), digits=20)
+
+    "+" = function(x,y) {
+        if(is.character(x) | is.character(y)) {
+            return(paste(x , y, sep=""))
+        } else {
+            .Primitive("+")(x,y)
+        }
+    }
+
+    getEntry <- function(name) {
+            e <- findEntryIndex(name)
             if(is.null(e))
                 return(invisible(NULL))
             
             return(entries[[e]])
         }
 
-    runWithTags <- function(f, tags, ...)
-        {
+    runWithTags <- function(f, tags, askconfirm=T, ...) {
             e <- findEntries(tags)
             if(length(e)<1)
                 stop("Tags do not match any entry.")
-            entr <- get("entries",thisEnv)
+            entr <- entries
             names <- sapply(entr[e], get, x="name")
-            message(paste0("Matched entries: ",
-                           paste(names, collapse=", ")))
+            if(askconfirm) {
+                message(paste0("Matched entries: ",
+                               paste(names, collapse=", ")))
                 n <- readline("Type \"yes!\" to confirm: ")
-                if(n == "yes!") {
-                    for(i in 1:length(e))
-                        get("this", thisEnv)[[f]](name=names[[i]], ...)
+            } else n <- "yes!"
+            if(n == "yes!") {
+                for(i in 1:length(e))
+                    get("this", thisEnv)[[f]](name=names[[i]], ...)
+                return(invisible())
+            } else
+                {
+                    message("Nothing done.")
                     return(invisible())
-                } else
-                    {
-                        message("Nothing done.")
-                        return(invisible())
-                    }
-        }            
-    
-    hmnRead <- function(bytes)
-        {
-            values <- c(
-                bytes,
-                bytes/2^10,
-                bytes/2^20,
-                bytes/2^30,
-                bytes/2^40,
-                bytes/2^50
-                )
-            names(values) <- c("B","KB", "MB", "GB", "TB", "PB")
-            okvals <- values[values>1]
-            m <- okvals[which.min(okvals)] ## preserves name
-            final <- format(round(m,2), scientific=F)
-            return(paste0(final,names(m)))
-        }
-    
-    lockIndex <- function()
-        {
-            if(!isIndexLocked())
-                {
-                    lockfile <- file.path(root, paste0(REPOFNAME, ".lock"))
-                    file.create(lockfile)
                 }
         }
 
-    unlockIndex <- function()
-        {
-            if(isIndexLocked())
-                {
-                    lockfile <- file.path(root, paste0(REPOFNAME, ".lock"))
-                    invisible(file.remove(lockfile))
-                }
+    
+    hmnRead <- function(bytes) {
+        values <- c(
+            bytes,
+            bytes/2^10,
+            bytes/2^20,
+            bytes/2^30,
+            bytes/2^40,
+            bytes/2^50
+            )
+        names(values) <- c("B","KB", "MB", "GB", "TB", "PB")
+        okvals <- values[values>1]
+        m <- okvals[which.min(okvals)] ## preserves name
+        final <- format(round(m,2), scientific=F)
+        return(paste0(final,names(m)))
+        }
+    
+    lockIndex <- function() {
+            lockfile <- file(file.path(root, paste0(REPOFNAME, ".lock")))
+            writeLines(lockfile, text=instID)
+            close(lockfile)
         }
 
-    isIndexLocked <- function()
-    {
-        lockfile <- file.path(root, paste0(REPOFNAME, ".lock"))
-        return(file.exists(lockfile))
+    unlockIndex <- function() {
+            unlink(lockFile())
+        }
+
+    isIndexLockedByOthers <- function() {
+        lfilepath <- lockFile()
+        if(!file.exists(lfilepath))
+            return(F)
+        lockfile <- file(lfilepath)
+        return(readLines(lockfile) != instID)
+    }
+
+    lockFile <- function()
+        { return(file.path(root, paste0(REPOFNAME, ".lock"))) }
+
+    checkSafeAction <- function() {
+        if(isIndexLockedByOthers())
+            stop("Repo is locked. Please close other instances of this Repo." +
+                 "If you know that there are no other instances currently open, " +
+                 " You can manually remove the lock in " + lockFile() + ".")
+        lockIndex()
     }
     
-    storeIndex <- function()
-        {
-            if(isIndexLocked())
-                stop("Repo index is locked")
-
-            fname <- get("repofile", thisEnv)
-            lockIndex()
-            saveRDS(get("entries", thisEnv), fname)
-            unlockIndex()
+    storeIndex <- function() {
+        if(is.null(repofile))
+            stop("Repo is closed.")
+        saveRDS(entries, repofile)
         }
 
     buildpath <- function(resname)
@@ -139,10 +160,9 @@ repo_open <- function(root="~/.R_repo")
 
     checkName <- function(name)
         {
-            entr <- get("entries", thisEnv)
-            if(length(entr)<1)
+            if(length(entries)<1)
                 return(T)
-            names <- sapply(entr, get, x="name")
+            names <- sapply(entries, get, x="name")
             return(!(name %in% names))
         }
 
@@ -163,12 +183,11 @@ repo_open <- function(root="~/.R_repo")
 
     findEntryIndex <- function(name)
         {
-            entr <- get("entries", thisEnv)
-            if(is.null(entr) | length(entr)<1) {
+            if(is.null(entries) | length(entries)<1) {
                 message("Repo is empty.")
                 return(NULL)
             }
-            names <- sapply(entr, get, x="name")
+            names <- sapply(entries, get, x="name")
             w <- match(name, names)
             if(length(w)<1){
                 message("Entry not found.")
@@ -179,8 +198,7 @@ repo_open <- function(root="~/.R_repo")
 
     findEntries <- function(tags)
         {
-            entr <- get("entries", thisEnv)
-            tagsets <- lapply(entr, get, x="tags")
+            tagsets <- lapply(entries, get, x="tags")
             w <- sapply(tagsets, function(x)all(tags %in% x))
             return(which(w))
         }
@@ -206,13 +224,11 @@ repo_open <- function(root="~/.R_repo")
             }
             
         }
-
+    
     root <- normalizePath(root)
     REPOFNAME <- "R_repo.RDS"
-    thisEnv <- environment()
-    assign("entries", NULL, thisEnv)      
     repofile <- file.path(root, REPOFNAME)
-    assign("repofile", repofile, thisEnv)
+    thisEnv <- environment()
     
     if(file.exists(repofile))
         {
@@ -232,18 +248,18 @@ repo_open <- function(root="~/.R_repo")
             } else message("Nothing done.")
         }
 
-
     me <- list(
-
         check = function()
         {
             entr <- entries
             for(i in 1:length(entr))
                 {
-                    cat(paste0("checking ", entr[[i]]$name, "..."))
+                    cat(paste0("Checking ", entr[[i]]$name, "..."))
                     md5s <- md5sum(path.expand(entr[[i]]$dump))
-                    if(md5s != entr[[i]]$checksum)
-                        warning("File has changed!") else cat(" ok!")
+                    if(md5s != entr[[i]]$checksum) {
+                        cat(" changed!")
+                        warning("File has changed!")
+                    } else cat(" ok.")
                     cat("\n")
                 }
             allfiles <- file.path(root, list.files(root, recursive=T))
@@ -256,6 +272,16 @@ repo_open <- function(root="~/.R_repo")
             cat("\n")
             invisible()
         },
+
+        allunga = function(env = parent.frame())
+        {
+            print(ls())
+            print(ls(envir=thisEnv))
+            me <- get("this", thisEnv)
+            me[[length(me)+1]] <- ls
+            print(names(me))
+            assign("this", me, envir=thisEnv)
+        },
         
         tags = function()
         {            
@@ -264,7 +290,15 @@ repo_open <- function(root="~/.R_repo")
             return(tagset)
         },
 
-        print = function(tags=NULL)
+        close = function()
+        {
+            assign("repofile", NULL, envir=thisEnv)
+            assign("entries", NULL, envir=thisEnv)
+            unlockIndex()
+            message("Repo closed, call open_repo again to reinitialize.")
+        },
+
+        print = function(tags=NULL, showhidden=F)
         {
             entr <- entries
             if(length(entr)<1)
@@ -284,31 +318,26 @@ repo_open <- function(root="~/.R_repo")
                     }
             }
 
-            widths <- c(14,14,19,19,10)
+            labels <- c("ID", "Dims", "Tags", "Size")
+            names <- sapply(entr, get, x="name")
 
-            message(paste(
-                cutString("Name", widths[1]),
-                cutString("Dims", widths[2]),
-                cutString("Tags", widths[3]),
-                cutString("From", widths[4]),
-                cutString("Size", widths[5]),
-                collapse=" "))
+            a <- matrix(NA, length(names), length(labels))
+            colnames(a) <- labels
+            rownames(a) <- 1:length(entr)
+
+            tagsets <- sapply(entr, get, x="tags")
             
-            for(i in 1:length(entr))
-                {
-                    entri <- entr[[i]]
-                    message(
-                        paste(
-                            cutString(entri$name, widths[1]),
-                            cutString(paste(entri$dims, collapse="x"), widths[2]),
-                            cutString(paste(entri$tags, collapse=", "), widths[3]),
-                            cutString(compressPath(entri$source), widths[4], F),
-                            cutString(hmnRead(entri$size) , widths[5]),
-                            collapse=" "
-                            )
-                        )
-                }
+            a[,"ID"] <- names
+            a[,"Dims"] <- sapply(sapply(entr, get, x="dims"), paste, collapse="x")
+            a[,"Tags"] <- sapply(tagsets, paste, collapse=", ")
+            a[,"Size"] <- sapply(sapply(entr, get, x="size"), hmnRead)
 
+            w <- sapply(tagsets, is.element, el="hide")
+            if(showhidden)
+                w[w] <- F
+            
+            print(a[!w,], quote=F)
+            
         },
 
         export = function(name, where=".", tags=NULL)
@@ -324,20 +353,15 @@ repo_open <- function(root="~/.R_repo")
             }
         },
         
-        unlock = function()
-        {
-            get("unlockIndex", thisEnv)()
-        },
-
         info = function(name = NULL, tags = NULL)
         {
             if(!xor(missing(name),missing(tags)))
                 stop("You must specify either a name or a set of tags.")
 
             if(!is.null(tags)){
-                runWithTags("info", tags)
+                runWithTags("info", tags, askconfirm=F)
             } else {            
-                #e <- get("findEntryIndex",thisEnv)(name)
+                                        #e <- get("findEntryIndex",thisEnv)(name)
                 e <- findEntryIndex(name)
                 if(is.null(e))
                     stop("Identifier not found.")
@@ -354,30 +378,34 @@ repo_open <- function(root="~/.R_repo")
                           entries[[e]]$source, entries[[e]]$dump,
                           entries[[e]]$checksum)
                 cat(paste0(format(labels, width=maxlen+1), vals, "\n"), sep="")
+                cat("\n")
             }
         },
 
         rm = function(name = NULL, tags = NULL)        
         {
+            checkSafeAction()
+            
             if(!xor(missing(name),missing(tags)))
                 stop("You must specify either a name or a set of tags.")
 
             if(!is.null(tags)){
-                dotags <- runWithTags("rm", tags)
+                runWithTags("rm", tags)
             } else {            
                 e <- get("findEntryIndex",thisEnv)(name)
                 if(is.null(e))
                     return(invisible(NULL))
 
                 file.remove(entries[[e]]$dump)
-                assign("entries", entries[-e], thisEnv)
-            
-                get("storeIndex", thisEnv)()
+                assign("entries", entries[-e], thisEnv)                
+                storeIndex()
             }
         },
 
         get = function(name)
         {
+            if(checkName(name))
+                stop("ID not found.")
             entry <- getEntry(name)
             data <- readRDS(entry$dump) 
             
@@ -389,7 +417,7 @@ repo_open <- function(root="~/.R_repo")
             warning("load is deprecated, use get.")
             return(get("this", thisEnv)$get(name))
         },
-                
+        
         entries = function()
         {
             return(get("entries",thisEnv))
@@ -397,6 +425,8 @@ repo_open <- function(root="~/.R_repo")
 
         set = function(name, obj=NULL, newname=NULL, description=NULL, tags=NULL, src=NULL)
         {
+            checkSafeAction()
+            
             if(missing(name) | (missing(newname) & missing(obj) &
                                 missing(description) & missing(tags) & missing(src)))
                 stop("You must provide name and one of: obj, description, tags, src.")
@@ -442,6 +472,8 @@ repo_open <- function(root="~/.R_repo")
         
         put = function(obj, name, description, tags, src=NULL, force_replace=F)
         {
+            checkSafeAction()
+            
             if(missing(obj) | missing(name) | missing(description) | missing(tags))
                 stop("You must provide all of: obj, name, description, tags.")
             
@@ -464,7 +496,7 @@ repo_open <- function(root="~/.R_repo")
             fsize <- fdata[["size"]]
 
             if(is.null(src)) {
-              storedfrom <- getwd()
+                storedfrom <- getwd()
             } else storedfrom <- src
 
             repoE <- list(name = name,
@@ -484,12 +516,31 @@ repo_open <- function(root="~/.R_repo")
             get("storeIndex", thisEnv)()
         },
 
+        test=function()
+        {
+            print(ls(envir=thisEnv))
+        },
+
+        append = function(id, text)
+        {
+            checkSafeAction()
+            
+            notexist <- checkName(name)
+            if(notexist)
+                stop("Identifier not found.")
+
+            e <- findEntryIndex(id)
+            ## need class
+        },        
+        
         root = function()
         {
             return(get("root",thisEnv))
         }
 
         )
+
+
     
     assign('this', me, envir=thisEnv)
     class(me) <- append(class(me),"repo")
@@ -502,44 +553,6 @@ repo_open <- function(root="~/.R_repo")
     return(me)
 }
 
-#' Show a summary of the repository contents.
-#' 
-#' @return Used for side effects.
-print.repo <- function(repo, tags=NULL) repo$print(tags)
-
-#' Add an R object to the repository.
-#' 
-#' @param repo An object of cazz Repo.
-#' @param obj The R object to store in the repository.
-#' @param id The name of the R object to store.
-#' @param description An extended description of the R object
-#' @return Used for side effects.
-#' @examples
-#' repo <- open.repo()
-#' add.obj(repo, cars, "cars", "R cars dataset")
-#' identical(repo$load("cars"), cars)
-repo_add <- function(repo, obj, id, description, src, tags) repo$add(obj, id, description, src, tags)
-
-#' Open an existing repository or create a new one.
-#' 
-#' @param repo An object of class Repo.
-#' @param id The identifier of the object to load.
-#' @examples
-#' repo <- open.repo()
-#' add.obj(repo, cars, "cars", "R cars dataset")
-#' identical(repo$load("cars"), cars)
-repo_load <- function(repo, id) repo$load(id)
-
-#' Open an existing repository or create a new one.
-#' 
-#' @param An object of class Repo.
-#' @examples
-#' repo <- open.repo()
-#' add.obj(repo, cars, "cars", "R cars dataset")
-#' print(repo)
-#' repo$rm("cars")
-#' print(repo)
-repo_rm <- function(repo, id) repo$rm(id)
 
 
 repo_test <- function(where = "./repotest")
