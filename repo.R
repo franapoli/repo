@@ -8,26 +8,36 @@
 ##     id <- "item1"; assign(id, function(f="get") a[[f]](name=id))
 ## [X] change replace with replace
 ## [X] Add tags
-## [ ] Manage internal and multiple provenance
-## [ ] Add has-attachment and internal-provenance flags @<>
-## [ ] Manage dependency tree
+## [X] Add names to all runwithtags (which now supports "runwithnames")
+## [X] Manage internal and multiple provenance
+## [ ] Add has-attachment and internal-provenance flags @ < >
+## [ ] Manage columns in print (hide tags by default)
+## [X] Manage dependency graph
+##     [X] Build dependency graph
+##     [X] Plot dependency graph
+## [X] Add depends field
+## [ ] Manage versions
+##     [ ] add version
+##     [ ] display last version, hide others
+##     [ ] group versions in display
 ## [+] Attachments
 ##     [X] Attach files
 ##     [X] attach shortcut
-##     [ ] Attach to resource
+##     [X] Attach to resource
+##     [ ] Copy attachment
 ##     [+] Manage attachments in print
 ##         [ ] Manage attached to
-##     [ ] Open attachments (look at openPDF)
+##     [X] Open attachments (look at openPDF)
 ##     [X] Export
-## [ ] Consider switching to readable file names (not really necessary and requires digest)
+## [ ] Consider switching to readable file names (not really necessary and require digest)
 ## [X] Text resource:
 ##     [X] Append
 ##     [X] Source [dropped]
-## [+] Multiple repos
+## [X] Multiple repos
 ##     [X] Manage concurrency
 ##         [X] Make repo_close()
 ##         [X] Use MD5
-##     [ ] Copy to other repo
+##     [X] Copy to other repo
 ## [X] Manage special flags ("hide")
 ## [ ] Check environments (are the "get"-s and "assign"-s necessary?)
 ##     check this line:  "## NOTE: do not indexMD5 <- md5sum(repofile)... doesn't work"
@@ -36,8 +46,11 @@
 ## [X] Adjust print: convert to data frame
 ## [X] Refactor: call "load" "get" and "add" "put"
 ## [ ] Externalize methods ("me" list)
-## [ ] Check the use of "message" (maybe replace with "cat")
+## [X] Check the use of "message" (maybe replace with "cat")
 ## [ ] S3-style methods and documentation
+##     [X] Document methods
+##     [ ] Make examples buildable
+## [X] Add notes field [rejected]
 
 DEBUG <- F
 
@@ -53,7 +66,7 @@ source("~/git/bbuck/repo/repoS3.R")
 #' repo <- open.repo()
 repo_open <- function(root="~/.R_repo")
 {
-    "+" = function(x,y) {
+    "+" <- function(x,y) {
         if(is.character(x) | is.character(y)) {
             return(paste(x , y, sep=""))
         } else {
@@ -61,6 +74,26 @@ repo_open <- function(root="~/.R_repo")
         }
     }
 
+    
+    
+    stopOnEmpty <- function() {
+        if(length(entries)<1) {
+            stop("Repository is empty.", call.=F)
+        }
+    }
+
+    stopOnNotFound <- function(names=NULL, tags=NULL)
+        {
+            stopOnEmpty()
+            allnames <- sapply(entries, get, x="name")
+            w <- match(names, allnames)
+            if(all(is.na(w))){
+                msg <- paste0("The following entries could not be matched: ",
+                              paste(names[is.na(w)], collapse=", "), ".")
+                stop(msg, call.=F)
+            }
+        }
+    
     getEntry <- function(name) {
             e <- findEntryIndex(name)
             if(is.null(e))
@@ -69,18 +102,28 @@ repo_open <- function(root="~/.R_repo")
             return(entries[[e]])
         }
 
-    runWithTags <- function(f, tags, askconfirm=T, ...) {
-            e <- findEntries(tags)
+    runWithTags <- function(f, tags, names, askconfirm, ...) {
+        if(!is.null(tags))
+            e <- findEntries(tags) else {
+                dbnames <- sapply(entries, get, x="name")
+                e <- match(names, dbnames)
+                if(any(is.na(e))) {
+                    errmsg <- paste0("The following names could not be found: ",
+                           paste(names[which(is.na(e))], collapse=", "))
+                    stop(errmsg)
+                }
+            }
+                            
             if(length(e)<1)
-                stop("Tags do not match any entry.")
+                stop("Tag or name list does not match any entry.")
             entr <- entries
             names <- sapply(entr[e], get, x="name")
             if(askconfirm) {
-                message(paste0("Matched entries: ",
-                               paste(names, collapse=", ")))
-                n <- readline("Type \"yes!\" to confirm: ")
-            } else n <- "yes!"
-            if(n == "yes!") {
+                cat(paste0("Matched entries: ",
+                               paste(names, collapse=", "), "\n"))
+                n <- readline("Type \"yes\" to confirm: ")
+            } else n <- "yes"
+            if(n == "yes") {
                 for(i in 1:length(e))
                     get("this", thisEnv)[[f]](name=names[[i]], ...)
                 return(invisible())
@@ -168,16 +211,54 @@ repo_open <- function(root="~/.R_repo")
             return(list(path=fpath, size=file.info(fpath)$size))
         }
 
+    depgraph <- function(depends=T, attached=T, generated=T)
+        {
+            stopOnEmpty()
+            if(!any(c(depends, attached, generated)))
+              stop("One of depends, attached and generated must be true.")
+            
+            nodes <- unique(unlist(sapply(entries, get, x="name")))
+            if(generated) {
+              srcs <- unique(unlist(sapply(entries, get, x="source")))
+              nodes <- c(nodes, srcs)
+            }
+            n <- length(nodes)
+            depgraph <- matrix(0,n,n)
+            for(i in 1:length(entries))
+                {
+                  e <- entries[[i]]
+                  if(depends) {
+                    w <- match(e$depends, nodes)
+                    depgraph[i, w] <- 1
+                  }
+                  if(attached) {
+                    w <- match(e$attachedto, nodes)
+                    depgraph[i, w] <- 2
+                  }
+                  if(generated) {
+                      w <- match(e$source, nodes)
+                      depgraph[i, w] <- 3
+                    }
+                }
+            rownames(depgraph) <- colnames(depgraph) <- nodes
+            return(depgraph)
+        }
+
+    checkFoundEntry <- function(e)
+        {
+            if(is.null(e))
+                cat("Entry not found.\n")
+            if(e==-1)
+                cat("Repo is empty.\n")
+        }
     findEntryIndex <- function(name)
         {
             if(is.null(entries) | length(entries)<1) {
-                message("Repo is empty.")
-                return(NULL)
+                return(-1)
             }
             names <- sapply(entries, get, x="name")
             w <- match(name, names)
             if(length(w)<1){
-                message("Entry not found.")
                 return(NULL)
             }
             return(w)
@@ -220,6 +301,19 @@ repo_open <- function(root="~/.R_repo")
 
     
     me <- list(
+        dependencies = function(depends=T, attached=T, generated=T, plot=T)
+        {
+          library(igraph)
+          deps <- depgraph(depends, attached, generated)
+          if(plot) {
+            deps2 <- deps
+            rownames(deps2) <- colnames(deps2) <- basename(rownames(deps))
+            g <- graph.adjacency(deps2, weighted=c("type"))
+            plot(g, edge.label=c("depends", "attached", "generated")[get.edge.attribute(g,"type")])
+          }
+          invisible(depgraph())
+        },
+        
         check = function()
         {
             entr <- entries
@@ -244,6 +338,23 @@ repo_open <- function(root="~/.R_repo")
             invisible()
         },
 
+        copy = function(destrepo, name, tags=NULL)
+        {            
+            if(!("repo" %in% class(destrepo)))
+                stop("destrepo must be an object of class repo.")
+            if(!xor(missing(name), is.null(tags)))
+                stop("You must specify either names or tags.")
+
+            if(length(name) > 1 | !is.null(tags))
+                runWithTags("copy", tags, name, T, destrepo) else {
+                    e <- findEntryIndex(name)
+                    checkFoundEntry(e)
+                    entr <- entries[[e]]
+                    obj <- get("this", thisEnv)$get(name)
+                    destrepo$put(obj, name, entr$description, entr$tags, entr$source, entr$depends)
+                }
+        },
+
         handlers = function()
         {
             h <- list()
@@ -253,7 +364,8 @@ repo_open <- function(root="~/.R_repo")
                                     'get("this", thisEnv)[[f]](name ="', entries[[i]]$name, '",...)')
                     h[[i]] <- eval(parse(text=fbody))
                 }
-            names(h) <- sapply(entries, get, x="name")
+            h[[length(h)+1]] <- get("this", thisEnv)
+            names(h) <- c(sapply(entries, get, x="name"), "repo")
             return(h)
         },
                 
@@ -264,15 +376,20 @@ repo_open <- function(root="~/.R_repo")
             return(tagset)
         },
 
-        print = function(tags=NULL, showall=F)
+        sys = function(name, command)
         {
-            entr <- entries
-            if(length(entr)<1)
-                {
-                    message("Repository is empty.")
-                    return()
-                }
+            stopOnNotFound(name)
+            e <- getEntry(name)
+            syscomm <- paste0(command, " ", e[["dump"]])
+            message(paste("Running system command:", syscomm))
+            system(syscomm)
+        },
 
+        print = function(tags=NULL, all=F)
+        {
+            stopOnEmpty()
+            
+            entr <- entries
             if(!is.null(tags)) {
                 w <- findEntries(tags)
                 if(length(w)<1)
@@ -306,7 +423,7 @@ repo_open <- function(root="~/.R_repo")
 
             w <- sapply(tagsets, is.element, el="hide")
             w <- w | !(sapply(lapply(entr, get, x="attachedto"), is.null))
-            if(showall)
+            if(all)
                 w[w] <- F
             
             
@@ -319,8 +436,8 @@ repo_open <- function(root="~/.R_repo")
             if(!xor(missing(name), is.null(tags)))
                 stop("You must specify either names or tags.")
 
-            if(!is.null(tags)){
-                runWithTags("export", tags, where)
+            if(!is.null(tags) | length(name)>1){
+                runWithTags("export", tags, name, T, where)
             } else {
                 ipath = do.call(file.path, buildpath(name))
                 if(isAttachment(name))
@@ -331,6 +448,8 @@ repo_open <- function(root="~/.R_repo")
         
         info = function(name = NULL, tags = NULL)
         {
+            stopOnEmpty()
+            
             if(!xor(is.null(name), is.null(tags))) {
                 labels <- c("Root:", "Number of items:", "Total size:")
                 maxw <- max(sapply(labels, nchar))
@@ -343,8 +462,8 @@ repo_open <- function(root="~/.R_repo")
             }            
 
             
-            if(!is.null(tags)){
-                runWithTags("info", tags, askconfirm=F)
+            if(!is.null(tags) | length(name)>1){
+                runWithTags("info", tags, name, askconfirm=F)
             } else {            
                                         #e <- get("findEntryIndex",thisEnv)(name)
                 e <- findEntryIndex(name)
@@ -363,7 +482,7 @@ repo_open <- function(root="~/.R_repo")
                           paste0(entries[[e]]$tags, collapse=", "),
                           paste(entries[[e]]$dims, collapse="x"),
                           as.character(entries[[e]]$timestamp), hmnRead(entries[[e]]$size),
-                          entries[[e]]$source, att, entries[[e]]$dump,
+                          paste(entries[[e]]$source, collapse=", "), att, entries[[e]]$dump,
                           entries[[e]]$checksum)
                 cat(paste0(format(labels, width=maxlen+1), vals, "\n"), sep="")
                 cat("\n")
@@ -377,8 +496,8 @@ repo_open <- function(root="~/.R_repo")
             if(!xor(missing(name),missing(tags)))
                 stop("You must specify either a name or a set of tags.")
 
-            if(!is.null(tags)){
-                runWithTags("rm", tags)
+            if(!is.null(tags) | length(name)>1){
+                runWithTags("rm", tags, name, T)
             } else {            
                 e <- get("findEntryIndex",thisEnv)(name)
                 if(is.null(e))
@@ -417,8 +536,8 @@ repo_open <- function(root="~/.R_repo")
         {
             if(!xor(is.null(name), is.null(tags)))
                 stop("You must provide either name or tags.")
-            if(!is.null(tags))
-                runWithTags("tag", tags, newtags) else
+            if(!is.null(tags) | length(name)>1)
+                runWithTags("tag", tags, name, F, newtags) else
                     get("this", thisEnv)$set(name, addtags=newtags)                   
         },
 
@@ -427,8 +546,8 @@ repo_open <- function(root="~/.R_repo")
         {
             if(!xor(is.null(name), is.null(tags)))
                 stop("You must provide either name or tags.")
-            if(!is.null(tags))
-                runWithTags("untag", tags, F, rmtags) else {
+            if(!is.null(tags) | length(name)>1)
+                runWithTags("untag", tags, name, F, rmtags) else {
                     currtags <- getEntry(name)$tags
                     w <- rmtags %in% currtags
                     if(!any(w))
@@ -486,19 +605,13 @@ repo_open <- function(root="~/.R_repo")
             storeIndex()
         },
 
-        add = function(obj, name, description, tags, src=NULL, replace=F)
-        {
-            warning("add is deprecated, use put.")
-            return(get("this", thisEnv)$put(obj, name, description, tags, src, replace))
-        },
-
         attach = function(filepath, description, tags, src=NULL, replace=F, to=NULL)
         {
             get("this", thisEnv)$put(filepath, basename(filepath),
-                                     description, tags, src, replace, T, to)
+                                     description, tags, src, replace=replace, asattach=T, to=to)
         },
         
-        put = function(obj, name, description, tags, src=NULL, replace=F, asattach=F, to=NULL)
+        put = function(obj, name, description, tags, src=NULL, depends=NULL, replace=F, asattach=F, to=NULL)
         {
             checkIndexUnchanged()
             
@@ -507,11 +620,14 @@ repo_open <- function(root="~/.R_repo")
 
             if(!is.null(to))
                 asattach <- T
+
+            if(name == "repo")
+                stop("Name repo is reserved.")
             
             notexist <- checkName(name)
             if(!notexist & !replace)
                 {                    
-                    message("Identifier already used.")
+                    cat("Identifier already used.\n")
                     return(invisible(NULL))
                 }
 
@@ -527,6 +643,9 @@ repo_open <- function(root="~/.R_repo")
                 tags <- unique(c(tags, "attachment"))
             }
 
+            if(!is.null(to))
+                stopOnNotFound(to)
+
             fdata <- get("storeData", thisEnv)(name, obj, asattach)
             fname <- fdata[["path"]]
             fsize <- fdata[["size"]]
@@ -534,7 +653,10 @@ repo_open <- function(root="~/.R_repo")
             if(is.null(src)) {
                 storedfrom <- getwd()
             } else storedfrom <- src
-
+            
+            if(!all(sapply(storedfrom, checkName)))
+                message("At least one provenance is internal.")
+           
             repoE <- list(name = name,
                           description = description,
                           tags = tags,
@@ -545,7 +667,8 @@ repo_open <- function(root="~/.R_repo")
                           size = fsize,
                           checksum = md5sum(path.expand(fname)),
                           source = storedfrom,
-                          attachedto = NULL)
+                          depends = depends,
+                          attachedto = to)
 
             entr <- get("entries", thisEnv)
             entr[[length(entries)+1]] <- repoE
@@ -593,7 +716,7 @@ repo_open <- function(root="~/.R_repo")
     thisEnv <- environment()
     class(me) <- append(class(me),"repo")
     assign('this', me, envir=thisEnv)
-    assign("entries", list(), envir=thisEnv)
+    assign('entries', list(), envir=thisEnv)
     
     if(file.exists(repofile))
         {
@@ -604,8 +727,8 @@ repo_open <- function(root="~/.R_repo")
 
             if(!file.exists(root))
                 {
-                    message(paste0(
-                        "Repo root (\"", get("root",thisEnv), "\") does not exist. Create it?"))
+                    cat(paste0(
+                        "Repo root \"", get("root",thisEnv), "\" does not exist. Create it? "))
                     n <- readline("Type \"yes\" to proceed: ")
                     if(tolower(n) == "yes") {
                         dir.create(root)
@@ -613,7 +736,7 @@ repo_open <- function(root="~/.R_repo")
                     } else message("Nothing done.")
                 }
 
-            saveRDS(me, repofile)
+            storeIndex()
             message("Repo created.")
         }
 
@@ -626,13 +749,50 @@ repo_open <- function(root="~/.R_repo")
 
 repo_test <- function(where = "./repotest")
     {
-        f <- file.path(where)
-        repo <- repo_open(f)
-        repo$put(1:10, "item1", "item 1 description", c("tag1", "tag2"))
-        repo$put(1:100, "item2", "item 2 description", c("tag2", "tag3"))
-        repo$put(matrix(runif(100*100), 100, 100), "item3",
-                 "item 3 description", c("tag1", "tag2", "tag3"))
-        repo$put(list(1,2,3,4,5), "item4", "item 4 description", c("tag1"))
-        repo$put("string", "item5", "item 5 description", c("tag2"), replace=T)
+        repo <- repo_open("repodemo")
+        src <- normalizePath("repo.R")
+        
+        myiris <- scale(as.matrix(iris[,1:4]))
+        rownames(myiris) <- iris$Species
+                
+        repo$put(myiris, "myiris",
+              paste("A normalized version of the iris dataset coming with R.",
+                    "Normalization is made with the scale function with default parameters."),
+              c("dataset", "iris", "repodemo"), src, replace=T)
+
+        irispca <- princomp(myiris)        
+        iris2d <- irispca$scores[,c(1,2)]
+        
+        pdf("iris2D.pdf")
+        plot(iris2d, main="2D visualization of the Iris dataset", col=iris$Species)
+        dev.off()
+        repo$attach("iris2D.pdf", "Iris 2D visualization obtained with PCA.",
+              c("visualization", "iris", "repodemo"), src, replace=T, to="myiris")
+
+        pdf("irispca.pdf")
+        plot(irispca)
+        dev.off()
+
+        repo$attach("irispca.pdf", "Variance explained by the PCs of the Iris dataset",
+                    c("visualization", "iris", "repodemo"), src, replace=T, to="iris2D.pdf")
+        
+        kiris <- kmeans(myiris, 5)$cluster
+        repo$put(kiris, "iris_5clu", "Kmeans clustering of the Iris data, k=5.",
+              c("metadata", "iris", "kmeans", "clustering", "repodemo"), src, "myiris", T)
+
+        pdf("iris2Dkm.pdf")
+        plot(iris2d, main="Iris dataset kmeans clustering", col=kiris)
+        dev.off()
+        repo$attach("iris2Dkm.pdf", "Iris K-means clustering.",
+              c("visualization", "iris", "clustering", "kmeans", "repodemo"), src,
+                 replace=T, to="iris_5clu")
+
+        res <- table(rownames(myiris), kiris)
+        repo$put(res, "iris_cluVsSpecies",
+              paste("Contingency table of the kmeans clustering versus the",
+                    "original labels of the Iris dataset."),
+              c("result", "iris","validation", "clustering", "repodemo"),
+              src, c("myiris", "iris_5clu"), T)
+        
         return(repo)
     }
