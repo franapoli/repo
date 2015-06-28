@@ -5,6 +5,7 @@
 #'   html_document:
 #'     theme: default
 #'     toc: true
+#'     self_contained: false
 #' ---
 #' 
 
@@ -35,7 +36,7 @@
 #' libraries. First of all, in order to use repo, we load the repo
 #' library:
 #' 
-source("~/git/bbuck/repo/repo.R")
+# library(repo)
 #' Among annotations that can be added to items stored in the repo
 #' there's the provenance trace, which basically answers the question:
 #' where does this come from? The following string will be used as a
@@ -59,7 +60,7 @@ src <- "repodemo.R"
 #' main interface to the repository. I'm suppressing messages to hide
 #' personal info.
 #' 
-repo <- suppressMessages(repo_open("repodemo", forceYes=T))
+repo <- suppressMessages(repo_open("repodemo"))
 
 #' The *knitr* library is loaded just for the function *kable*, used
 #' in this demo to pretty-print tables. I also set a knitr option just
@@ -273,7 +274,7 @@ print(repo, tags="attachment", all=T)
 
 #' Finally, also the columns shown can be slected. Let's show only the
 #' tags:
-repo$print(show="t", all=T)
+#repo$print(show="t", all=T)
 
 #'### Showing dependencies
 #'
