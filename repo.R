@@ -11,7 +11,7 @@
 ## [X] Add names to all runwithtags (which now supports "runwithnames")
 ## [X] Manage internal and multiple provenance
 ## [ ] Add has-attachment and internal-provenance flags @ < >
-## [ ] Manage columns in print (hide tags by default)
+## [+] Manage columns in print (hide tags by default)
 ## [X] Manage dependency graph
 ##     [X] Build dependency graph
 ##     [X] Plot dependency graph
@@ -64,7 +64,7 @@ source("~/git/bbuck/repo/repoS3.R")
 #' @return An object of class Repo.
 #' @examples
 #' repo <- open.repo()
-repo_open <- function(root="~/.R_repo")
+repo_open <- function(root="~/.R_repo", forceYes=F)
 {
     "+" <- function(x,y) {
         if(is.character(x) | is.character(y)) {
@@ -136,6 +136,7 @@ repo_open <- function(root="~/.R_repo")
 
     
     hmnRead <- function(bytes) {
+
         values <- c(
             bytes,
             bytes/2^10,
@@ -385,7 +386,7 @@ repo_open <- function(root="~/.R_repo")
             system(syscomm)
         },
 
-        print = function(tags=NULL, all=F)
+        print = function(tags=NULL, all=F, show="ds")
         {
             stopOnEmpty()
             
@@ -423,11 +424,11 @@ repo_open <- function(root="~/.R_repo")
 
             w <- sapply(tagsets, is.element, el="hide")
             w <- w | !(sapply(lapply(entr, get, x="attachedto"), is.null))
+            cols <- c(T, sapply(c("d","t","s"), grepl, show))
             if(all)
                 w[w] <- F
-            
-            
-            print(data.frame(a[!w,]), quote=F, row.names=F)
+                        
+            print(data.frame(a[!w,cols]), quote=F, row.names=F)
             
         },
 
@@ -449,6 +450,9 @@ repo_open <- function(root="~/.R_repo")
         info = function(name = NULL, tags = NULL)
         {
             stopOnEmpty()
+
+            if(!is.null(name))
+                stopOnNotFound(name)
             
             if(!xor(is.null(name), is.null(tags))) {
                 labels <- c("Root:", "Number of items:", "Total size:")
@@ -727,9 +731,13 @@ repo_open <- function(root="~/.R_repo")
 
             if(!file.exists(root))
                 {
-                    cat(paste0(
-                        "Repo root \"", get("root",thisEnv), "\" does not exist. Create it? "))
-                    n <- readline("Type \"yes\" to proceed: ")
+                    if(forceYes)
+                        n <- "yes" else {
+                            cat(paste0(
+                                "Repo root \"", get("root",thisEnv),
+                                "\" does not exist. Create it? "))
+                            n <- readline("Type \"yes\" to proceed: ")
+                        }
                     if(tolower(n) == "yes") {
                         dir.create(root)
                         message("Repo root created.")
