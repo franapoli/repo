@@ -16,9 +16,9 @@
 ##     [X] Build dependency graph
 ##     [X] Plot dependency graph
 ## [X] Add depends field
-## [ ] Manage versions
-##     [ ] add version
-##     [ ] display last version, hide others
+## [+] Manage versions
+##     [X] add version
+##     [X] display last version, hide others
 ##     [ ] group versions in display
 ## [+] Attachments
 ##     [X] Attach files
@@ -66,15 +66,23 @@ source("~/git/bbuck/repo/repoS3.R")
 #' repo <- open.repo()
 repo_open <- function(root="~/.R_repo", forceYes=F)
 {
-    "+" <- function(x,y) {
-        if(is.character(x) | is.character(y)) {
-            return(paste(x , y, sep=""))
-        } else {
-            .Primitive("+")(x,y)
+    checkVersions <- function(name)
+        {
+            names <- sapply(entries, get, x="name")
+            #names <- c("sadf","fasd#2","abc","abc#1", "abc#2","sdfa","abc#23")
+            ## searching for names ending with # and a number
+            w <- regexpr(paste0(name, "#[[:digit:]]+$"), names)
+            
+            ## extract the numbers
+            v <- as.numeric(gsub(paste0(name,"#"),"",names[w!=-1]))
+            if(length(v)>0)
+                newname <- paste0(name, "#", max(v)+1)
+            else
+                newname <- paste0(name, "#1")
+            
+            return(list(w=which(w!=-1), v=v, new=newname))
         }
-    }
 
-    
     
     stopOnEmpty <- function() {
         if(length(entries)<1) {
@@ -615,7 +623,7 @@ repo_open <- function(root="~/.R_repo", forceYes=F)
                                      description, tags, src, replace=replace, asattach=T, to=to)
         },
         
-        put = function(obj, name, description, tags, src=NULL, depends=NULL, replace=F, asattach=F, to=NULL)
+        put = function(obj, name, description, tags, src=NULL, depends=NULL, replace=F, asattach=F, to=NULL, addversion=F)
         {
             checkIndexUnchanged()
             
@@ -629,7 +637,7 @@ repo_open <- function(root="~/.R_repo", forceYes=F)
                 stop("Name repo is reserved.")
             
             notexist <- checkName(name)
-            if(!notexist & !replace)
+            if(!notexist & !replace & !addversion)
                 {                    
                     cat("Identifier already used.\n")
                     return(invisible(NULL))
@@ -638,6 +646,7 @@ repo_open <- function(root="~/.R_repo", forceYes=F)
             if(!notexist & replace)
                 get("this", thisEnv)$rm(name)
 
+            
             if(!asattach) {
                 if(!is.null(dim(obj)))
                     dims <- dim(obj) else
@@ -674,6 +683,12 @@ repo_open <- function(root="~/.R_repo", forceYes=F)
                           depends = depends,
                           attachedto = to)
 
+            if(!notexist & addversion) {
+                newname <- checkVersions(name)$new
+                get("this", thisEnv)$set(name, newname=newname)
+                get("this", thisEnv)$tag(newname, "hide")
+            }            
+            
             entr <- get("entries", thisEnv)
             entr[[length(entries)+1]] <- repoE
             assign("entries", entr, thisEnv)
