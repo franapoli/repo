@@ -415,28 +415,32 @@ repo_open <- function(root="~/.R_repo", forceYes=F)
 
             a <- matrix(NA, length(names), length(labels))
             colnames(a) <- labels
-            rownames(a) <- 1:length(entr)
 
-            tagsets <- sapply(entr, get, x="tags")
+            tagsets <- lapply(entr, get, x="tags")
             attachs <- which(sapply(tagsets, is.element, el="attachment"))
             
-            tagsets <- sapply(tagsets, setdiff, y="attachment")
+            tagsets <- lapply(tagsets, setdiff, y="attachment")
             prefixes <- rep("", length(names))
             prefixes[attachs] <- "@"
             
             a[,"ID"] <- paste0(prefixes, names)
-            a[,"Dims"] <- sapply(sapply(entr, get, x="dims"), paste, collapse="x")
+            a[,"Dims"] <- sapply(lapply(entr, get, x="dims"), paste, collapse="x")
             a[a[,"Dims"]=="", "Dims"] <- "-"
             a[,"Tags"] <- sapply(tagsets, paste, collapse=", ")
-            a[,"Size"] <- sapply(sapply(entr, get, x="size"), hmnRead)
+            a[,"Size"] <- sapply(lapply(entr, get, x="size"), hmnRead)
 
-            w <- sapply(tagsets, is.element, el="hide")
-            w <- w | !(sapply(lapply(entr, get, x="attachedto"), is.null))
+
+            h <- rep(F,length(entr))
+            if(!("hide" %in% tags))
+              h <- sapply(tagsets, is.element, el="hide")
+            h <- h | !(sapply(lapply(entr, get, x="attachedto"), is.null))
             cols <- c(T, sapply(c("d","t","s"), grepl, show))
             if(all)
-                w[w] <- F
-                        
-            print(data.frame(a[!w,cols]), quote=F, row.names=F)
+                h[h] <- F            
+
+            if(sum(!h)>1)
+              print(as.data.frame(a[!h,cols], nm=""), quote=F, row.names=F) else
+            print(as.data.frame(a[!h,cols], nm=""), quote=F, row.names=T)
             
         },
 
@@ -621,6 +625,18 @@ repo_open <- function(root="~/.R_repo", forceYes=F)
         {
             get("this", thisEnv)$put(filepath, basename(filepath),
                                      description, tags, src, replace=replace, asattach=T, to=to)
+        },
+
+        stash = function(name, env=parent.frame())
+        {
+            obj <- get(name, envir=env)
+            get("this", thisEnv)$put(obj, name, "Stashed object",
+                                     c("stash", "hide"),                                replace=T)
+        },
+
+        stashclear = function()
+        {
+            get("this", thisEnv)$rm(tags=c("stash", "hide"))
         },
         
         put = function(obj, name, description, tags, src=NULL, depends=NULL, replace=F, asattach=F, to=NULL, addversion=F)
