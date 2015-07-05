@@ -295,7 +295,7 @@ repo$put(res, "iris_cluVsSpecies",
          paste("Contingency table of the kmeans clustering versus the",
                "original labels of the Iris dataset."),
          c("result", "iris","validation", "clustering", "repodemo", "hide"),
-         src, c("myiris", "iris_5clu"), T)
+         src, c("myiris", "irisLabels", "iris_5clu"), T)
 
 #'## Looking at the repository
 #' 

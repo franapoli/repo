@@ -227,7 +227,7 @@ repo$put(res, &quot;iris_cluVsSpecies&quot;,
          paste(&quot;Contingency table of the kmeans clustering versus the&quot;,
                &quot;original labels of the Iris dataset.&quot;),
          c(&quot;result&quot;, &quot;iris&quot;,&quot;validation&quot;, &quot;clustering&quot;, &quot;repodemo&quot;, &quot;hide&quot;),
-         src, c(&quot;myiris&quot;, &quot;iris_5clu&quot;), T)</code></pre>
+         src, c(&quot;myiris&quot;, &quot;irisLabels&quot;, &quot;iris_5clu&quot;), T)</code></pre>
 </div>
 </div>
 <div id="looking-at-the-repository" class="section level2">
@@ -239,7 +239,7 @@ repo$put(res, &quot;iris_cluVsSpecies&quot;,
 <pre class="r"><code>repo$info()</code></pre>
 <pre><code>Root:            repodemo 
 Number of items: 7 
-Total size:      18.48 kB </code></pre>
+Total size:      18.47 kB </code></pre>
 </div>
 <div id="listing-items" class="section level3">
 <h3>Listing items</h3>
@@ -248,7 +248,7 @@ Total size:      18.48 kB </code></pre>
 <pre><code>         ID  Dims    Size
      myiris 150x4 1.82 kB
  irisLabels   150   124 B
-  iris_5clu   150   114 B</code></pre>
+  iris_5clu   150   115 B</code></pre>
 <p>As expected, hidden items are not shown. Use the following to make all the items appear:</p>
 <pre class="r"><code>print(repo, all=T)</code></pre>
 <pre><code>                ID  Dims    Size
@@ -256,27 +256,27 @@ Total size:      18.48 kB </code></pre>
         irisLabels   150   124 B
        @iris2D.pdf     - 5.84 kB
       @irispca.pdf     - 4.38 kB
-         iris_5clu   150   114 B
-     @iris2Dkm.pdf     - 6.02 kB
- iris_cluVsSpecies   3x5   180 B</code></pre>
+         iris_5clu   150   115 B
+     @iris2Dkm.pdf     - 6.01 kB
+ iris_cluVsSpecies   3x5   179 B</code></pre>
 <p>Items can also be listed selectively. With the following call, only items tagged with “clustering” will be shown:</p>
 <pre class="r"><code>print(repo, tags=&quot;clustering&quot;, all=T)</code></pre>
 <pre><code>                ID Dims    Size
-         iris_5clu  150   114 B
-     @iris2Dkm.pdf    - 6.02 kB
- iris_cluVsSpecies  3x5   180 B</code></pre>
+         iris_5clu  150   115 B
+     @iris2Dkm.pdf    - 6.01 kB
+ iris_cluVsSpecies  3x5   179 B</code></pre>
 <p>All attachments have the <em>attachment</em> tag, so they can be selectively visualized this way:</p>
 <pre class="r"><code>print(repo, tags=&quot;attachment&quot;, all=T)</code></pre>
 <pre><code>            ID Dims    Size
    @iris2D.pdf    - 5.84 kB
   @irispca.pdf    - 4.38 kB
- @iris2Dkm.pdf    - 6.02 kB</code></pre>
+ @iris2Dkm.pdf    - 6.01 kB</code></pre>
 <p>For the same reasons, one may want to show only hidden items:</p>
 <pre class="r"><code>print(repo, tags=&quot;hide&quot;, all=T)</code></pre>
 <pre><code>                      
 ID   iris_cluVsSpecies
 Dims               3x5
-Size             180 B</code></pre>
+Size             179 B</code></pre>
 <p>Finally, also the columns shown can be selected. Let’s show only the tags:</p>
 <pre class="r"><code>repo$print(show=&quot;t&quot;, all=T)</code></pre>
 <pre><code>                ID                                                 Tags
@@ -378,7 +378,7 @@ kable(depgraph)</code></pre>
 <tr class="odd">
 <td align="left">iris_cluVsSpecies</td>
 <td align="right">1</td>
-<td align="right">0</td>
+<td align="right">1</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">1</td>
@@ -417,7 +417,7 @@ kable(depgraph)</code></pre>
 Description:  A normalized version of the iris dataset coming with R. Normalization is made with the scale function with default parameters.
 Tags:         dataset, iris, repodemo
 Dimensions:   150x4
-Timestamp:    2015-07-05 02:00:04
+Timestamp:    2015-07-05 02:09:22
 Size on disk: 1.82 kB
 Provenance:   /home/users/napolitano/git/bbuck/repo/repodemo.R
 Attached to:  -
@@ -450,19 +450,19 @@ repo$put(kiris, &quot;iris_5clu&quot;,
 <pre><code>         ID  Dims    Size
      myiris 150x4 1.82 kB
  irisLabels   150   124 B
-  iris_5clu   150   114 B</code></pre>
+  iris_5clu   150   115 B</code></pre>
 <p>Except that <em>iris_5clu</em> is actually the new one (look at the description):</p>
 <pre class="r"><code>repo$info(&quot;iris_5clu&quot;)</code></pre>
 <pre><code>ID:           iris_5clu
 Description:  Kmeans clustering of the Iris data, k=5. Today&#39;s version!
 Tags:         metadata, iris, kmeans, clustering, repodemo
 Dimensions:   150
-Timestamp:    2015-07-05 02:00:05
-Size on disk: 114 B
+Timestamp:    2015-07-05 02:09:23
+Size on disk: 115 B
 Provenance:   /home/users/napolitano/git/bbuck/repo/repodemo.R
 Attached to:  -
 Stored in:    repodemo/ff/6d/ce/ff6dce2d056afd01f0e1f0b13bc0e295
-MD5 checksum: 9b1ca26e5ca042328ddfb7bdb83fb34d</code></pre>
+MD5 checksum: 8207a300ce071ab39bcc93b8381c716d</code></pre>
 <p>while the old one has been renamed and hidden:</p>
 <pre class="r"><code>repo$print(all=T)</code></pre>
 <pre><code>                ID  Dims    Size
@@ -470,22 +470,22 @@ MD5 checksum: 9b1ca26e5ca042328ddfb7bdb83fb34d</code></pre>
         irisLabels   150   124 B
        @iris2D.pdf     - 5.84 kB
       @irispca.pdf     - 4.38 kB
-       iris_5clu#1   150   114 B
-     @iris2Dkm.pdf     - 6.02 kB
- iris_cluVsSpecies   3x5   180 B
-         iris_5clu   150   114 B</code></pre>
+       iris_5clu#1   150   115 B
+     @iris2Dkm.pdf     - 6.01 kB
+ iris_cluVsSpecies   3x5   179 B
+         iris_5clu   150   115 B</code></pre>
 <p>However, it can be referred to as any other repo item:</p>
 <pre class="r"><code>repo$info(&quot;iris_5clu#1&quot;)</code></pre>
 <pre><code>ID:           iris_5clu#1
 Description:  Kmeans clustering of the Iris data, k=5.
 Tags:         metadata, iris, kmeans, clustering, repodemo, hide
 Dimensions:   150
-Timestamp:    2015-07-05 02:00:05
-Size on disk: 114 B
+Timestamp:    2015-07-05 02:09:23
+Size on disk: 115 B
 Provenance:   /home/users/napolitano/git/bbuck/repo/repodemo.R
 Attached to:  -
 Stored in:    repodemo/ff/6d/ce/ff6dce2d056afd01f0e1f0b13bc0e295
-MD5 checksum: 9b1ca26e5ca042328ddfb7bdb83fb34d</code></pre>
+MD5 checksum: 8207a300ce071ab39bcc93b8381c716d</code></pre>
 </div>
 <div id="stashing" class="section level3">
 <h3>Stashing</h3>
@@ -503,7 +503,7 @@ MD5 checksum: 9b1ca26e5ca042328ddfb7bdb83fb34d</code></pre>
 Description:  Stashed object
 Tags:         stash, hide
 Dimensions:   1
-Timestamp:    2015-07-05 02:00:06
+Timestamp:    2015-07-05 02:09:23
 Size on disk: 74 B
 Provenance:   /home/users/napolitano/git/bbuck/repo
 Attached to:  -
@@ -524,9 +524,9 @@ names(h)</code></pre>
 <pre class="r"><code>print(h$iris_cluVsSpecies())</code></pre>
 <pre><code>            kiris
               1  2  3  4  5
-  setosa      0 28  0 22  0
-  versicolor 29  0 19  0  2
-  virginica  21  0  2  0 27</code></pre>
+  setosa     34  0  0 16  0
+  versicolor  0 29  2  0 19
+  virginica   0 21 27  0  2</code></pre>
 <p>The <em>tag</em> method (not yet described) adds a tag to an item:</p>
 <pre class="r"><code>h$iris_cluVsSpecies(&quot;tag&quot;, &quot;onenewtag&quot;)
 h$iris_cluVsSpecies(&quot;info&quot;)</code></pre>
@@ -534,12 +534,12 @@ h$iris_cluVsSpecies(&quot;info&quot;)</code></pre>
 Description:  Contingency table of the kmeans clustering versus the original labels of the Iris dataset.
 Tags:         result, iris, validation, clustering, repodemo, hide, onenewtag
 Dimensions:   3x5
-Timestamp:    2015-07-05 02:00:06
-Size on disk: 180 B
+Timestamp:    2015-07-05 02:09:23
+Size on disk: 179 B
 Provenance:   /home/users/napolitano/git/bbuck/repo/repodemo.R
 Attached to:  -
 Stored in:    repodemo/71/f4/85/71f48579b98958bc63ab72b6b49d08b4
-MD5 checksum: 85a1953e4037fb7a7f519c0d674fe532</code></pre>
+MD5 checksum: 0ecffc77d3592a7e4170f1040f2c3c76</code></pre>
 <p>One may want to open a repo directly with:</p>
 <pre class="r"><code>h &lt;- repo_open(&quot;repodemo&quot;)$handlers()</code></pre>
 <p>In that case, the handler to the repo itself will come handy:</p>
@@ -547,7 +547,7 @@ MD5 checksum: 85a1953e4037fb7a7f519c0d674fe532</code></pre>
 <pre><code>         ID  Dims    Size
      myiris 150x4 1.82 kB
  irisLabels   150   124 B
-  iris_5clu   150   114 B</code></pre>
+  iris_5clu   150   115 B</code></pre>
 <p>If items are removed or added, you may want to refresh the handlers:</p>
 <pre class="r"><code>h &lt;- h$repo$handlers()</code></pre>
 </div>
