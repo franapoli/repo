@@ -65,17 +65,16 @@ img {
 <div id="header">
 <h1 class="title">Getting started with the <em>repo</em> R Data Manager</h1>
 <h4 class="author"><em>Francesco Napolitano</em></h4>
-<h4 class="date"><em>Mon Jun 29 00:57:31 2015</em></h4>
 </div>
 
 <div id="TOC">
 <ul>
 <li><a href="#introduction">Introduction</a></li>
 <li><a href="#preparation">Preparation</a></li>
-<li><a href="#populating-a-repository">Populating a repository</a><ul>
+<li><a href="#populating-the-repository">Populating the repository</a><ul>
 <li><a href="#storing-a-dataset">Storing a dataset</a></li>
 <li><a href="#attaching-visualizations">Attaching visualizations</a></li>
-<li><a href="#storing-some-results">Storing some results</a></li>
+<li><a href="#storing-results">Storing results</a></li>
 </ul></li>
 <li><a href="#looking-at-the-repository">Looking at the repository</a><ul>
 <li><a href="#repository-summary">Repository summary</a></li>
@@ -83,81 +82,117 @@ img {
 <li><a href="#showing-dependencies">Showing dependencies</a></li>
 </ul></li>
 <li><a href="#accessing-items-in-the-repo">Accessing items in the repo</a></li>
-<li><a href="#to-be-continued">To be continued</a></li>
+<li><a href="#item-versions-and-temporary-items">Item versions and temporary items</a><ul>
+<li><a href="#versioning">Versioning</a></li>
+<li><a href="#stashing">Stashing</a></li>
+</ul></li>
+<li><a href="#handlers">Handlers</a></li>
+<li><a href="#other-features">Other features</a></li>
 </ul>
 </div>
 
 <br>
-<p style="text-align:right">
-<strong><em>“Thou Shalt Not save() Or load()”</em></strong><br> <em>first commandment of the repo user</em>
+<p style="text-align:center">
+<strong><em>“Thou Shalt Not save() Or load()”</em></strong>
 </p>
 <p><br></p>
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<p>This is a short getting started guide to the repo package, which implements an R objects repository manager. Instead of manually storing and retrieving R objects into and from the appropriate directories and files, repo offers an abstraction layer that takes care of storing, retrieving and sorting the objects. For each stored object, you provide a name, a description, a list of tags and optional dependence and provenance information. Repo will store the object together with all the metadata an provide easy access to it. Repo can display a compact list of all the items stored and provide search by tags, load in the workspace, remove from disk, export to RDS files, edit metadata, manage provenance traces, show dependency graph and more. In the following, an example of use will guide you through the main features of repo.</p>
+<p>This is a short getting-started guide to the <em>repo</em> R package, which implements an R objects repository manager. The motivations behind the development of <em>repo</em> concern both scientific considerations, as a tool to improve reproducibility in computational research, and practical, as a solution to everyday problems of people working in the same fields.</p>
+<p>Data analysis is a data-multiplication activity. Starting from an initial resource, derived ones are built, each of which can be used in turn to build more. After working for a while in this area, simple repetitive tasks such as locating a resource built in the past (what was its name? in which directory was it stored? for which project? on which machine?) or remembering how it had been made (which model? which parameters? which script?) can quickly become daunting.</p>
+<p>The <em>repo</em> package tries to help with such everyday issues. It builds one (or more) centralized repository where R objects are stored together with corresponding annotations, tags, dependency notes, provenance traces. Once a repository has been populated, the user is presented with a structured collection of all the stored resources, which can be easily explored, navigated, modified, imported and exported.</p>
+<p>The author of this tool is definitely aware of how much the idea of any additional work put between a researcher and his final results is doomed to be rejected. This is why <em>repo</em> has been designed with the aim of producing as little overhead as possible to the data storage phase (while it will save a lot of time in later phases). The tool tries to encourage you in putting some structure into your data, but will step aside if you have good reasons not to.</p>
+<p>Main features include:</p>
+<ul>
+<li>Store R objects in a central repository</li>
+<li>Retrieve any stored object simply by its name</li>
+<li>Store object description, tags, provenance trace</li>
+<li>Search items by names or tags</li>
+<li>Show details repository-wise or item-wise</li>
+<li>Build and plot items dependency trees</li>
+<li>Attach regular files to repo items</li>
+<li>Run system commands on stored attachments</li>
+<li>Quickly store temporary data</li>
+<li>Store multiple versions of the same resource</li>
+<li>Concurrent access to the same repository</li>
+<li>Copy items between repositories</li>
+<li>Export items back to regular R data files</li>
+<li>Check repository integrity through MD5 checksums</li>
+</ul>
+<p>What follows is a walk-through aimed at quickly introducing to most of the <em>repo</em> features. It will guide you through the creation of a repository with a few items and show the most common operations that can be performed on it.</p>
 </div>
 <div id="preparation" class="section level2">
 <h2>Preparation</h2>
-<p>Here we define some global variables and load the necessary libraries. First of all, in order to use repo, we load the repo library:</p>
-<pre class="r"><code># library(repo)</code></pre>
-<p>Among annotations that can be added to items stored in the repo there’s the provenance trace, which basically answers the question: where does this come from? The following string will be used as a provenance trace for all the data produced by this script. It is basically the full path to the file containing this script (the documentation you’re reading has ben generated by a script called repodemo.R).</p>
+<p>In this section, some global variables will be defined and the necessary libraries loaded. First of all, the following will enable repo:</p>
+<pre class="r"><code>library(repo)</code></pre>
+<p>Among annotations that can be added to items stored in the repo there’s the provenance trace, which basically answers the question: where does this come from? The following string will be used as a provenance trace for all the data produced by this script. It is basically the full path to the file containing this script (the documentation you’re reading has been generated by a script called <em>repodemo.R</em>).</p>
 <pre class="r"><code>src &lt;- normalizePath(&quot;repodemo.R&quot;)</code></pre>
-<p>However, to hide paths from my disk, here I will owerwrite <em>src</em> with the following:</p>
-<pre class="r"><code>src &lt;- &quot;repodemo.R&quot;</code></pre>
-<p>This command creates a new repon in “./repodemo” or open an existing one in the same directory. To avoid confirmation requests during the generation of this document, they’re turned off through the <em>forceYes</em> parameter. The variable <em>repo</em> will be used as the main interface to the repository. I’m suppressing messages to hide personal info.</p>
-<pre class="r"><code>repo &lt;- suppressMessages(repo_open(&quot;repodemo&quot;))</code></pre>
-<p>The <em>knitr</em> library is loaded just for the function <em>kable</em>, used in this demo to pretty-print tables. I also set a knitr option just for cosmetic reasons.</p>
-<pre class="r"><code>library(knitr)
-opts_chunk$set(comment=NA)</code></pre>
+<p>The following command creates a new repo in “./repodemo” or open an existing one in the same directory (by default, instead, the repo is created in “~/.R_repo”). To avoid confirmation requests during the generation of this document, they’re turned off through the <em>forceYes</em> parameter. The variable <em>repo</em> will be used as the main interface to the repository.</p>
+<pre class="r"><code>repo &lt;- repo_open(&quot;repodemo&quot;, forceYes=T)</code></pre>
+<pre><code>Repo root created.
+Repo created.</code></pre>
 </div>
-<div id="populating-a-repository" class="section level2">
-<h2>Populating a repository</h2>
-<p>First of all, we will populate the repository with some data, starting with the Iris dataset (included in most R distributions). We will perform a dimensionality reduction through Principal Component Analysis (PCA) and a clustering through K-means. We will store the data into the repo and <em>attach</em> some visualizations. Attached items are generated from generic files on the disk as opposed to R objects.</p>
+<div id="populating-the-repository" class="section level2">
+<h2>Populating the repository</h2>
+<p>In this section, some data will be stored inside the repository just created. In particular, such data will include the Iris dataset (bundled with most R distributions), a dimensionality-reduction version of the same data (through Principal Component Analysis - PCA) and a clustering (through K-means). Also, some visualization will be <em>attached</em> in the repo. Attached items are generated from generic files on the disk as opposed to R objects in the current environment.</p>
 <div id="storing-a-dataset" class="section level3">
 <h3>Storing a dataset</h3>
-<p>The Iris dataset is readily found in the <em>datasets</em> R package. However, we will store our normalized version of it in the repo. We will separately store the normalized data matrix and the class labels. The code for normalization will be a simple call to <em>scale</em>:</p>
+<p>The Iris dataset is readily found in the <em>datasets</em> R package. However, we will store a normalized version of it in the repo. The code for normalization is a simple call to the <em>scale</em> R function:</p>
 <pre class="r"><code>myiris &lt;- scale(as.matrix(iris[,1:4]))</code></pre>
-<p>In order to properly store our normalized <em>myiris</em>, we will need to call <em>repo$put</em> and provide the following parameters:</p>
+<p>In order to properly store the normalized <em>myiris</em>, a call to <em>repo$put</em> will provide the following parameters:</p>
 <ul>
 <li><p><strong>obj</strong> The varialbe containing the object that we want to store: <em>myiris</em>.</p></li>
-<li><p><strong>name</strong> An identifier for the variable. At the moment any string is accepted, but this may change in favour of sanitized names. Best practice is to use a short name without special characters.</p></li>
+<li><p><strong>name</strong> An identifier for the variable. At the moment any string is accepted, but this may change in favor of sanitized names. Best practice is to use a short name without special characters.</p></li>
 <li><p><strong>description</strong> A verbose description of the variable contents.</p></li>
-<li><p><strong>tags</strong> A set of tags. Tags are used to subset the repo for many purposes, for example if you want to be able to select only items produced by this script, make sure to add one tag accordingly (<em>repodemo</em> in this case).</p></li>
-<li><p><strong>src</strong> The source that generated the data, that is the file name containing this script.</p></li>
-<li><p><strong>replace</strong> A boolean that tells repo wether to overwrite an existing entry by the same name. I set it to true so that I can run this script repeatedly without issues. (This documentation is generated from an R script).</p></li>
+<li><p><strong>tags</strong> A set of tags. Tags are used to subset the repo for many purposes. For example in order to be able to select only items produced by this script, a specific tag will be added accordingly (<em>repodemo</em>).</p></li>
+<li><p><strong>src</strong> Filename containing the source code that generated the object being <em>put</em>.</p></li>
+<li><p><strong>replace</strong> A boolean that tells repo whether to overwrite any existing entry by the same name. Setting it to <em>true</em> allows to run a script over without interruptions.</p></li>
 </ul>
 <p>Thus, the following call to the <em>put</em> method will store the contents of <em>myiris</em> in the repo. The data will be actually saved in the repo root in RDS format.</p>
-<pre class="r"><code>repo$put(obj = myiris,
-         name = &quot;myiris&quot;,
-         description = paste(&quot;A normalized version of the iris dataset coming with R.&quot;,
-             &quot;Normalization is made with the scale function with default parameters.&quot;),
-         tags = c(&quot;dataset&quot;, &quot;iris&quot;, &quot;repodemo&quot;),
-         src = src,
-         replace=T)</code></pre>
+<pre class="r"><code>repo$put(
+    obj = myiris,    
+    name = &quot;myiris&quot;,    
+    description = paste(
+        &quot;A normalized version of the iris dataset coming with R.&quot;,
+        &quot;Normalization is made with the scale function&quot;,
+        &quot;with default parameters.&quot;
+    ),
+    tags = c(&quot;dataset&quot;, &quot;iris&quot;, &quot;repodemo&quot;),    
+    src = src,    
+    replace=T
+)</code></pre>
+<p>In our example, the class annotation is stored separately. Here’s a more compact call to <em>put</em>:</p>
+<pre class="r"><code>repo$put(iris$Species, &quot;irisLabels&quot;, &quot;The Iris class lables.&quot;,
+         c(&quot;labels&quot;, &quot;iris&quot;, &quot;repodemo&quot;), src, replace=T)</code></pre>
 </div>
 <div id="attaching-visualizations" class="section level3">
 <h3>Attaching visualizations</h3>
 <p>The Iris dataset is 4D and PCA can be used to produce a 2D visualization. The following code produces such visualization and shows it:</p>
 <pre class="r"><code>irispca &lt;- princomp(myiris)        
 iris2d &lt;- irispca$scores[,c(1,2)]
-plot(iris2d, main=&quot;2D visualization of the Iris dataset&quot;, col=iris$Species)</code></pre>
-<p><img src="index_files/figure-html/unnamed-chunk-8-1.png" title="" alt="" width="672" /></p>
-<p>Wouldn’t it be cool to store the visualization in the repo and somehow link it to the iris data? This can be done exploiting the <em>attach</em> method, which can store any file in the repo as is, together with usual annotations (description, tags, etc.). Internally, <em>attach</em> calls <em>put</em>, so it is very similar. Two differences in the parameters of this call are worth noting:</p>
+plot(iris2d, main=&quot;2D visualization of the Iris dataset&quot;,
+     col=repo$get(&quot;irisLabels&quot;))</code></pre>
+<p><img src="index_files/figure-html/unnamed-chunk-9-1.png" title="" alt="" width="672" /></p>
+<p>Note that <em>irisLabels</em> is taken on the fly from the repo. During this script, the variable is used three times, thus implying three disk accesses. This could be considered bad practice, however I will keep it as a quick hack example.</p>
+<p>Wouldn’t it be nice to store the visualization itself in the repo and somehow link it to the iris data? This can be done exploiting the <em>attach</em> method, which can store any file in the repo as is, together with usual annotations (description, tags, etc.). Internally, <em>attach</em> calls <em>put</em>, so it accepts most of its parameters. However, two differences are worth noting:</p>
 <ul>
-<li><p><strong>filepath</strong> Instead of an identifier, <em>attach</em> takes a file name (with path). The file name will be also the item identifier. This behaviour can be overridden by calling <em>put</em> with the <em>asattachment</em> parameter set to TRUE.</p></li>
-<li><p><strong>to</strong> This parameter tells repo which item this one is attached to.</p></li>
+<li><p><strong>filepath</strong> Instead of an identifier, <em>attach</em> takes a file name (with path). The file name will be also the item identifier. This behavior can be overridden by calling <em>put</em> with the <em>asattachment</em> parameter set to TRUE.</p></li>
+<li><p><strong>to</strong> This optional parameter tells repo which item this one is attached to.</p></li>
 </ul>
 <pre class="r"><code>pdf(&quot;iris2D.pdf&quot;)
-plot(iris2d, main=&quot;2D visualization of the Iris dataset&quot;, col=iris$Species)
+plot(iris2d, main=&quot;2D visualization of the Iris dataset&quot;,
+     col=repo$get(&quot;irisLabels&quot;))
 invisible(dev.off())
 repo$attach(&quot;iris2D.pdf&quot;, &quot;Iris 2D visualization obtained with PCA.&quot;,
             c(&quot;visualization&quot;, &quot;iris&quot;, &quot;repodemo&quot;), src, replace=T, to=&quot;myiris&quot;)</code></pre>
-<p><em>attach</em> actually makes a copy of the attached file to the repo root, so we can get rid of the copy in the working directory:</p>
+<p><em>attach</em> actually creates a copy of the attached file in the repo root, so the one in the working directory can be safely removed:</p>
 <pre class="r"><code>invisible(file.remove(&quot;iris2D.pdf&quot;))</code></pre>
-<p>But is the 2D visualization good enough for a 4D dataset? This can be checked by looking at the PCA eigenvalues, as follows.</p>
+<p>Wanna see something cool? The attached PDF can be opened using an external PDF viewer directly from repo through the <em>sys</em> method. On a Linux system, this command will run the Evince document viewer and show <em>iris2D.pdf</em>:</p>
+<pre class="r"><code>repo$sys(&quot;iris2D.pdf&quot;, &quot;evince&quot;)</code></pre>
+<p>Back to data analysis, is the 2D visualization good enough for a 4D dataset? This can be checked by looking at the PCA eigenvalues, as follows.</p>
 <pre class="r"><code>plot(irispca)</code></pre>
-<p><img src="index_files/figure-html/unnamed-chunk-11-1.png" title="" alt="" width="672" /></p>
-<p>In the future, when I look at the 2D visualization, I want to remember its “accuracy” according to the PCA eigenvalues. So I will attach the plot of the PCA eigenvalues to the plot of the 2D visualization. This is attaching to an attachment and it’s ok.</p>
+<p><img src="index_files/figure-html/unnamed-chunk-13-1.png" title="" alt="" width="672" /></p>
+<p>In the future, when looking at the 2D visualization, one may want to remember its “accuracy” according to the PCA eigenvalues above. So attaching the plot of the PCA eigenvalues to the plot of the 2D visualization could be a good idea. This is attaching to an attachment and is OK.</p>
 <pre class="r"><code>pdf(&quot;irispca.pdf&quot;)
 plot(irispca)
 invisible(dev.off())
@@ -165,20 +200,20 @@ repo$attach(&quot;irispca.pdf&quot;, &quot;Variance explained by the PCs of the 
             c(&quot;visualization&quot;, &quot;iris&quot;, &quot;repodemo&quot;), src, replace=T, to=&quot;iris2D.pdf&quot;)
 invisible(file.remove(&quot;irispca.pdf&quot;))</code></pre>
 </div>
-<div id="storing-some-results" class="section level3">
-<h3>Storing some results</h3>
-<p>The following code makes a clustering of the Iiris data and stores it in the repo. There still one more interesting parameter here:</p>
+<div id="storing-results" class="section level3">
+<h3>Storing results</h3>
+<p>The following code makes a clustering of the Iris data and stores it in the repo. There still one more interesting parameter here:</p>
 <ul>
-<li><strong>depends</strong> This tells repo that, in order to compute the <em>kiris</em> variable containing the clustering, I need data previously stored, that is <em>myiris</em>. This dependency annotation is not mandatory at all, however it helps to keep things sorted as the repo grows.</li>
+<li><strong>depends</strong> This tells repo that, in order to compute the <em>kiris</em> variable containing the clustering, data previously stored will be necessary, namely <em>myiris</em>. This dependency annotation is not mandatory, however it helps to keep things sorted as the repo grows. Literature on Reproducible Research agrees on the importance of “provenance traces”: setting this value is definitely encouraged practice.</li>
 </ul>
 <pre class="r"><code>kiris &lt;- kmeans(myiris, 5)$cluster
 repo$put(kiris, &quot;iris_5clu&quot;, &quot;Kmeans clustering of the Iris data, k=5.&quot;,
          c(&quot;metadata&quot;, &quot;iris&quot;, &quot;kmeans&quot;, &quot;clustering&quot;, &quot;repodemo&quot;), src,
          depends=&quot;myiris&quot;, T)</code></pre>
-<p>Let’s see what the clustering looks like. This is the same 2D visualization as before, except that colors are given by clustering labels instead of class labels. Just for the purpose of making the repo a bit more interesting, we will add <em>put</em> this visualization. Note the dependency.</p>
+<p>Let’s see what the clustering looks like. This is the same 2D visualization as before, except that colors are given by clustering labels instead of class labels.</p>
 <pre class="r"><code>plot(iris2d, main=&quot;Iris dataset kmeans clustering&quot;, col=kiris)</code></pre>
-<p><img src="index_files/figure-html/unnamed-chunk-14-1.png" title="" alt="" width="672" /></p>
-<p>Not so nice, but who cares! Let’s put it in the repo:</p>
+<p><img src="index_files/figure-html/unnamed-chunk-16-1.png" title="" alt="" width="672" /></p>
+<p>Just for the purpose of making the repo a bit more interesting, we will <em>attach</em> this visualization as well. Note the dependency.</p>
 <pre class="r"><code>pdf(&quot;iris2Dkm.pdf&quot;)
 plot(iris2d, main=&quot;Iris dataset kmeans clustering&quot;, col=kiris)
 invisible(dev.off())
@@ -186,8 +221,8 @@ repo$attach(&quot;iris2Dkm.pdf&quot;, &quot;Iris K-means clustering.&quot;,
             c(&quot;visualization&quot;, &quot;iris&quot;, &quot;clustering&quot;, &quot;kmeans&quot;, &quot;repodemo&quot;), src,
             replace=T, to=&quot;iris_5clu&quot;)
 invisible(file.remove(&quot;iris2Dkm.pdf&quot;))</code></pre>
-<p>Finally, let’s compute a contingency table of the classes versus clusters and store it in the repo. For some reason, we don’t really care about this precise result, but we want it in the repo in case we need it in the future. This is why we add the reserved tag <em>hide</em>, which will prevent this item from being shown by default. Attachments are automatically <em>hide</em>-tagged by default.</p>
-<pre class="r"><code>res &lt;- table(iris$Species, kiris)
+<p>Finally, let’s compute a contingency table of the classes versus clusters and store it in the repo. Let’s assume that for some reason we don’t really care about this precise result, but we think it could be useful in the future. This is the use case for the tag <em>hide</em>, which prevents an item from being shown by default. Attachments are automatically <em>hide</em>-tagged by default.</p>
+<pre class="r"><code>res &lt;- table(repo$get(&quot;irisLabels&quot;), kiris)
 repo$put(res, &quot;iris_cluVsSpecies&quot;,
          paste(&quot;Contingency table of the kmeans clustering versus the&quot;,
                &quot;original labels of the Iris dataset.&quot;),
@@ -197,58 +232,74 @@ repo$put(res, &quot;iris_cluVsSpecies&quot;,
 </div>
 <div id="looking-at-the-repository" class="section level2">
 <h2>Looking at the repository</h2>
-<p>In this section we will have a look at the repository just created, as a whole. In particular, we will show a summary of the repo and its dependency graph</p>
+<p>In this section a few basic commands to show repository-wide information will be introduced, namely repository summary and dependency graphs.</p>
 <div id="repository-summary" class="section level3">
 <h3>Repository summary</h3>
-<p>The <em>info</em> method provides details about repo items, but when called without orguments it shows some self-explaining information about the repo:</p>
+<p>The <em>info</em> method provides details about repo items, but when called without arguments it shows some self-explaining information about the repo:</p>
 <pre class="r"><code>repo$info()</code></pre>
-<pre><code>Root:            ~/git/bbuck/repo/repodemo 
-Number of items: 6 
-Total size:      18.32 kB </code></pre>
+<pre><code>Root:            repodemo 
+Number of items: 7 
+Total size:      18.48 kB </code></pre>
 </div>
 <div id="listing-items" class="section level3">
 <h3>Listing items</h3>
 <p>The repo library supports an S3 <em>print</em> method that shows the contents of the repo. All non-hidden items will be shown, together with some details, which by defaults are: name, dimensions, size.</p>
 <pre class="r"><code>repo ## by default resolves to print(repo)</code></pre>
-<pre><code>        ID  Dims    Size
-    myiris 150x4 1.82 kB
- iris_5clu   150   110 B</code></pre>
+<pre><code>         ID  Dims    Size
+     myiris 150x4 1.82 kB
+ irisLabels   150   124 B
+  iris_5clu   150   114 B</code></pre>
 <p>As expected, hidden items are not shown. Use the following to make all the items appear:</p>
 <pre class="r"><code>print(repo, all=T)</code></pre>
 <pre><code>                ID  Dims    Size
             myiris 150x4 1.82 kB
+        irisLabels   150   124 B
        @iris2D.pdf     - 5.84 kB
       @irispca.pdf     - 4.38 kB
-         iris_5clu   150   110 B
-     @iris2Dkm.pdf     - 5.99 kB
+         iris_5clu   150   114 B
+     @iris2Dkm.pdf     - 6.02 kB
  iris_cluVsSpecies   3x5   180 B</code></pre>
 <p>Items can also be listed selectively. With the following call, only items tagged with “clustering” will be shown:</p>
 <pre class="r"><code>print(repo, tags=&quot;clustering&quot;, all=T)</code></pre>
 <pre><code>                ID Dims    Size
-         iris_5clu  150   110 B
-     @iris2Dkm.pdf    - 5.99 kB
+         iris_5clu  150   114 B
+     @iris2Dkm.pdf    - 6.02 kB
  iris_cluVsSpecies  3x5   180 B</code></pre>
 <p>All attachments have the <em>attachment</em> tag, so they can be selectively visualized this way:</p>
 <pre class="r"><code>print(repo, tags=&quot;attachment&quot;, all=T)</code></pre>
 <pre><code>            ID Dims    Size
    @iris2D.pdf    - 5.84 kB
   @irispca.pdf    - 4.38 kB
- @iris2Dkm.pdf    - 5.99 kB</code></pre>
+ @iris2Dkm.pdf    - 6.02 kB</code></pre>
 <p>For the same reasons, one may want to show only hidden items:</p>
-<pre class="r"><code>#print(repo, tags=&quot;hide&quot;, all=T)</code></pre>
-<p>Finally, also the columns shown can be slected. Let’s show only the tags:</p>
-<pre class="r"><code>#repo$print(show=&quot;t&quot;, all=T)</code></pre>
+<pre class="r"><code>print(repo, tags=&quot;hide&quot;, all=T)</code></pre>
+<pre><code>                      
+ID   iris_cluVsSpecies
+Dims               3x5
+Size             180 B</code></pre>
+<p>Finally, also the columns shown can be selected. Let’s show only the tags:</p>
+<pre class="r"><code>repo$print(show=&quot;t&quot;, all=T)</code></pre>
+<pre><code>                ID                                                 Tags
+            myiris                              dataset, iris, repodemo
+        irisLabels                               labels, iris, repodemo
+       @iris2D.pdf                        visualization, iris, repodemo
+      @irispca.pdf                        visualization, iris, repodemo
+         iris_5clu         metadata, iris, kmeans, clustering, repodemo
+     @iris2Dkm.pdf    visualization, iris, clustering, kmeans, repodemo
+ iris_cluVsSpecies result, iris, validation, clustering, repodemo, hide</code></pre>
 </div>
 <div id="showing-dependencies" class="section level3">
 <h3>Showing dependencies</h3>
-<p>In the previous sections we set dependencies for some items, in order to remember that they needed other items to be computed. In addition, some items were stored as attachment to other items. Finally, we annotated all the items as being produced by this script. In repo, all these relations are summarized in the <em>dependency graph</em>. The formal representation of the graph is a matrix, in which the entry (i,j) represent a relation from i to j of type 1, 2 or 3 (<em>dependency</em>, <em>attachment</em> or <em>generation</em>). Here’s how it looks like:</p>
+<p>In the previous sections we set dependencies for some items, in order to remember that they needed other items to be computed. In addition, some items were stored as attachment to other items. Finally, we annotated all the items as being produced by this script. In repo, all these relations are summarized in the <em>dependency graph</em>. The formal representation of the graph is a matrix, in which the entry (i,j) represent a relation from i to j of type 1, 2 or 3 (<em>dependency</em>, <em>attachment</em> or <em>generation</em>). Here’s how it looks like (after removing full paths from the file names in the graph):</p>
 <pre class="r"><code>depgraph &lt;- repo$dependencies(plot=F)
+rownames(depgraph) &lt;- colnames(depgraph) &lt;- basename(rownames(depgraph))
 kable(depgraph)</code></pre>
 <table>
 <thead>
 <tr class="header">
 <th align="left"></th>
 <th align="right">myiris</th>
+<th align="right">irisLabels</th>
 <th align="right">iris2D.pdf</th>
 <th align="right">irispca.pdf</th>
 <th align="right">iris_5clu</th>
@@ -266,9 +317,21 @@ kable(depgraph)</code></pre>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">0</td>
+<td align="right">0</td>
 <td align="right">3</td>
 </tr>
 <tr class="even">
+<td align="left">irisLabels</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">3</td>
+</tr>
+<tr class="odd">
 <td align="left">iris2D.pdf</td>
 <td align="right">2</td>
 <td align="right">0</td>
@@ -276,10 +339,12 @@ kable(depgraph)</code></pre>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">0</td>
+<td align="right">0</td>
 <td align="right">3</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">irispca.pdf</td>
+<td align="right">0</td>
 <td align="right">0</td>
 <td align="right">2</td>
 <td align="right">0</td>
@@ -288,7 +353,7 @@ kable(depgraph)</code></pre>
 <td align="right">0</td>
 <td align="right">3</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">iris_5clu</td>
 <td align="right">1</td>
 <td align="right">0</td>
@@ -296,10 +361,12 @@ kable(depgraph)</code></pre>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">0</td>
+<td align="right">0</td>
 <td align="right">3</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">iris2Dkm.pdf</td>
+<td align="right">0</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">0</td>
@@ -308,9 +375,10 @@ kable(depgraph)</code></pre>
 <td align="right">0</td>
 <td align="right">3</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">iris_cluVsSpecies</td>
 <td align="right">1</td>
+<td align="right">0</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">1</td>
@@ -318,8 +386,9 @@ kable(depgraph)</code></pre>
 <td align="right">0</td>
 <td align="right">3</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">repodemo.R</td>
+<td align="right">0</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">0</td>
@@ -332,10 +401,10 @@ kable(depgraph)</code></pre>
 </table>
 <p>Omitting the <em>plot=F</em> parameter, the <em>dependencies</em> method will plot the dependency graph. This plot requires the <em>igraph</em> library.</p>
 <pre class="r"><code>repo$dependencies()</code></pre>
-<p><img src="index_files/figure-html/unnamed-chunk-25-1.png" title="" alt="" width="672" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-27-1.png" title="" alt="" width="672" /></p>
 <p>This is a small repo and all resources were created by the same script, so the “generated” edges are not interesting. The three types of edges can be shown selectively, so here’s how the graph looks like without the “generated” edges:</p>
 <pre class="r"><code>repo$dependencies(generated=F)</code></pre>
-<p><img src="index_files/figure-html/unnamed-chunk-26-1.png" title="" alt="" width="672" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-28-1.png" title="" alt="" width="672" /></p>
 </div>
 </div>
 <div id="accessing-items-in-the-repo" class="section level2">
@@ -348,16 +417,201 @@ kable(depgraph)</code></pre>
 Description:  A normalized version of the iris dataset coming with R. Normalization is made with the scale function with default parameters.
 Tags:         dataset, iris, repodemo
 Dimensions:   150x4
-Timestamp:    2015-06-29 00:57:31
+Timestamp:    2015-07-05 02:00:04
 Size on disk: 1.82 kB
-Provenance:   repodemo.R
+Provenance:   /home/users/napolitano/git/bbuck/repo/repodemo.R
 Attached to:  -
-Stored in:    /home/users/napolitano/git/bbuck/repo/repodemo/ae/8c/b5/ae8cb58a595aa3446f10e9fa4dfd4954
+Stored in:    repodemo/ae/8c/b5/ae8cb58a595aa3446f10e9fa4dfd4954
 MD5 checksum: 3502270a48ecd8c798a026203327da70</code></pre>
 </div>
-<div id="to-be-continued" class="section level2">
-<h2>To be continued</h2>
-<p>This document is still in progress… please be patient.</p>
+<div id="item-versions-and-temporary-items" class="section level2">
+<h2>Item versions and temporary items</h2>
+<p>There are actually 4 different ways of adding an object to the repo:</p>
+<ul>
+<li>Add a new object (<em>repo$put</em>)</li>
+<li>Overwrite an existing object (<em>repo$put(replace=T)</em>)</li>
+<li>Add a new version of an existing object (<em>repo$put(addversion = T)</em>)</li>
+<li>Stash an object as temporary (<em>repo$stash</em>)</li>
+</ul>
+<p>The first two were covered before, this section will deal with the other other two.</p>
+<div id="versioning" class="section level3">
+<h3>Versioning</h3>
+<p>If you’re into Machine Learning, you know that if you run K-means twice, you’re likely going to get two different solutions. Suppose we want to store such an alternative solution as an additional version of the <em>iris_5clu</em> item. This can be done as follows:</p>
+<pre class="r"><code>kiris2 &lt;- kmeans(myiris, 5)$cluster
+repo$put(kiris, &quot;iris_5clu&quot;,
+         &quot;Kmeans clustering of the Iris data, k=5. Today&#39;s version!&quot;,
+         c(&quot;metadata&quot;, &quot;iris&quot;, &quot;kmeans&quot;, &quot;clustering&quot;, &quot;repodemo&quot;), src,
+         depends=&quot;myiris&quot;, addversion=T)</code></pre>
+<ul>
+<li><strong>addversion</strong> when TRUE, tells repo to add a new version of an existing object. The new object will replace the old one and the old one will be renamed adding the suffix “#N”, with N being an incremental integer.</li>
+</ul>
+<p>The new repo looks like the old one:</p>
+<pre class="r"><code>repo</code></pre>
+<pre><code>         ID  Dims    Size
+     myiris 150x4 1.82 kB
+ irisLabels   150   124 B
+  iris_5clu   150   114 B</code></pre>
+<p>Except that <em>iris_5clu</em> is actually the new one (look at the description):</p>
+<pre class="r"><code>repo$info(&quot;iris_5clu&quot;)</code></pre>
+<pre><code>ID:           iris_5clu
+Description:  Kmeans clustering of the Iris data, k=5. Today&#39;s version!
+Tags:         metadata, iris, kmeans, clustering, repodemo
+Dimensions:   150
+Timestamp:    2015-07-05 02:00:05
+Size on disk: 114 B
+Provenance:   /home/users/napolitano/git/bbuck/repo/repodemo.R
+Attached to:  -
+Stored in:    repodemo/ff/6d/ce/ff6dce2d056afd01f0e1f0b13bc0e295
+MD5 checksum: 9b1ca26e5ca042328ddfb7bdb83fb34d</code></pre>
+<p>while the old one has been renamed and hidden:</p>
+<pre class="r"><code>repo$print(all=T)</code></pre>
+<pre><code>                ID  Dims    Size
+            myiris 150x4 1.82 kB
+        irisLabels   150   124 B
+       @iris2D.pdf     - 5.84 kB
+      @irispca.pdf     - 4.38 kB
+       iris_5clu#1   150   114 B
+     @iris2Dkm.pdf     - 6.02 kB
+ iris_cluVsSpecies   3x5   180 B
+         iris_5clu   150   114 B</code></pre>
+<p>However, it can be referred to as any other repo item:</p>
+<pre class="r"><code>repo$info(&quot;iris_5clu#1&quot;)</code></pre>
+<pre><code>ID:           iris_5clu#1
+Description:  Kmeans clustering of the Iris data, k=5.
+Tags:         metadata, iris, kmeans, clustering, repodemo, hide
+Dimensions:   150
+Timestamp:    2015-07-05 02:00:05
+Size on disk: 114 B
+Provenance:   /home/users/napolitano/git/bbuck/repo/repodemo.R
+Attached to:  -
+Stored in:    repodemo/ff/6d/ce/ff6dce2d056afd01f0e1f0b13bc0e295
+MD5 checksum: 9b1ca26e5ca042328ddfb7bdb83fb34d</code></pre>
+</div>
+<div id="stashing" class="section level3">
+<h3>Stashing</h3>
+<p>Repo tries to force the user into building a structured and annotated repository. However, this implies a tiny overhead that in some cases may not be justified. This is when stashing comes handy.</p>
+<p>Consider the case of caching intermediate results. Intermediate results are not going to be used directly, however they will save time in case the final results have to be generated again. In such cases one can just store the intermediate results without specifying annotations: this is called <em>stashing</em>.</p>
+<p>Below is a fake computation that takes 10 secs and that one does not want to perform during, for example, report generation. One may set the <em>dorun</em> variable to FALSE (btw that’s my personal practice) so that the script will <em>get</em> the precomputed variable from the repo.</p>
+<pre class="r"><code>if(dorun) {
+    Sys.sleep(10)
+    result &lt;- &quot;This took 10 seconds to compute&quot;
+    repo$stash(&quot;result&quot;)
+} else result &lt;- repo$get(&quot;result&quot;)</code></pre>
+<p>The <em>stash</em> function has a rather rough behavior: it will search the object by name int the caller environment, create some generic descriptions and tags, <em>put</em> the object into the repo overwriting stashed items by the same name, and finally hide the newly created item.</p>
+<pre class="r"><code>repo$info(&quot;result&quot;)</code></pre>
+<pre><code>ID:           result
+Description:  Stashed object
+Tags:         stash, hide
+Dimensions:   1
+Timestamp:    2015-07-05 02:00:06
+Size on disk: 74 B
+Provenance:   /home/users/napolitano/git/bbuck/repo
+Attached to:  -
+Stored in:    repodemo/a5/1a/c6/a51ac6da0abd674507d667f47462fa17
+MD5 checksum: b986aef5892aea1b3186c5390cac382e</code></pre>
+</div>
+</div>
+<div id="handlers" class="section level2">
+<h2>Handlers</h2>
+<p>It’s a shame that the auto-completion feature by your favorite editor can not be used on repo item names. Except it can. The <em>handlers</em> method returns a list of functions by the same names of the items in the repo. Each of these functions can call repo methods (<em>get</em> by default) on the corresponding items. Easier by examples:</p>
+<pre class="r"><code>h &lt;- repo$handlers()
+names(h)</code></pre>
+<pre><code> [1] &quot;myiris&quot;            &quot;irisLabels&quot;        &quot;iris2D.pdf&quot;       
+ [4] &quot;irispca.pdf&quot;       &quot;iris_5clu#1&quot;       &quot;iris2Dkm.pdf&quot;     
+ [7] &quot;iris_cluVsSpecies&quot; &quot;iris_5clu&quot;         &quot;result&quot;           
+[10] &quot;repo&quot;             </code></pre>
+<p>Handlers call <em>get</em> by default:</p>
+<pre class="r"><code>print(h$iris_cluVsSpecies())</code></pre>
+<pre><code>            kiris
+              1  2  3  4  5
+  setosa      0 28  0 22  0
+  versicolor 29  0 19  0  2
+  virginica  21  0  2  0 27</code></pre>
+<p>The <em>tag</em> method (not yet described) adds a tag to an item:</p>
+<pre class="r"><code>h$iris_cluVsSpecies(&quot;tag&quot;, &quot;onenewtag&quot;)
+h$iris_cluVsSpecies(&quot;info&quot;)</code></pre>
+<pre><code>ID:           iris_cluVsSpecies
+Description:  Contingency table of the kmeans clustering versus the original labels of the Iris dataset.
+Tags:         result, iris, validation, clustering, repodemo, hide, onenewtag
+Dimensions:   3x5
+Timestamp:    2015-07-05 02:00:06
+Size on disk: 180 B
+Provenance:   /home/users/napolitano/git/bbuck/repo/repodemo.R
+Attached to:  -
+Stored in:    repodemo/71/f4/85/71f48579b98958bc63ab72b6b49d08b4
+MD5 checksum: 85a1953e4037fb7a7f519c0d674fe532</code></pre>
+<p>One may want to open a repo directly with:</p>
+<pre class="r"><code>h &lt;- repo_open(&quot;repodemo&quot;)$handlers()</code></pre>
+<p>In that case, the handler to the repo itself will come handy:</p>
+<pre class="r"><code>h$repo</code></pre>
+<pre><code>         ID  Dims    Size
+     myiris 150x4 1.82 kB
+ irisLabels   150   124 B
+  iris_5clu   150   114 B</code></pre>
+<p>If items are removed or added, you may want to refresh the handlers:</p>
+<pre class="r"><code>h &lt;- h$repo$handlers()</code></pre>
+</div>
+<div id="other-features" class="section level2">
+<h2>Other features</h2>
+<p>You can easily get a list of repo methods by:</p>
+<pre class="r"><code>names(repo)</code></pre>
+<pre><code> [1] &quot;dependencies&quot; &quot;check&quot;        &quot;copy&quot;         &quot;handlers&quot;    
+ [5] &quot;tags&quot;         &quot;sys&quot;          &quot;print&quot;        &quot;export&quot;      
+ [9] &quot;info&quot;         &quot;rm&quot;           &quot;get&quot;          &quot;load&quot;        
+[13] &quot;entries&quot;      &quot;tag&quot;          &quot;untag&quot;        &quot;set&quot;         
+[17] &quot;attach&quot;       &quot;stash&quot;        &quot;stashclear&quot;   &quot;put&quot;         
+[21] &quot;test&quot;         &quot;append&quot;       &quot;root&quot;        </code></pre>
+<p>Here’s a very short summary:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Method</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">rm</td>
+<td align="left">remove an item</td>
+</tr>
+<tr class="even">
+<td align="left">export</td>
+<td align="left">save an item’s object to a regular RDS file</td>
+</tr>
+<tr class="odd">
+<td align="left">set</td>
+<td align="left">edit an existing entry</td>
+</tr>
+<tr class="even">
+<td align="left">tag</td>
+<td align="left">add a tag to an existing entry</td>
+</tr>
+<tr class="odd">
+<td align="left">untag</td>
+<td align="left">remove a tag from an existing entry</td>
+</tr>
+<tr class="even">
+<td align="left">sys</td>
+<td align="left">execute a system command on the file referred to by an item</td>
+</tr>
+<tr class="odd">
+<td align="left">tags</td>
+<td align="left">show the complete list of tags in the repo</td>
+</tr>
+<tr class="even">
+<td align="left">check</td>
+<td align="left">check repository integrity</td>
+</tr>
+<tr class="odd">
+<td align="left">stashclear</td>
+<td align="left">remove all stashed items</td>
+</tr>
+<tr class="even">
+<td align="left">root</td>
+<td align="left">get the repo root path</td>
+</tr>
+</tbody>
+</table>
 </div>
 
 
