@@ -56,7 +56,7 @@ DEBUG <- F
 
 library(digest) # digest
 library(tools) # md5sum
-source("~/git/bbuck/repo/repoS3.R")
+#source("~/git/bbuck/repo/repoS3.R")
 
 #' Open an existing repository or create a new one.
 #' 
