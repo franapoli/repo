@@ -10,7 +10,7 @@ repo_tags(repo)
 \item{repo}{An object of class repo.}
 }
 \value{
-Used for side effects.
+Character vector of unique tags defined in the repo.
 }
 \description{
 List all tags

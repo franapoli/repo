@@ -15,12 +15,4 @@ Used for side effects.
 \description{
 Check repo's integrity.
 }
-\examples{
-repo$check()
-## Checking item1... ok.
-## Checking item2... ok.
-## Checking item3... ok.
-## Checking item4... ok.
-## Checking item5... ok.
-}
 

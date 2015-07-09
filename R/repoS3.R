@@ -8,13 +8,6 @@
 #' 
 #' @param repo An object of class repo.
 #' @return Used for side effects.
-#' @examples
-#' repo$check()
-#' ## Checking item1... ok.
-#' ## Checking item2... ok.
-#' ## Checking item3... ok.
-#' ## Checking item4... ok.
-#' ## Checking item5... ok.
 repo_check <- function(repo)
     repo$check()
 
@@ -185,20 +178,11 @@ repo_attach <- function(repo, filepath, description, tags, src=NULL, replace=F, 
 repo_append <- function(repo, id, txtorfunc)
     repo$append(id, txtorfunc)
 
-#' Copy resource to another repo
+
+#' Show path to repo root
 #' 
 #' @param repo An object of class repo.
-#' @return Used for side effects.
-#' @examples
-#' ###code
-repo_copy <- function()
-    repo$append(id, txtorfunc)
-
-
-#' Description
-#' 
-#' @param repo An object of class repo.
-#' @return Path to the root of the repo.
+#' @return character cotaining the path to the root of the repo.
 #' @examples
 #' ###code
 repo_root <- function(repo)
@@ -218,20 +202,22 @@ print.repo <- function(repo, tags=NULL, all=F)
 #' Build dependency graph
 #'
 #' @param repo An object of class repo.
-#' @param depends 
-#' @param attached 
-#' @param generated 
-#' @param plot 
-#' @return Used for side effects.
+#' @param depends If TRUE, show "depends" edges
+#' @param attached If TRUE, show "attached" edges
+#' @param generated If TRUE, show "generated" edges
+#' @param plot If TRUE (default), plot the dependency graph
+#' @return Adjacency matrix representing the graph, with edges labeled
+#' 1, 2, 3 corresponding to "depends", "attached" and "generated" edge
+#' types respectively.
 repo_dependencies <- function(repo, depends=T, attached=T, generated=T, plot=T)
     repo$dependencies(depends, attached, generated, plot)
 
 #' Copy items to another repo
 #'
-#' @param repo An object of class repo.
-#' @param destrepo
-#' @param name
-#' @param tags
+#' @param repo An object of class repo (will copy from it)
+#' @param destrepo An object of class repo (will copy to it)
+#' @param name The name of the object to copy
+#' @param tags If not NULL, copy items matching tags.
 #' @return Used for side effects.
 repo_copy <- function(repo, destrepo, name, tags=NULL)
     repo$copy(destrepo, name, tags)
@@ -239,13 +225,16 @@ repo_copy <- function(repo, destrepo, name, tags=NULL)
 #' List all tags
 #'
 #' @param repo An object of class repo.
-#' @return Used for side effects.
+#' @return Character vector of unique tags defined in the repo.
 repo_tags <- function(repo)
     repo$tags()
 
 #' Run system call on item
 #'
 #' @param repo An object of class repo.
+#' @param name Name of a repo item. The path to the file that contains
+#' the item will be passed to the system program.
+#' @param command Shell command
 #' @return Used for side effects.
 repo_sys <- function(repo, name, command)
     repo$sys(name, command)
@@ -253,11 +242,14 @@ repo_sys <- function(repo, name, command)
 #' Quickly store temporary data
 #'
 #' @param repo An object of class repo.
+#' @param name A character containing the name of the variable to store.
+#' @param env Environment containing the variable by the specified
+#' name. Resolves to parent frame by default.
 #' @return Used for side effects.
-repo_stash <- function(repo, name)
-    repo$stash(name)
+repo_stash <- function(repo, name, env=parent.frame())
+    repo$stash(name, env)
 
-#' Remove stashed data
+#' Remove all stashed data
 #'
 #' @param repo An object of class repo.
 #' @return Used for side effects.

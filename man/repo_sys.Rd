@@ -8,6 +8,11 @@ repo_sys(repo, name, command)
 }
 \arguments{
 \item{repo}{An object of class repo.}
+
+\item{name}{Name of a repo item. The path to the file that contains
+the item will be passed to the system program.}
+
+\item{command}{Shell command}
 }
 \value{
 Used for side effects.

@@ -4,10 +4,15 @@
 \alias{repo_stash}
 \title{Quickly store temporary data}
 \usage{
-repo_stash(repo, name)
+repo_stash(repo, name, env = parent.frame())
 }
 \arguments{
 \item{repo}{An object of class repo.}
+
+\item{name}{A character containing the name of the variable to store.}
+
+\item{env}{Environment containing the variable by the specified
+name. Resolves to parent frame by default.}
 }
 \value{
 Used for side effects.

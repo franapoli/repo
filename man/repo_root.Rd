@@ -2,7 +2,7 @@
 % Please edit documentation in R/repoS3.R
 \name{repo_root}
 \alias{repo_root}
-\title{Description}
+\title{Show path to repo root}
 \usage{
 repo_root(repo)
 }
@@ -10,10 +10,10 @@ repo_root(repo)
 \item{repo}{An object of class repo.}
 }
 \value{
-Path to the root of the repo.
+character cotaining the path to the root of the repo.
 }
 \description{
-Description
+Show path to repo root
 }
 \examples{
 ###code

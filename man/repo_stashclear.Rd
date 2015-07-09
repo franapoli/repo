@@ -2,7 +2,7 @@
 % Please edit documentation in R/repoS3.R
 \name{repo_stashclear}
 \alias{repo_stashclear}
-\title{Remove stashed data}
+\title{Remove all stashed data}
 \usage{
 repo_stashclear(repo)
 }
@@ -13,6 +13,6 @@ repo_stashclear(repo)
 Used for side effects.
 }
 \description{
-Remove stashed data
+Remove all stashed data
 }
 

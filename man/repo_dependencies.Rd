@@ -10,16 +10,18 @@ repo_dependencies(repo, depends = T, attached = T, generated = T,
 \arguments{
 \item{repo}{An object of class repo.}
 
-\item{depends}{}
+\item{depends}{If TRUE, show "depends" edges}
 
-\item{attached}{}
+\item{attached}{If TRUE, show "attached" edges}
 
-\item{generated}{}
+\item{generated}{If TRUE, show "generated" edges}
 
-\item{plot}{}
+\item{plot}{If TRUE (default), plot the dependency graph}
 }
 \value{
-Used for side effects.
+Adjacency matrix representing the graph, with edges labeled
+1, 2, 3 corresponding to "depends", "attached" and "generated" edge
+types respectively.
 }
 \description{
 Build dependency graph

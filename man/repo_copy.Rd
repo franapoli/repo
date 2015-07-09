@@ -2,34 +2,23 @@
 % Please edit documentation in R/repoS3.R
 \name{repo_copy}
 \alias{repo_copy}
-\title{Copy resource to another repo}
+\title{Copy items to another repo}
 \usage{
-repo_copy(repo, destrepo, name, tags = NULL)
-
 repo_copy(repo, destrepo, name, tags = NULL)
 }
 \arguments{
-\item{repo}{An object of class repo.}
+\item{repo}{An object of class repo (will copy from it)}
 
-\item{destrepo}{}
+\item{destrepo}{An object of class repo (will copy to it)}
 
-\item{name}{}
+\item{name}{The name of the object to copy}
 
-\item{tags}{}
-
-\item{repo}{An object of class repo.}
+\item{tags}{If not NULL, copy items matching tags.}
 }
 \value{
 Used for side effects.
-
-Used for side effects.
 }
 \description{
-Copy resource to another repo
-
 Copy items to another repo
-}
-\examples{
-###code
 }
 
