@@ -322,7 +322,7 @@ repo_open <- function(root="~/.R_repo", forceYes=F)
           }
           invisible(depgraph())
         },
-        
+
         check = function()
         {
             entr <- entries
