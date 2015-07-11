@@ -4,7 +4,7 @@
 \alias{print.repo}
 \title{Show a summary of the repository contents.}
 \usage{
-\method{print}{repo}(repo, tags = NULL, all = F)
+\method{print}{repo}(repo, tags = NULL, all = F, show = "ds")
 }
 \arguments{
 \item{repo}{An object of class repo.}

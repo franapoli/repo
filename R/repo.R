@@ -60,11 +60,13 @@ library(tools) # md5sum
 
 #' Open an existing repository or create a new one.
 #' 
-#' @param root Path to store data in.
+#' @param root Path to store data in. Defaults to "~/.R_repo".
 #' @return An object of class Repo.
 #' @examples
-#' repo <- open.repo()
-repo_open <- function(root="~/.R_repo", forceYes=F)
+#' ## Creates a new repo in "./repodemo" without asking for
+#' ## confirmation.
+#' repo <- open.repo("repodemo", T)
+repo_open <- function(root="~/.R_repo", force=F)
 {
     checkVersions <- function(name)
         {
@@ -537,13 +539,7 @@ repo_open <- function(root="~/.R_repo", forceYes=F)
             
             return(data)
         },
-        
-        load = function(name)
-        {
-            warning("load is deprecated, use get.")
-            return(get("this", thisEnv)$get(name))
-        },
-        
+                
         entries = function()
         {
             return(get("entries",thisEnv))

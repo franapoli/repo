@@ -4,7 +4,8 @@
 \alias{repo_put}
 \title{Create a new item in the repo.}
 \usage{
-repo_put(repo, obj, name, description, tags, src = NULL, replace = F)
+repo_put(repo, obj, name, description, tags, src = NULL, depends = NULL,
+  replace = F, asattach = F, to = NULL, addversion = F)
 }
 \arguments{
 \item{repo}{An object of class repo.}

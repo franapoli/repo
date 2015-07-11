@@ -1,15 +1,31 @@
-## library(roxygen2)
-## package.skeleton('repo', code_files='repoS3.R', force=F)
-
-## # `R CMD roxygen -d helloRoxygen' works, too.
-## roxygenize('helloRoxygen', roxygen.dir='helloRoxygen', copy.package=FALSE, unlink.target=FALSE)
+#' Build and/or plots the repo's dependency graph
+#'
+#' @param repo An object of class repo.
+#' @param depends If TRUE, show "depends" edges
+#' @param attached If TRUE, show "attached" edges
+#' @param generated If TRUE, show "generated" edges
+#' @param plot If TRUE (default), plot the dependency graph
+#' @return Adjacency matrix representing the graph, with edges labeled
+#' 1, 2, 3 corresponding to "depends", "attached" and "generated" edge
+#' types respectively.
+repo_dependencies <- function(repo, depends=T, attached=T, generated=T, plot=T)
+    repo$dependencies(depends, attached, generated, plot)
 
 #' Check repo's integrity.
 #' 
 #' @param repo An object of class repo.
 #' @return Used for side effects.
-repo_check <- function(repo)
-    repo$check()
+repo_check <- function(repo) repo$check()
+
+#' Copy items to another repo
+#'
+#' @param repo An object of class repo (will copy from it)
+#' @param destrepo An object of class repo (will copy to it)
+#' @param name The name of the object to copy
+#' @param tags If not NULL, copy items matching tags.
+#' @return Used for side effects.
+repo_copy <- function(repo, destrepo, name, tags=NULL)
+    repo$copy(destrepo, name, tags)
 
 #' Provides alternative access to repo items.
 #' 
@@ -25,6 +41,32 @@ repo_check <- function(repo)
 #' ## Arguments can be used to call other repo functions on the item.
 #' h$item1("info")
 repo_handlers <- function(repo)repo$handlers()
+
+#' List all tags
+#'
+#' @param repo An object of class repo.
+#' @return Character vector of unique tags defined in the repo.
+repo_tags <- function(repo) repo$tags()
+
+#' Run system call on item
+#'
+#' @param repo An object of class repo.
+#' @param name Name of a repo item. The path to the file that contains
+#' the item will be passed to the system program.
+#' @param command Shell command
+#' @return Used for side effects.
+repo_sys <- function(repo, name, command)
+    repo$sys(name, command)
+
+#' Show a summary of the repository contents.
+#'
+#' @param repo An object of class repo.
+#' @param tags A list of character tags. Only items matching all the
+#' tags will be shown.
+#' @param all Show also items tagged with "hide".
+#' @return Used for side effects.
+print.repo <- function(repo, tags=NULL, all=F, show="ds")
+    repo$print(tags, all, show="ds")
 
 #' Export repo's items to RDS file.
 #' 
@@ -125,26 +167,6 @@ repo_untag <- function(repo, name = NULL, rmtags, tags = NULL)
 repo_set <- function(repo, name, obj=NULL, newname=NULL, description=NULL, tags=NULL, src=NULL, addtags=NULL)
     repo$set(name, obj, newname, description, tags, src, addtags)
 
-#' Create a new item in the repo.
-#' 
-#' @param repo An object of class repo.
-#' @param obj An R object to store in the repo.
-#' @param name A character identifier for the new item.
-#' @param description A character description of the item.
-#' @param tags A list of tags to sort the item. Tags are useful for
-#' selecting sets of items and run bulk actions.
-#' @param src The item's provenance as a list of character. Usually
-#' the name of the script producing the stored object, a website where
-#' the object was downloaded, and so on. If one of the provenance
-#' strings matches the name of a repo's item, this will create a
-#' dependency link.
-#' @param replace If the item exists, overwrite the specified fields.
-#' @return Used for side effects.
-#' @examples
-#' ###code
-repo_put <- function(repo, obj, name, description, tags, src=NULL, replace=F)
-    repo$put(obj, name, description, tags, src, replace)
-
 #' Create a new item from an existing file.
 #' 
 #' @param repo An object of class repo.
@@ -164,6 +186,46 @@ repo_put <- function(repo, obj, name, description, tags, src=NULL, replace=F)
 #' ###code
 repo_attach <- function(repo, filepath, description, tags, src=NULL, replace=F, to=NULL)
     repo$attach(filepath, description, tags, src, replace, to)
+
+#' Quickly store temporary data
+#'
+#' @param repo An object of class repo.
+#' @param name A character containing the name of the variable to store.
+#' @param env Environment containing the variable by the specified
+#' name. Resolves to parent frame by default.
+#' @return Used for side effects.
+repo_stash <- function(repo, name, env=parent.frame())
+    repo$stash(name, env)
+
+#' Remove all stashed data
+#'
+#' @param repo An object of class repo.
+#' @return Used for side effects.
+repo_stashclear <- function(repo)
+    repo$stashclear()
+
+
+#' Create a new item in the repo.
+#' 
+#' @param repo An object of class repo.
+#' @param obj An R object to store in the repo.
+#' @param name A character identifier for the new item.
+#' @param description A character description of the item.
+#' @param tags A list of tags to sort the item. Tags are useful for
+#' selecting sets of items and run bulk actions.
+#' @param src The item's provenance as a list of character. Usually
+#' the name of the script producing the stored object, a website where
+#' the object was downloaded, and so on. If one of the provenance
+#' strings matches the name of a repo's item, this will create a
+#' dependency link.
+#' @param replace If the item exists, overwrite the specified fields.
+#' @return Used for side effects.
+#' @examples
+#' ###code
+repo_put <- function(repo, obj, name, description, tags, src=NULL,
+                     depends = NULL, replace=F, asattach=F, to=NULL, addversion=F)
+    repo$put(obj, name, description, tags, src,
+             depends, replace, asattach, to, addversion)
 
 #' Append text to an existing item content.
 #' 
@@ -188,70 +250,3 @@ repo_append <- function(repo, id, txtorfunc)
 repo_root <- function(repo)
     repo$root()
 
-#' Show a summary of the repository contents.
-#'
-#' @param repo An object of class repo.
-#' @param tags A list of character tags. Only items matching all the
-#' tags will be shown.
-#' @param all Show also items tagged with "hide".
-#' @return Used for side effects.
-print.repo <- function(repo, tags=NULL, all=F)
-    repo$print(tags, all)
-
-
-#' Build dependency graph
-#'
-#' @param repo An object of class repo.
-#' @param depends If TRUE, show "depends" edges
-#' @param attached If TRUE, show "attached" edges
-#' @param generated If TRUE, show "generated" edges
-#' @param plot If TRUE (default), plot the dependency graph
-#' @return Adjacency matrix representing the graph, with edges labeled
-#' 1, 2, 3 corresponding to "depends", "attached" and "generated" edge
-#' types respectively.
-repo_dependencies <- function(repo, depends=T, attached=T, generated=T, plot=T)
-    repo$dependencies(depends, attached, generated, plot)
-
-#' Copy items to another repo
-#'
-#' @param repo An object of class repo (will copy from it)
-#' @param destrepo An object of class repo (will copy to it)
-#' @param name The name of the object to copy
-#' @param tags If not NULL, copy items matching tags.
-#' @return Used for side effects.
-repo_copy <- function(repo, destrepo, name, tags=NULL)
-    repo$copy(destrepo, name, tags)
-
-#' List all tags
-#'
-#' @param repo An object of class repo.
-#' @return Character vector of unique tags defined in the repo.
-repo_tags <- function(repo)
-    repo$tags()
-
-#' Run system call on item
-#'
-#' @param repo An object of class repo.
-#' @param name Name of a repo item. The path to the file that contains
-#' the item will be passed to the system program.
-#' @param command Shell command
-#' @return Used for side effects.
-repo_sys <- function(repo, name, command)
-    repo$sys(name, command)
-
-#' Quickly store temporary data
-#'
-#' @param repo An object of class repo.
-#' @param name A character containing the name of the variable to store.
-#' @param env Environment containing the variable by the specified
-#' name. Resolves to parent frame by default.
-#' @return Used for side effects.
-repo_stash <- function(repo, name, env=parent.frame())
-    repo$stash(name, env)
-
-#' Remove all stashed data
-#'
-#' @param repo An object of class repo.
-#' @return Used for side effects.
-repo_stashclear <- function(repo)
-    repo$stashclear()

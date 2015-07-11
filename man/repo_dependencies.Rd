@@ -2,7 +2,7 @@
 % Please edit documentation in R/repoS3.R
 \name{repo_dependencies}
 \alias{repo_dependencies}
-\title{Build dependency graph}
+\title{Build and/or plots the repo's dependency graph}
 \usage{
 repo_dependencies(repo, depends = T, attached = T, generated = T,
   plot = T)
@@ -24,6 +24,6 @@ Adjacency matrix representing the graph, with edges labeled
 types respectively.
 }
 \description{
-Build dependency graph
+Build and/or plots the repo's dependency graph
 }
 

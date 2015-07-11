@@ -4,10 +4,10 @@
 \alias{repo_open}
 \title{Open an existing repository or create a new one.}
 \usage{
-repo_open(root = "~/.R_repo", forceYes = F)
+repo_open(root = "~/.R_repo", force = F)
 }
 \arguments{
-\item{root}{Path to store data in.}
+\item{root}{Path to store data in. Defaults to "~/.R_repo".}
 }
 \value{
 An object of class Repo.
@@ -16,6 +16,8 @@ An object of class Repo.
 Open an existing repository or create a new one.
 }
 \examples{
-repo <- open.repo()
+## Creates a new repo in "./repodemo" without asking for
+## confirmation.
+repo <- open.repo("repodemo", T)
 }
 
