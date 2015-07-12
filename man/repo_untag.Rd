@@ -24,6 +24,10 @@ Used for side effects.
 Remove tags from an item.
 }
 \examples{
-repo_untag(repo, "item1", c("tag2"))
+repo <- repo_open("_temp_repo", TRUE)
+repo$put(1, "item1", "Sample item 1", c("tag1", "tag2"), replace=TRUE)
+repo$print(show="t")
+repo$untag("item1", "tag2")
+repo$print(show="t")
 }
 

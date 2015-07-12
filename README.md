@@ -6,14 +6,30 @@ with tags, annotations, provenance and dependence information. Find
 and load any saved objects easily through the repo interface, without
 remembering its position on the disk.
 
-## Install
+## Tour
 
-At the moment, if you have devtools, you can install the development
-version of repo with:
+Please check out the getting started guide at http://franapoli.github.io/repo.
 
-     install_github("franapoli/repo", ref="dev")
 
-## Next
+## Installation
 
-This README file is in progress: please check out the getting started
-guide at (http://franapoli.github.io/repo).
+### Download
+
+Repo is not on R repositories at the moment. Git users can get it
+with:
+
+git clone https://github.com/franapoli/repo
+
+Otherwise visit the same site with your browser.
+
+
+### Install
+
+You can install repo from sources with:
+
+    install.packages("path-to-downloaded-source", type="source", repos=NULL)
+
+devtools users can install and download directly from github with:
+
+    install_github("franapoli/repo", ref="dev")
+

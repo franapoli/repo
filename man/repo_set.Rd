@@ -32,6 +32,11 @@ Used for side effects.
 Edit an existing item.
 }
 \examples{
-###code
+repo <- repo_open("_temp_repo", TRUE)
+repo$put(1, "item1", "Sample item 1", c("tag1", "tag2"), replace=TRUE)
+repo$set("item1", obj=2)
+print(repo$get("item1"))
+repo$set("item1", description="Modified description", tags="new_tag_set")
+repo$info("item1")
 }
 

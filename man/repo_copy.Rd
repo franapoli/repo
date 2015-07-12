@@ -21,4 +21,10 @@ Used for side effects.
 \description{
 Copy items to another repo
 }
+\examples{
+repo <- repo_open("_temp_repo", TRUE)
+repo$put(0, "item1", "A sample item", "repo_check", replace=TRUE)
+repo2 <- repo_open("_temp_repo2", TRUE)
+repo$copy(repo2, "item1")
+}
 

@@ -19,9 +19,6 @@ appended.}
 Used for side effects.
 }
 \description{
-Append text to an existing item content.
-}
-\examples{
-###code
+This feature is experimental.
 }
 

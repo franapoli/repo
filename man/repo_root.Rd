@@ -16,6 +16,7 @@ character cotaining the path to the root of the repo.
 Show path to repo root
 }
 \examples{
-###code
+repo <- repo_open("_temp_repo", TRUE)
+print(repo$root())
 }
 

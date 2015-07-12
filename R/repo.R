@@ -52,8 +52,6 @@
 ##     [ ] Make examples buildable
 ## [X] Add notes field [rejected]
 
-DEBUG <- F
-
 library(digest) # digest
 library(tools) # md5sum
 #source("~/git/bbuck/repo/repoS3.R")
@@ -61,13 +59,17 @@ library(tools) # md5sum
 #' Open an existing repository or create a new one.
 #' 
 #' @param root Path to store data in. Defaults to "~/.R_repo".
+#' @param force Don't ask for confirmation.
 #' @return An object of class Repo.
 #' @examples
-#' ## Creates a new repo in "./repodemo" without asking for
+#' ## Creates a new repo in "./_temp_repo" without asking for
 #' ## confirmation.
-#' repo <- open.repo("repodemo", T)
+#' repo <- repo_open("_temp_repo", TRUE)
+#' repo$info()
 repo_open <- function(root="~/.R_repo", force=F)
 {
+    DEBUG <- F
+
     checkVersions <- function(name)
         {
             names <- sapply(entries, get, x="name")
@@ -314,9 +316,9 @@ repo_open <- function(root="~/.R_repo", force=F)
     me <- list(
         dependencies = function(depends=T, attached=T, generated=T, plot=T)
         {
-          library(igraph)
           deps <- depgraph(depends, attached, generated)
           if(plot) {
+              library(igraph)
             deps2 <- deps
             rownames(deps2) <- colnames(deps2) <- basename(rownames(deps))
             g <- graph.adjacency(deps2, weighted=c("type"))
@@ -508,7 +510,7 @@ repo_open <- function(root="~/.R_repo", force=F)
             }
         },
 
-        rm = function(name = NULL, tags = NULL)        
+        rm = function(name = NULL, tags = NULL, force)
         {
           checkIndexUnchanged()                   
             
@@ -516,7 +518,7 @@ repo_open <- function(root="~/.R_repo", force=F)
                 stop("You must specify either a name or a set of tags.")
 
             if(!is.null(tags) | length(name)>1){
-                runWithTags("rm", tags, name, T)
+                runWithTags("rm", tags, name, !force)
             } else {            
                 e <- get("findEntryIndex",thisEnv)(name)
                 if(is.null(e))
@@ -625,20 +627,27 @@ repo_open <- function(root="~/.R_repo", force=F)
         },
 
 
-        stash = function(name, env=parent.frame())
+        stash = function(name, rename = name, env=parent.frame())
         {
+            e <- getEntry(rename)
+            if(!is.null(e))
+                if(!"stash" %in% e$tags)
+                    stop(paste("A non-stash entry by the same name already exists,",
+                               "try setting the rename parameter."))
+            
             obj <- get(name, envir=env)
-            get("this", thisEnv)$put(obj, name, "Stashed object",
-                                     c("stash", "hide"),                                replace=T)
+            get("this", thisEnv)$put(obj, rename, "Stashed object",
+                                     c("stash", "hide"), replace=T)
         },
 
-        stashclear = function()
+        stashclear = function(force=F)
         {
-            get("this", thisEnv)$rm(tags=c("stash", "hide"))
+            get("this", thisEnv)$rm(tags=c("stash", "hide"), force)
         },
 
         
-        put = function(obj, name, description, tags, src=NULL, depends=NULL, replace=F, asattach=F, to=NULL, addversion=F)
+        put = function(obj, name, description, tags, src=NULL,
+            depends=NULL, replace=F, asattach=F, to=NULL, addversion=F)
         {
             checkIndexUnchanged()
             
@@ -761,7 +770,7 @@ repo_open <- function(root="~/.R_repo", force=F)
 
             if(!file.exists(root))
                 {
-                    if(forceYes)
+                    if(force)
                         n <- "yes" else {
                             cat(paste0(
                                 "Repo root \"", get("root",thisEnv),
@@ -783,54 +792,3 @@ repo_open <- function(root="~/.R_repo", force=F)
     return(me)
 }
 
-
-
-repo_test <- function(where = "./repotest")
-    {
-        repo <- repo_open("repodemo")
-        src <- normalizePath("repo.R")
-        
-        myiris <- scale(as.matrix(iris[,1:4]))
-        rownames(myiris) <- iris$Species
-                
-        repo$put(myiris, "myiris",
-              paste("A normalized version of the iris dataset coming with R.",
-                    "Normalization is made with the scale function with default parameters."),
-              c("dataset", "iris", "repodemo"), src, replace=T)
-
-        irispca <- princomp(myiris)        
-        iris2d <- irispca$scores[,c(1,2)]
-        
-        pdf("iris2D.pdf")
-        plot(iris2d, main="2D visualization of the Iris dataset", col=iris$Species)
-        dev.off()
-        repo$attach("iris2D.pdf", "Iris 2D visualization obtained with PCA.",
-              c("visualization", "iris", "repodemo"), src, replace=T, to="myiris")
-
-        pdf("irispca.pdf")
-        plot(irispca)
-        dev.off()
-
-        repo$attach("irispca.pdf", "Variance explained by the PCs of the Iris dataset",
-                    c("visualization", "iris", "repodemo"), src, replace=T, to="iris2D.pdf")
-        
-        kiris <- kmeans(myiris, 5)$cluster
-        repo$put(kiris, "iris_5clu", "Kmeans clustering of the Iris data, k=5.",
-              c("metadata", "iris", "kmeans", "clustering", "repodemo"), src, "myiris", T)
-
-        pdf("iris2Dkm.pdf")
-        plot(iris2d, main="Iris dataset kmeans clustering", col=kiris)
-        dev.off()
-        repo$attach("iris2Dkm.pdf", "Iris K-means clustering.",
-              c("visualization", "iris", "clustering", "kmeans", "repodemo"), src,
-                 replace=T, to="iris_5clu")
-
-        res <- table(rownames(myiris), kiris)
-        repo$put(res, "iris_cluVsSpecies",
-              paste("Contingency table of the kmeans clustering versus the",
-                    "original labels of the Iris dataset."),
-              c("result", "iris","validation", "clustering", "repodemo"),
-              src, c("myiris", "iris_5clu"), T)
-        
-        return(repo)
-    }

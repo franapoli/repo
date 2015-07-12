@@ -15,4 +15,9 @@ Used for side effects.
 \description{
 Check repo's integrity.
 }
+\examples{
+repo <- repo_open("_temp_repo", TRUE)
+repo$put(0, "item1", "A sample item", "repo_check", replace=TRUE)
+repo$check()
+}
 

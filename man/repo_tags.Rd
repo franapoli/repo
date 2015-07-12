@@ -15,4 +15,16 @@ Character vector of unique tags defined in the repo.
 \description{
 List all tags
 }
+\examples{
+repo <- repo_open("_temp_repo", T)
+
+## Putting two items with a few tags
+repo$put(1, "item1", "Sample item 1",
+    c("repo_tags", "tag1"), replace=TRUE)
+repo$put(2, "item2", "Sample item 2",
+    c("repo_tags", "tag2"), replace=TRUE)
+
+## Looking up tags
+repo$tags()
+}
 

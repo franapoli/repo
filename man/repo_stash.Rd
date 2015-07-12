@@ -4,12 +4,16 @@
 \alias{repo_stash}
 \title{Quickly store temporary data}
 \usage{
-repo_stash(repo, name, env = parent.frame())
+repo_stash(repo, name, rename, env = parent.frame())
 }
 \arguments{
 \item{repo}{An object of class repo.}
 
 \item{name}{A character containing the name of the variable to store.}
+
+\item{rename}{An optional character containing the new name for the
+variable. Useful if a non-stash variable named "name" already
+exists.}
 
 \item{env}{Environment containing the variable by the specified
 name. Resolves to parent frame by default.}
@@ -18,6 +22,23 @@ name. Resolves to parent frame by default.}
 Used for side effects.
 }
 \description{
-Quickly store temporary data
+A very simplified call to put that only requires to specify
+a variable name.
+}
+\details{
+The name parameter is used to search the parent
+(or a different specified) environment for the actual object to
+store. Then it is also used as the item name. The reserved tags
+"stash" and "hide" are set. In case a stashed item by the same name
+already exists, it is automatically overwritten. In case a
+non-stashed item by the same name already exists, an error is
+raised. A different name can be specified through the rename
+parameter in such cases.
+}
+\examples{
+repo <- repo_open("_temp_repo", TRUE)
+tempdata <- runif(10)
+repo$stash("tempdata")
+repo$info("tempdata")
 }
 

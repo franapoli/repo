@@ -24,6 +24,10 @@ Used for side effects.
 Add tags to an item.
 }
 \examples{
-repo_tag(repo, "item1", c("tag1", "tag2"))
+repo <- repo_open("_temp_repo", TRUE)
+repo$put(1, "item1", "Sample item 1", "tag1", replace=TRUE)
+repo$print(show="t")
+repo$tag("item1", "tag2")
+repo$print(show="t")
 }
 

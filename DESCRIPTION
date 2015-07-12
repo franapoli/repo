@@ -3,10 +3,10 @@ Type: Package
 Title: A resource management for R objects
 Version: 1.0
 Date: 2015-06-06
-Author: Francesco Napolitano
+Author: Francesco Napolitano <franapoli@gmail.com>
 Maintainer: Francesco Napolitano <franapoli@gmail.com>
-Description: This package implements an R objects repository manager. Instead of manually storing and retrieving R objects into and from the appropriate directories, repo offers an abstraction layer that takes care of sorting the objects. For each stored object, the user provides a name, a description and a list of tags. Repo will store the object together with all the metadata an provide easy access to it. Repo can display a compact list of all the items stored and provide search by tags, load in the workspace, remove from disk, export to RDS files, edit metadata, manage provenance traces.
-License: GPL
+Description: The repo package is meant to help with the management of R data files. It builds one (or more) centralized repository where R objects are stored together with corresponding annotations, tags, dependency notes, provenance traces. It also provides navigation tools to easily locate and load previously stored resources.
+License: file LICENSE
 Packaged: 2015-06-06 21:27:18 UTC; napolitano
-Depends: digest
+Depends: digest, tools
 Suggests: igraph

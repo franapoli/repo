@@ -10,12 +10,16 @@ repo_entries(repo)
 \item{repo}{An object of class repo.}
 }
 \value{
-A list of item entries.
+A detailed list of item entries.
 }
 \description{
 Low-level list of item entries.
 }
 \examples{
-l <- repo_entries(repo)
+repo <- repo_open("_temp_repo", TRUE)
+repo$put(1, "item1", "Sample item 1", "entries", replace=TRUE)
+repo$put(2, "item2", "Sample item 2", "entries", replace=TRUE)
+repo$put(3, "item3", "Sample item 3", "entries", replace=TRUE)
+print(repo$entries())
 }
 

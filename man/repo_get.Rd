@@ -18,6 +18,8 @@ The previously stored object.
 Retrieve an item from the repo.
 }
 \examples{
-x <- repo_get(repo, "item1")
+repo <- repo_open("_temp_repo", TRUE)
+repo$put(1, "item1", "Sample item 1", "get", replace=TRUE)
+print(repo$get("item1"))
 }
 

@@ -12,6 +12,8 @@ repo_attach(repo, filepath, description, tags, src = NULL, replace = F,
 
 \item{filepath}{The path to the file to be stored in the repo.}
 
+\item{description}{A character description of the item.}
+
 \item{tags}{A list of tags to sort the item. Tags are useful for
 selecting sets of items and run bulk actions.}
 
@@ -24,8 +26,6 @@ dependency link.}
 \item{replace}{If the item exists, overwrite the specified fields.}
 
 \item{to}{An existing item name to attach the file to.}
-
-\item{descritpion}{A character description of the item.}
 }
 \value{
 Used for side effects.
@@ -34,6 +34,20 @@ Used for side effects.
 Create a new item from an existing file.
 }
 \examples{
-###code
+repo <- repo_open("_temp_repo", TRUE)
+
+## \dontrun {
+## ## Creating a PDF file with a figure.
+## pdf("afigure.pdf")
+## ## Drawing a random plot in the figure
+## plot(runif(100), runif(100))
+## dev.off()
+## ## Attaching the PDF file to the repo
+## repo$attach("afigure.pdf", "A plot of random numbers", "repo_sys", replace=TRUE)
+## ## don't need the PDF file anymore
+## file.remove("afigure.pdf")
+## ## Opening the stored PDF with Evince document viewer
+## repo$sys("afigure.pdf", "evince")
+## }
 }
 

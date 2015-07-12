@@ -4,10 +4,12 @@
 \alias{repo_stashclear}
 \title{Remove all stashed data}
 \usage{
-repo_stashclear(repo)
+repo_stashclear(repo, force = F)
 }
 \arguments{
 \item{repo}{An object of class repo.}
+
+\item{force}{If TRUE, no confirmation is asked.}
 }
 \value{
 Used for side effects.

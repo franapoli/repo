@@ -21,6 +21,10 @@ Used for side effects.
 Remove item from the repo (and the disk).
 }
 \examples{
-repo_rm(repo, "item1")
+repo <- repo_open("_temp_repo", TRUE)
+repo$put(1, "item1", "Sample item 1", "info", replace=TRUE)
+print(repo)
+repo$rm("item1")
+print(repo)
 }
 

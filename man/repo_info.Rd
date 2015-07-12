@@ -21,6 +21,8 @@ Used for side effects.
 Provides detailed information about an item.
 }
 \examples{
-repo_info(repo, name="item1")
+repo <- repo_open("_temp_repo", TRUE)
+repo$put(1, "item1", "Sample item 1", "info", replace=TRUE)
+repo$info("item1")
 }
 

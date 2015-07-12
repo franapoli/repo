@@ -8,6 +8,8 @@ repo_open(root = "~/.R_repo", force = F)
 }
 \arguments{
 \item{root}{Path to store data in. Defaults to "~/.R_repo".}
+
+\item{force}{Don't ask for confirmation.}
 }
 \value{
 An object of class Repo.
@@ -16,8 +18,9 @@ An object of class Repo.
 Open an existing repository or create a new one.
 }
 \examples{
-## Creates a new repo in "./repodemo" without asking for
+## Creates a new repo in "./_temp_repo" without asking for
 ## confirmation.
-repo <- open.repo("repodemo", T)
+repo <- repo_open("_temp_repo", TRUE)
+repo$info()
 }
 

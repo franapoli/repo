@@ -10,13 +10,13 @@ repo_dependencies(repo, depends = T, attached = T, generated = T,
 \arguments{
 \item{repo}{An object of class repo.}
 
-\item{depends}{If TRUE, show "depends" edges}
+\item{depends}{If TRUE, show "depends" edges.}
 
-\item{attached}{If TRUE, show "attached" edges}
+\item{attached}{If TRUE, show "attached" edges.}
 
-\item{generated}{If TRUE, show "generated" edges}
+\item{generated}{If TRUE, show "generated" edges.}
 
-\item{plot}{If TRUE (default), plot the dependency graph}
+\item{plot}{If TRUE (default), plot the dependency graph.}
 }
 \value{
 Adjacency matrix representing the graph, with edges labeled
@@ -25,5 +25,30 @@ types respectively.
 }
 \description{
 Build and/or plots the repo's dependency graph
+}
+\examples{
+## Repository creation (or opening, if exists)
+## Will create the directory "./_temp_repo"
+repo <- repo_open("_temp_repo", TRUE)
+
+## Producing some irrelevant data
+data1 <- 1:10
+data2 <- data1 * 2
+data3 <- data1 / 2
+
+## Putting the data in the database, specifying dependencies
+repo$put(data1, "item1", "First item", "repo_dependencies", replace=TRUE)
+repo$put(data2, "item2", "Item dependent on item1",
+    "repo_dependencies", depends="item1", replace=TRUE)
+repo$put(data3, "item3", "Item dependent on item1 and item2",
+    "repo_dependencies", depends=c("item1", "item2"), replace=TRUE)
+
+## Obtaining the dependency matrix
+depmat <- repo$dependencies(plot=FALSE)
+## Simplifying labels
+rownames(depmat) <- colnames(depmat) <- basename(rownames(depmat))
+print(depmat)
+## The matrix can also be plotted as a graph (requires igraph package)
+## repo$dependencies(generated=F) # turning off "generated" edges
 }
 

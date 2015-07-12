@@ -13,11 +13,23 @@
 tags will be shown.}
 
 \item{all}{Show also items tagged with "hide".}
+
+\item{show}{Select columns to show.}
 }
 \value{
 Used for side effects.
 }
 \description{
 Show a summary of the repository contents.
+}
+\examples{
+repo <- repo_open("_temp_repo", TRUE)
+repo$put(1, "item1", "Sample item 1", c("tag1", "tag2"), replace=TRUE)
+repo$put(2, "item2", "Sample item 2", c("tag1", "hide"), replace=TRUE)
+repo$put(3, "item3", "Sample item 3", c("tag2", "tag3"), replace=TRUE)
+repo$print()
+repo$print(all=TRUE)
+repo$print(show="tds", all=TRUE)
+repo$print(show="tds", all=TRUE, tags="tag1")
 }
 

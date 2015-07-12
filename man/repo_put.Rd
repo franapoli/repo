@@ -2,7 +2,12 @@
 % Please edit documentation in R/repoS3.R
 \name{repo_put}
 \alias{repo_put}
-\title{Create a new item in the repo.}
+\title{repo <- repo_open("_temp_repo", TRUE)
+tempdata <- runif(10)
+repo$stash("tempdata")
+repo$print(all=TRUE)
+repo$stashclear(TRUE)
+Create a new item in the repo.}
 \usage{
 repo_put(repo, obj, name, description, tags, src = NULL, depends = NULL,
   replace = F, asattach = F, to = NULL, addversion = F)
@@ -25,15 +30,67 @@ the object was downloaded, and so on. If one of the provenance
 strings matches the name of a repo's item, this will create a
 dependency link.}
 
+\item{depends}{The name of an item on which this item depends.}
+
 \item{replace}{If the item exists, overwrite the specified fields.}
+
+\item{asattach}{Specifies that the item is to be trated as an
+attachment (see attach).}
+
+\item{to}{Optionally specifies which item this item is attached to.}
+
+\item{addversion}{If TRUE and an item named name exists, create a
+new version of the same item.}
 }
 \value{
 Used for side effects.
 }
 \description{
+repo <- repo_open("_temp_repo", TRUE)
+tempdata <- runif(10)
+repo$stash("tempdata")
+repo$print(all=TRUE)
+repo$stashclear(TRUE)
 Create a new item in the repo.
 }
 \examples{
-###code
+## Repository creation (or opening, if exists)
+## Will create the directory "./_temp_repo"
+repo <- repo_open("_temp_repo", T)
+
+## As provenance string we will use the fully  name
+## of the file containing this script. Use "normalizePath"
+## for fully qualified name (causes problems if used in
+## the example).
+
+src <- "repoS3.R"
+
+## Producing some irrelevant data
+data1 <- 1:10
+data2 <- data1 * 2
+data3 <- data1 / 2
+
+## Putting the data in the database, specifying dependencies
+repo$put(
+    obj = data1,
+    name = "item1",
+    description = "First item",
+    tags = c("repo_put", "a_random_tag"),
+    src = src,
+    replace=TRUE
+    )
+repo$put(data2, "item2", "Item dependent on item1",
+    "repo_dependencies", src, "item1", replace=TRUE)
+repo$put(data3, "item3", "Item dependent on item1 and item2",
+    "repo_dependencies", src, c("item1", "item2"), replace=TRUE)
+
+print(repo)
+
+## Creating another version of item1
+data1.2 <- data1 + runif(10)
+repo$put(data1.2, name = "item1", "First item with additional noise",
+    tags = c("repo_put", "a_random_tag"), src, addversion=TRUE)
+print(repo, all=TRUE)
+repo$info("item1#1")
 }
 

@@ -23,6 +23,8 @@ TRUE on success, FALSE otherwise.
 Export repo's items to RDS file.
 }
 \examples{
-repo_export(repo, "item1")
+repo <- repo_open("_temp_repo", TRUE)
+repo$put(1, "item1", "Sample item 1", "export", replace=TRUE)
+repo$export("item1")
 }
 

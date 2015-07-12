@@ -16,13 +16,27 @@ A list of functions.
 Provides alternative access to repo items.
 }
 \examples{
-repo <- repo_test()
-h <- repo_handlers(repo)
-## handlers have the same names as the items in the repo.
+repo <- repo_open("_temp_repo", T)
+
+## Putting some irrelevant data
+repo$put(1, "item1", "Sample item 1", "repo_handlers", replace=TRUE)
+repo$put(2, "item2", "Sample item 2", "repo_handlers", replace=TRUE)
+
+## Getting item handlers
+h <- repo$handlers()
+## handlers have the same names as the items in the repo (and they include
+## an handler to the repo itself).
 names(h)
+
 ## Without arguments, function "item1" loads item named "item1".
 i1 <- h$item1()
+
 ## Arguments can be used to call other repo functions on the item.
 h$item1("info")
+
+## After putting new data, the handlers must be refreshed.
+repo$put(3, "item3", "Sample item 3", "repo_handlers", replace=TRUE)
+h <- repo$handlers()
+names(h)
 }
 
