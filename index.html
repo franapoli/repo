@@ -13,18 +13,18 @@
 
 <title>Getting started with the repo R Data Manager</title>
 
-<script src="repodemo_files/jquery-1.11.0/jquery.min.js"></script>
+<script src="index_files/jquery-1.11.0/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link href="repodemo_files/bootstrap-3.3.1/css/bootstrap.min.css" rel="stylesheet" />
-<script src="repodemo_files/bootstrap-3.3.1/js/bootstrap.min.js"></script>
-<script src="repodemo_files/bootstrap-3.3.1/shim/html5shiv.min.js"></script>
-<script src="repodemo_files/bootstrap-3.3.1/shim/respond.min.js"></script>
+<link href="index_files/bootstrap-3.3.1/css/bootstrap.min.css" rel="stylesheet" />
+<script src="index_files/bootstrap-3.3.1/js/bootstrap.min.js"></script>
+<script src="index_files/bootstrap-3.3.1/shim/html5shiv.min.js"></script>
+<script src="index_files/bootstrap-3.3.1/shim/respond.min.js"></script>
 
 <style type="text/css">code{white-space: pre;}</style>
 <link rel="stylesheet"
-      href="repodemo_files/highlight/default.css"
+      href="index_files/highlight/default.css"
       type="text/css" />
-<script src="repodemo_files/highlight/highlight.js"></script>
+<script src="index_files/highlight/highlight.js"></script>
 <style type="text/css">
   pre:not([class]) {
     background-color: white;
@@ -172,7 +172,7 @@ img {
 iris2d &lt;- irispca$scores[,c(1,2)]
 plot(iris2d, main=&quot;2D visualization of the Iris dataset&quot;,
      col=repo$get(&quot;irisLabels&quot;))</code></pre>
-<p><img src="repodemo_files/figure-html/unnamed-chunk-9-1.png" title="" alt="" width="672" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-9-1.png" title="" alt="" width="672" /></p>
 <p>Note that <em>irisLabels</em> is taken on the fly from the repo. During this script, the variable is used three times, thus implying three disk accesses. This could be considered bad practice, however I will keep it as a quick hack example.</p>
 <p>Wouldn’t it be nice to store the visualization itself in the repo and somehow link it to the iris data? This can be done exploiting the <em>attach</em> method, which can store any file in the repo as is, together with usual annotations (description, tags, etc.). Internally, <em>attach</em> calls <em>put</em>, so it accepts most of its parameters. However, two differences are worth noting:</p>
 <ul>
@@ -191,7 +191,7 @@ repo$attach(&quot;iris2D.pdf&quot;, &quot;Iris 2D visualization obtained with PC
 <pre class="r"><code>repo$sys(&quot;iris2D.pdf&quot;, &quot;evince&quot;)</code></pre>
 <p>Back to data analysis, is the 2D visualization good enough for a 4D dataset? This can be checked by looking at the PCA eigenvalues, as follows.</p>
 <pre class="r"><code>plot(irispca)</code></pre>
-<p><img src="repodemo_files/figure-html/unnamed-chunk-13-1.png" title="" alt="" width="672" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-13-1.png" title="" alt="" width="672" /></p>
 <p>In the future, when looking at the 2D visualization, one may want to remember its “accuracy” according to the PCA eigenvalues above. So attaching the plot of the PCA eigenvalues to the plot of the 2D visualization could be a good idea. This is attaching to an attachment and is OK.</p>
 <pre class="r"><code>pdf(&quot;irispca.pdf&quot;)
 plot(irispca)
@@ -212,7 +212,7 @@ repo$put(kiris, &quot;iris_5clu&quot;, &quot;Kmeans clustering of the Iris data,
          depends=&quot;myiris&quot;, T)</code></pre>
 <p>Let’s see what the clustering looks like. This is the same 2D visualization as before, except that colors are given by clustering labels instead of class labels.</p>
 <pre class="r"><code>plot(iris2d, main=&quot;Iris dataset kmeans clustering&quot;, col=kiris)</code></pre>
-<p><img src="repodemo_files/figure-html/unnamed-chunk-16-1.png" title="" alt="" width="672" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-16-1.png" title="" alt="" width="672" /></p>
 <p>Just for the purpose of making the repo a bit more interesting, we will <em>attach</em> this visualization as well. Note the dependency.</p>
 <pre class="r"><code>pdf(&quot;iris2Dkm.pdf&quot;)
 plot(iris2d, main=&quot;Iris dataset kmeans clustering&quot;, col=kiris)
@@ -239,7 +239,7 @@ repo$put(res, &quot;iris_cluVsSpecies&quot;,
 <pre class="r"><code>repo$info()</code></pre>
 <pre><code>Root:            repodemo 
 Number of items: 7 
-Total size:      18.43 kB </code></pre>
+Total size:      18.42 kB </code></pre>
 </div>
 <div id="listing-items" class="section level3">
 <h3>Listing items</h3>
@@ -248,7 +248,7 @@ Total size:      18.43 kB </code></pre>
 <pre><code>         ID  Dims    Size
      myiris 150x4 1.82 kB
  irisLabels   150   124 B
-  iris_5clu   150   104 B</code></pre>
+  iris_5clu   150   109 B</code></pre>
 <p>As expected, hidden items are not shown. Use the following to make all the items appear:</p>
 <pre class="r"><code>print(repo, all=T)</code></pre>
 <pre><code>                ID  Dims    Size
@@ -256,15 +256,15 @@ Total size:      18.43 kB </code></pre>
         irisLabels   150   124 B
        @iris2D.pdf     - 5.84 kB
       @irispca.pdf     - 4.38 kB
-         iris_5clu   150   104 B
+         iris_5clu   150   109 B
      @iris2Dkm.pdf     - 5.98 kB
- iris_cluVsSpecies   3x5   180 B</code></pre>
+ iris_cluVsSpecies   3x5   178 B</code></pre>
 <p>Items can also be listed selectively. With the following call, only items tagged with “clustering” will be shown:</p>
 <pre class="r"><code>print(repo, tags=&quot;clustering&quot;, all=T)</code></pre>
 <pre><code>                ID Dims    Size
-         iris_5clu  150   104 B
+         iris_5clu  150   109 B
      @iris2Dkm.pdf    - 5.98 kB
- iris_cluVsSpecies  3x5   180 B</code></pre>
+ iris_cluVsSpecies  3x5   178 B</code></pre>
 <p>All attachments have the <em>attachment</em> tag, so they can be selectively visualized this way:</p>
 <pre class="r"><code>print(repo, tags=&quot;attachment&quot;, all=T)</code></pre>
 <pre><code>            ID Dims    Size
@@ -276,7 +276,7 @@ Total size:      18.43 kB </code></pre>
 <pre><code>                      
 ID   iris_cluVsSpecies
 Dims               3x5
-Size             180 B</code></pre>
+Size             178 B</code></pre>
 <p>Finally, also the columns shown can be selected. Let’s show only the tags:</p>
 <pre class="r"><code>repo$print(show=&quot;t&quot;, all=T)</code></pre>
 <pre><code>                ID                                                 Tags
@@ -401,10 +401,10 @@ kable(depgraph)</code></pre>
 </table>
 <p>Omitting the <em>plot=F</em> parameter, the <em>dependencies</em> method will plot the dependency graph. This plot requires the <em>igraph</em> library.</p>
 <pre class="r"><code>repo$dependencies()</code></pre>
-<p><img src="repodemo_files/figure-html/unnamed-chunk-27-1.png" title="" alt="" width="672" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-27-1.png" title="" alt="" width="672" /></p>
 <p>This is a small repo and all resources were created by the same script, so the “generated” edges are not interesting. The three types of edges can be shown selectively, so here’s how the graph looks like without the “generated” edges:</p>
 <pre class="r"><code>repo$dependencies(generated=F)</code></pre>
-<p><img src="repodemo_files/figure-html/unnamed-chunk-28-1.png" title="" alt="" width="672" /></p>
+<p><img src="index_files/figure-html/unnamed-chunk-28-1.png" title="" alt="" width="672" /></p>
 </div>
 </div>
 <div id="accessing-items-in-the-repo" class="section level2">
@@ -417,7 +417,7 @@ kable(depgraph)</code></pre>
 Description:  A normalized version of the iris dataset coming with R. Normalization is made with the scale function with default parameters.
 Tags:         dataset, iris, repodemo
 Dimensions:   150x4
-Timestamp:    2015-07-12 17:34:49
+Timestamp:    2015-07-12 21:07:32
 Size on disk: 1.82 kB
 Provenance:   /home/ciccio/git/gh-pages/repodemo.R
 Attached to:  -
@@ -450,19 +450,19 @@ repo$put(kiris, &quot;iris_5clu&quot;,
 <pre><code>         ID  Dims    Size
      myiris 150x4 1.82 kB
  irisLabels   150   124 B
-  iris_5clu   150   104 B</code></pre>
+  iris_5clu   150   109 B</code></pre>
 <p>Except that <em>iris_5clu</em> is actually the new one (look at the description):</p>
 <pre class="r"><code>repo$info(&quot;iris_5clu&quot;)</code></pre>
 <pre><code>ID:           iris_5clu
 Description:  Kmeans clustering of the Iris data, k=5. Today&#39;s version!
 Tags:         metadata, iris, kmeans, clustering, repodemo
 Dimensions:   150
-Timestamp:    2015-07-12 17:34:53
-Size on disk: 104 B
+Timestamp:    2015-07-12 21:07:38
+Size on disk: 109 B
 Provenance:   /home/ciccio/git/gh-pages/repodemo.R
 Attached to:  -
 Stored in:    repodemo/ff/6d/ce/ff6dce2d056afd01f0e1f0b13bc0e295
-MD5 checksum: 814c85c5266c91e3ac22db960e9c1b45</code></pre>
+MD5 checksum: c7c19e86775a4199c93bee6d5ab2fbe3</code></pre>
 <p>while the old one has been renamed and hidden:</p>
 <pre class="r"><code>repo$print(all=T)</code></pre>
 <pre><code>                ID  Dims    Size
@@ -470,22 +470,22 @@ MD5 checksum: 814c85c5266c91e3ac22db960e9c1b45</code></pre>
         irisLabels   150   124 B
        @iris2D.pdf     - 5.84 kB
       @irispca.pdf     - 4.38 kB
-       iris_5clu#1   150   104 B
+       iris_5clu#1   150   109 B
      @iris2Dkm.pdf     - 5.98 kB
- iris_cluVsSpecies   3x5   180 B
-         iris_5clu   150   104 B</code></pre>
+ iris_cluVsSpecies   3x5   178 B
+         iris_5clu   150   109 B</code></pre>
 <p>However, it can be referred to as any other repo item:</p>
 <pre class="r"><code>repo$info(&quot;iris_5clu#1&quot;)</code></pre>
 <pre><code>ID:           iris_5clu#1
 Description:  Kmeans clustering of the Iris data, k=5.
 Tags:         metadata, iris, kmeans, clustering, repodemo, hide
 Dimensions:   150
-Timestamp:    2015-07-12 17:34:53
-Size on disk: 104 B
+Timestamp:    2015-07-12 21:07:38
+Size on disk: 109 B
 Provenance:   /home/ciccio/git/gh-pages/repodemo.R
 Attached to:  -
 Stored in:    repodemo/ff/6d/ce/ff6dce2d056afd01f0e1f0b13bc0e295
-MD5 checksum: 814c85c5266c91e3ac22db960e9c1b45</code></pre>
+MD5 checksum: c7c19e86775a4199c93bee6d5ab2fbe3</code></pre>
 </div>
 <div id="stashing" class="section level3">
 <h3>Stashing</h3>
@@ -503,7 +503,7 @@ MD5 checksum: 814c85c5266c91e3ac22db960e9c1b45</code></pre>
 Description:  Stashed object
 Tags:         stash, hide
 Dimensions:   1
-Timestamp:    2015-07-12 17:34:54
+Timestamp:    2015-07-12 21:07:38
 Size on disk: 74 B
 Provenance:   /home/ciccio/git/gh-pages
 Attached to:  -
@@ -524,9 +524,9 @@ names(h)</code></pre>
 <pre class="r"><code>print(h$iris_cluVsSpecies())</code></pre>
 <pre><code>            kiris
               1  2  3  4  5
-  setosa      0 49  1  0  0
-  versicolor 28  0 19  3  0
-  virginica  15  0  2 30  3</code></pre>
+  setosa      1  0 49  0  0
+  versicolor 19  1  0 30  0
+  virginica   2 19  0 20  9</code></pre>
 <p>The <em>tag</em> method (not yet described) adds a tag to an item:</p>
 <pre class="r"><code>h$iris_cluVsSpecies(&quot;tag&quot;, &quot;onenewtag&quot;)
 h$iris_cluVsSpecies(&quot;info&quot;)</code></pre>
@@ -534,12 +534,12 @@ h$iris_cluVsSpecies(&quot;info&quot;)</code></pre>
 Description:  Contingency table of the kmeans clustering versus the original labels of the Iris dataset.
 Tags:         result, iris, validation, clustering, repodemo, hide, onenewtag
 Dimensions:   3x5
-Timestamp:    2015-07-12 17:34:54
-Size on disk: 180 B
+Timestamp:    2015-07-12 21:07:38
+Size on disk: 178 B
 Provenance:   /home/ciccio/git/gh-pages/repodemo.R
 Attached to:  -
 Stored in:    repodemo/71/f4/85/71f48579b98958bc63ab72b6b49d08b4
-MD5 checksum: 588bab80301a4d5b0d7db64a185ca401</code></pre>
+MD5 checksum: 9ec09274ef85bd98abcc0cdc20bba4b9</code></pre>
 <p>One may want to open a repo directly with:</p>
 <pre class="r"><code>h &lt;- repo_open(&quot;repodemo&quot;)$handlers()</code></pre>
 <p>In that case, the handler to the repo itself will come handy:</p>
@@ -547,7 +547,7 @@ MD5 checksum: 588bab80301a4d5b0d7db64a185ca401</code></pre>
 <pre><code>         ID  Dims    Size
      myiris 150x4 1.82 kB
  irisLabels   150   124 B
-  iris_5clu   150   104 B</code></pre>
+  iris_5clu   150   109 B</code></pre>
 <p>If items are removed or added, you may want to refresh the handlers:</p>
 <pre class="r"><code>h &lt;- h$repo$handlers()</code></pre>
 </div>
