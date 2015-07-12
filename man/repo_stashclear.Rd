@@ -17,4 +17,15 @@ Used for side effects.
 \description{
 Remove all stashed data
 }
+\examples{
+repo_path <- file.path(tempdir(), "example_repo")
+repo <- repo_open(repo_path, TRUE)
+tempdata <- runif(10)
+repo$stash("tempdata")
+repo$print(all=TRUE)
+repo$stashclear(TRUE)
+
+## wiping temporary repo
+unlink(repo_path, TRUE)
+}
 

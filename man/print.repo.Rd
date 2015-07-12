@@ -4,10 +4,10 @@
 \alias{print.repo}
 \title{Show a summary of the repository contents.}
 \usage{
-\method{print}{repo}(repo, tags = NULL, all = F, show = "ds")
+\method{print}{repo}(x, tags = NULL, all = F, show = "ds", ...)
 }
 \arguments{
-\item{repo}{An object of class repo.}
+\item{x}{An object of class repo.}
 
 \item{tags}{A list of character tags. Only items matching all the
 tags will be shown.}
@@ -15,6 +15,8 @@ tags will be shown.}
 \item{all}{Show also items tagged with "hide".}
 
 \item{show}{Select columns to show.}
+
+\item{...}{Further arguments passed to or from other methods}
 }
 \value{
 Used for side effects.
@@ -23,7 +25,8 @@ Used for side effects.
 Show a summary of the repository contents.
 }
 \examples{
-repo <- repo_open("_temp_repo", TRUE)
+repo_path <- file.path(tempdir(), "example_repo")
+repo <- repo_open(repo_path, TRUE)
 repo$put(1, "item1", "Sample item 1", c("tag1", "tag2"), replace=TRUE)
 repo$put(2, "item2", "Sample item 2", c("tag1", "hide"), replace=TRUE)
 repo$put(3, "item3", "Sample item 3", c("tag2", "tag3"), replace=TRUE)
@@ -31,5 +34,10 @@ repo$print()
 repo$print(all=TRUE)
 repo$print(show="tds", all=TRUE)
 repo$print(show="tds", all=TRUE, tags="tag1")
+## wiping the temp repo
+unlink(repo_path, TRUE)
+
+## wiping temporary repo
+unlink(repo_path, TRUE)
 }
 

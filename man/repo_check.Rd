@@ -16,8 +16,12 @@ Used for side effects.
 Check repo's integrity.
 }
 \examples{
-repo <- repo_open("_temp_repo", TRUE)
+repo_path <- file.path(tempdir(), "example_repo")
+repo <- repo_open(repo_path, TRUE)
 repo$put(0, "item1", "A sample item", "repo_check", replace=TRUE)
 repo$check()
+
+## wiping temporary repo
+unlink(repo_path, TRUE)
 }
 

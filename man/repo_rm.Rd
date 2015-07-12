@@ -21,10 +21,15 @@ Used for side effects.
 Remove item from the repo (and the disk).
 }
 \examples{
-repo <- repo_open("_temp_repo", TRUE)
+repo_path <- file.path(tempdir(), "example_repo")
+repo <- repo_open(repo_path, TRUE)
 repo$put(1, "item1", "Sample item 1", "info", replace=TRUE)
+repo$put(2, "item2", "Sample item 2", "info", replace=TRUE)
 print(repo)
 repo$rm("item1")
 print(repo)
+
+## wiping temporary repo
+unlink(repo_path, TRUE)
 }
 

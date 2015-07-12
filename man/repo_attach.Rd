@@ -34,20 +34,24 @@ Used for side effects.
 Create a new item from an existing file.
 }
 \examples{
-repo <- repo_open("_temp_repo", TRUE)
+repo_path <- file.path(tempdir(), "example_repo")
+repo <- repo_open(repo_path, TRUE)
 
-## \dontrun {
-## ## Creating a PDF file with a figure.
-## pdf("afigure.pdf")
-## ## Drawing a random plot in the figure
-## plot(runif(100), runif(100))
-## dev.off()
-## ## Attaching the PDF file to the repo
-## repo$attach("afigure.pdf", "A plot of random numbers", "repo_sys", replace=TRUE)
-## ## don't need the PDF file anymore
-## file.remove("afigure.pdf")
-## ## Opening the stored PDF with Evince document viewer
-## repo$sys("afigure.pdf", "evince")
-## }
+\dontrun{
+## Creating a PDF file with a figure.
+pdf("afigure.pdf")
+## Drawing a random plot in the figure
+plot(runif(100), runif(100))
+dev.off()
+## Attaching the PDF file to the repo
+repo$attach("afigure.pdf", "A plot of random numbers", "repo_sys", replace=TRUE)
+## don't need the PDF file anymore
+file.remove("afigure.pdf")
+## Opening the stored PDF with Evince document viewer
+repo$sys("afigure.pdf", "evince")
+}
+
+## wiping temporary repo
+unlink(repo_path, TRUE)
 }
 

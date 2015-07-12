@@ -16,7 +16,8 @@ Character vector of unique tags defined in the repo.
 List all tags
 }
 \examples{
-repo <- repo_open("_temp_repo", T)
+repo_path <- file.path(tempdir(), "example_repo")
+repo <- repo_open(repo_path, TRUE)
 
 ## Putting two items with a few tags
 repo$put(1, "item1", "Sample item 1",
@@ -26,5 +27,8 @@ repo$put(2, "item2", "Sample item 2",
 
 ## Looking up tags
 repo$tags()
+
+## wiping temporary repo
+unlink(repo_path, TRUE)
 }
 

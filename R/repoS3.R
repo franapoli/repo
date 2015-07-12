@@ -17,6 +17,23 @@
 #' @aliases repo
 NULL
 
+#' Open an existing repository or create a new one.
+#' 
+#' @param root Path to store data in. Defaults to "~/.R_repo".
+#' @param force Don't ask for confirmation.
+#' @return An object of class Repo.
+#' @name repo_open
+#' @examples
+#' ## Creates a new repo in a temporary dir without asking for
+#' ## confirmation.
+#' repo_path <- file.path(tempdir(), "example_repo")
+#' repo <- repo_open(repo_path, TRUE)
+#' repo$put(0, "zero", "a random item", "a_tag")
+#' repo$info()
+#' ## wiping temporary repo
+#' unlink(repo_path, TRUE)
+NULL
+
 
 #' Build and/or plots the repo's dependency graph
 #'
@@ -30,8 +47,8 @@ NULL
 #' types respectively.
 #' @examples
 #' ## Repository creation (or opening, if exists)
-#' ## Will create the directory "./_temp_repo"
-#' repo <- repo_open("_temp_repo", TRUE)
+#' repo_path <- file.path(tempdir(), "example_repo")
+#' repo <- repo_open(repo_path, TRUE)
 #'
 #' ## Producing some irrelevant data
 #' data1 <- 1:10
@@ -52,6 +69,9 @@ NULL
 #' print(depmat)
 #' ## The matrix can also be plotted as a graph (requires igraph package)
 #' ## repo$dependencies(generated=F) # turning off "generated" edges
+#' 
+#' ## wiping temporary repo
+#' unlink(repo_path, TRUE)
 
 repo_dependencies <- function(repo, depends=T, attached=T, generated=T, plot=T)
     repo$dependencies(depends, attached, generated, plot)
@@ -61,9 +81,14 @@ repo_dependencies <- function(repo, depends=T, attached=T, generated=T, plot=T)
 #' @param repo An object of class repo.
 #' @return Used for side effects.
 #' @examples
-#' repo <- repo_open("_temp_repo", TRUE)
+#' repo_path <- file.path(tempdir(), "example_repo")
+#' repo <- repo_open(repo_path, TRUE)
 #' repo$put(0, "item1", "A sample item", "repo_check", replace=TRUE)
 #' repo$check()
+#' 
+#' ## wiping temporary repo
+#' unlink(repo_path, TRUE)
+
 repo_check <- function(repo) repo$check()
 
 #' Copy items to another repo
@@ -74,10 +99,16 @@ repo_check <- function(repo) repo$check()
 #' @param tags If not NULL, copy items matching tags.
 #' @return Used for side effects.
 #' @examples
-#' repo <- repo_open("_temp_repo", TRUE)
-#' repo$put(0, "item1", "A sample item", "repo_check", replace=TRUE)
-#' repo2 <- repo_open("_temp_repo2", TRUE)
-#' repo$copy(repo2, "item1")
+#' repo_path <- file.path(tempdir(), "example_repo1")
+#' repo1 <- repo_open(repo_path, TRUE)
+#' repo1$put(0, "item1", "A sample item", "tag1", replace=TRUE)
+#' repo_path2 <- file.path(tempdir(), "example_repo2")
+#' repo2 <- repo_open(repo_path2, TRUE)
+#' repo1$copy(repo2, "item1")
+#'
+#' ## wiping temporary repo
+#' unlink(repo_path, TRUE)
+
 repo_copy <- function(repo, destrepo, name, tags=NULL)
     repo$copy(destrepo, name, tags)
 
@@ -88,7 +119,8 @@ repo_copy <- function(repo, destrepo, name, tags=NULL)
 #' @return A list of functions.
 #' @examples
 #'
-#' repo <- repo_open("_temp_repo", T)
+#' repo_path <- file.path(tempdir(), "example_repo")
+#' repo <- repo_open(repo_path, TRUE)
 #' 
 #' ## Putting some irrelevant data
 #' repo$put(1, "item1", "Sample item 1", "repo_handlers", replace=TRUE)
@@ -110,6 +142,9 @@ repo_copy <- function(repo, destrepo, name, tags=NULL)
 #' repo$put(3, "item3", "Sample item 3", "repo_handlers", replace=TRUE)
 #' h <- repo$handlers()
 #' names(h)
+#'
+#' ## wiping temporary repo
+#' unlink(repo_path, TRUE)
 repo_handlers <- function(repo)repo$handlers()
 
 #' List all tags
@@ -117,7 +152,8 @@ repo_handlers <- function(repo)repo$handlers()
 #' @param repo An object of class repo.
 #' @return Character vector of unique tags defined in the repo.
 #' @examples
-#' repo <- repo_open("_temp_repo", T)
+#' repo_path <- file.path(tempdir(), "example_repo")
+#' repo <- repo_open(repo_path, TRUE)
 #'
 #' ## Putting two items with a few tags
 #' repo$put(1, "item1", "Sample item 1",
@@ -127,6 +163,9 @@ repo_handlers <- function(repo)repo$handlers()
 #'
 #' ## Looking up tags
 #' repo$tags()
+#'
+#' ## wiping temporary repo
+#' unlink(repo_path, TRUE)
 repo_tags <- function(repo) repo$tags()
 
 #' Run system call on item
@@ -137,33 +176,40 @@ repo_tags <- function(repo) repo$tags()
 #' @param command Shell command
 #' @return Used for side effects.
 #' @examples
-#' repo <- repo_open("_temp_repo", T)
-#' ## \dontrun {
-#' ## ## Creating a PDF file with a figure.
-#' ## pdf("afigure.pdf")
-#' ## ## Drawing a random plot in the figure
-#' ## plot(runif(100), runif(100))
-#' ## dev.off()
-#' ## ## Attaching the PDF file to the repo
-#' ## repo$attach("afigure.pdf", "A plot of random numbers", "repo_sys", replace=TRUE)
-#' ## ## don't need the PDF file anymore
-#' ## file.remove("afigure.pdf")
-#' ## ## Opening the stored PDF with Evince document viewer
-#' ## repo$sys("afigure.pdf", "evince")
-#' ## }
+#' repo_path <- file.path(tempdir(), "example_repo")
+#' repo <- repo_open(repo_path, TRUE)
+#' \dontrun{
+#' ## Creating a PDF file with a figure.
+#' pdffile <- file.path(tempdir(), "afigure.pdf")
+#' pdf(pdffile)
+#' ## Drawing a random plot in the figure
+#' plot(runif(100), runif(100))
+#' dev.off()
+#' ## Attaching the PDF file to the repo
+#' repo$attach(pdffile, "A plot of random numbers", "repo_sys", replace=TRUE)
+#' ## don't need the original PDF file anymore
+#' file.remove(pdffile)
+#' ## Opening the stored PDF with Evince document viewer
+#' repo$sys("afigure.pdf", "evince")
+#'}
+#'
+#' ## wiping temporary repo
+#' unlink(repo_path, TRUE)
 repo_sys <- function(repo, name, command)
     repo$sys(name, command)
 
 #' Show a summary of the repository contents.
 #'
-#' @param repo An object of class repo.
+#' @param x An object of class repo.
 #' @param tags A list of character tags. Only items matching all the
 #' tags will be shown.
 #' @param all Show also items tagged with "hide".
 #' @param show Select columns to show.
+#' @param ... Further arguments passed to or from other methods
 #' @return Used for side effects.
 #' @examples
-#' repo <- repo_open("_temp_repo", TRUE)
+#' repo_path <- file.path(tempdir(), "example_repo")
+#' repo <- repo_open(repo_path, TRUE)
 #' repo$put(1, "item1", "Sample item 1", c("tag1", "tag2"), replace=TRUE)
 #' repo$put(2, "item2", "Sample item 2", c("tag1", "hide"), replace=TRUE)
 #' repo$put(3, "item3", "Sample item 3", c("tag2", "tag3"), replace=TRUE)
@@ -171,8 +217,13 @@ repo_sys <- function(repo, name, command)
 #' repo$print(all=TRUE)
 #' repo$print(show="tds", all=TRUE)
 #' repo$print(show="tds", all=TRUE, tags="tag1")
-print.repo <- function(repo, tags=NULL, all=F, show="ds")
-    repo$print(tags, all, show="ds")
+#' ## wiping the temp repo
+#' unlink(repo_path, TRUE)
+#'
+#' ## wiping temporary repo
+#' unlink(repo_path, TRUE)
+print.repo <- function(x, tags=NULL, all=F, show="ds", ...)
+    x$print(tags, all, show="ds")
 
 #' Export repo's items to RDS file.
 #' 
@@ -183,9 +234,13 @@ print.repo <- function(repo, tags=NULL, all=F, show="ds")
 #' list will be exported.
 #' @return TRUE on success, FALSE otherwise.
 #' @examples
-#' repo <- repo_open("_temp_repo", TRUE)
+#' repo_path <- file.path(tempdir(), "example_repo")
+#' repo <- repo_open(repo_path, TRUE)
 #' repo$put(1, "item1", "Sample item 1", "export", replace=TRUE)
-#' repo$export("item1")
+#' repo$export("item1", tempdir()) # creates item1.RDS in a tempdir
+#'
+#' ## wiping temporary repo
+#' unlink(repo_path, TRUE)
 repo_export <- function(repo, name, where=".", tags=NULL)
     repo$export(name, where, tags)
 
@@ -197,9 +252,13 @@ repo_export <- function(repo, name, where=".", tags=NULL)
 #' @param tags List of tags: info will run on all items matching the tag list.
 #' @return Used for side effects.
 #' @examples
-#' repo <- repo_open("_temp_repo", TRUE)
+#' repo_path <- file.path(tempdir(), "example_repo")
+#' repo <- repo_open(repo_path, TRUE)
 #' repo$put(1, "item1", "Sample item 1", "info", replace=TRUE)
 #' repo$info("item1")
+#'
+#' ## wiping temporary repo
+#' unlink(repo_path, TRUE)
 repo_info <- function(repo, name = NULL, tags = NULL)
     repo$info(name, tags)
 
@@ -211,11 +270,16 @@ repo_info <- function(repo, name = NULL, tags = NULL)
 #' removed.
 #' @return Used for side effects.
 #' @examples
-#' repo <- repo_open("_temp_repo", TRUE)
+#' repo_path <- file.path(tempdir(), "example_repo")
+#' repo <- repo_open(repo_path, TRUE)
 #' repo$put(1, "item1", "Sample item 1", "info", replace=TRUE)
+#' repo$put(2, "item2", "Sample item 2", "info", replace=TRUE)
 #' print(repo)
 #' repo$rm("item1")
 #' print(repo)
+#'
+#' ## wiping temporary repo
+#' unlink(repo_path, TRUE)
 repo_rm <- function(repo, name = NULL, tags = NULL)
     repo$rm(name, tags)
 
@@ -225,9 +289,13 @@ repo_rm <- function(repo, name = NULL, tags = NULL)
 #' @param name An item's name.
 #' @return The previously stored object.
 #' @examples
-#' repo <- repo_open("_temp_repo", TRUE)
+#' repo_path <- file.path(tempdir(), "example_repo")
+#' repo <- repo_open(repo_path, TRUE)
 #' repo$put(1, "item1", "Sample item 1", "get", replace=TRUE)
 #' print(repo$get("item1"))
+#'
+#' ## wiping temporary repo
+#' unlink(repo_path, TRUE)
 repo_get <- function(repo, name)repo$get(name)
 
 #' Low-level list of item entries.
@@ -235,11 +303,15 @@ repo_get <- function(repo, name)repo$get(name)
 #' @param repo An object of class repo.
 #' @return A detailed list of item entries.
 #' @examples
-#' repo <- repo_open("_temp_repo", TRUE)
+#' repo_path <- file.path(tempdir(), "example_repo")
+#' repo <- repo_open(repo_path, TRUE)
 #' repo$put(1, "item1", "Sample item 1", "entries", replace=TRUE)
 #' repo$put(2, "item2", "Sample item 2", "entries", replace=TRUE)
 #' repo$put(3, "item3", "Sample item 3", "entries", replace=TRUE)
 #' print(repo$entries())
+#'
+#' ## wiping temporary repo
+#' unlink(repo_path, TRUE)
 repo_entries <- function(repo)repo$entries()
 
 #' Add tags to an item.
@@ -252,11 +324,15 @@ repo_entries <- function(repo)repo$entries()
 #' matching the list.
 #' @return Used for side effects.
 #' @examples
-#' repo <- repo_open("_temp_repo", TRUE)
+#' repo_path <- file.path(tempdir(), "example_repo")
+#' repo <- repo_open(repo_path, TRUE)
 #' repo$put(1, "item1", "Sample item 1", "tag1", replace=TRUE)
 #' repo$print(show="t")
 #' repo$tag("item1", "tag2")
 #' repo$print(show="t")
+#'
+#' ## wiping temporary repo
+#' unlink(repo_path, TRUE)
 repo_tag <- function(repo, name = NULL, newtags, tags = NULL)
     repo$tag(name, newtags, tags)
 
@@ -270,11 +346,15 @@ repo_tag <- function(repo, name = NULL, newtags, tags = NULL)
 #' matching the list.
 #' @return Used for side effects.
 #' @examples
-#' repo <- repo_open("_temp_repo", TRUE)
+#' repo_path <- file.path(tempdir(), "example_repo")
+#' repo <- repo_open(repo_path, TRUE)
 #' repo$put(1, "item1", "Sample item 1", c("tag1", "tag2"), replace=TRUE)
 #' repo$print(show="t")
 #' repo$untag("item1", "tag2")
 #' repo$print(show="t")
+#'
+#' ## wiping temporary repo
+#' unlink(repo_path, TRUE)
 repo_untag <- function(repo, name = NULL, rmtags, tags = NULL)
     repo$untag(name, rmtags, tags)
 
@@ -291,12 +371,16 @@ repo_untag <- function(repo, name = NULL, rmtags, tags = NULL)
 #' used together with the parameter "tags".
 #' @return Used for side effects.
 #' @examples
-#' repo <- repo_open("_temp_repo", TRUE)
+#' repo_path <- file.path(tempdir(), "example_repo")
+#' repo <- repo_open(repo_path, TRUE)
 #' repo$put(1, "item1", "Sample item 1", c("tag1", "tag2"), replace=TRUE)
 #' repo$set("item1", obj=2)
 #' print(repo$get("item1"))
 #' repo$set("item1", description="Modified description", tags="new_tag_set")
 #' repo$info("item1")
+#'
+#' ## wiping temporary repo
+#' unlink(repo_path, TRUE)
 repo_set <- function(repo, name, obj=NULL, newname=NULL, description=NULL, tags=NULL, src=NULL, addtags=NULL)
     repo$set(name, obj, newname, description, tags, src, addtags)
 
@@ -316,21 +400,25 @@ repo_set <- function(repo, name, obj=NULL, newname=NULL, description=NULL, tags=
 #' @param to An existing item name to attach the file to.
 #' @return Used for side effects.
 #' @examples
-#' repo <- repo_open("_temp_repo", TRUE)
+#' repo_path <- file.path(tempdir(), "example_repo")
+#' repo <- repo_open(repo_path, TRUE)
 #' 
-#' ## \dontrun {
-#' ## ## Creating a PDF file with a figure.
-#' ## pdf("afigure.pdf")
-#' ## ## Drawing a random plot in the figure
-#' ## plot(runif(100), runif(100))
-#' ## dev.off()
-#' ## ## Attaching the PDF file to the repo
-#' ## repo$attach("afigure.pdf", "A plot of random numbers", "repo_sys", replace=TRUE)
-#' ## ## don't need the PDF file anymore
-#' ## file.remove("afigure.pdf")
-#' ## ## Opening the stored PDF with Evince document viewer
-#' ## repo$sys("afigure.pdf", "evince")
-#' ## }
+#' \dontrun{
+#' ## Creating a PDF file with a figure.
+#' pdf("afigure.pdf")
+#' ## Drawing a random plot in the figure
+#' plot(runif(100), runif(100))
+#' dev.off()
+#' ## Attaching the PDF file to the repo
+#' repo$attach("afigure.pdf", "A plot of random numbers", "repo_sys", replace=TRUE)
+#' ## don't need the PDF file anymore
+#' file.remove("afigure.pdf")
+#' ## Opening the stored PDF with Evince document viewer
+#' repo$sys("afigure.pdf", "evince")
+#' }
+#'
+#' ## wiping temporary repo
+#' unlink(repo_path, TRUE)
 repo_attach <- function(repo, filepath, description, tags, src=NULL, replace=F, to=NULL)
     repo$attach(filepath, description, tags, src, replace, to)
 
@@ -357,10 +445,14 @@ repo_attach <- function(repo, filepath, description, tags, src=NULL, replace=F, 
 #' name. Resolves to parent frame by default.
 #' @return Used for side effects.
 #' @examples
-#' repo <- repo_open("_temp_repo", TRUE)
+#' repo_path <- file.path(tempdir(), "example_repo")
+#' repo <- repo_open(repo_path, TRUE)
 #' tempdata <- runif(10)
 #' repo$stash("tempdata")
 #' repo$info("tempdata")
+#'
+#' ## wiping temporary repo
+#' unlink(repo_path, TRUE)
 repo_stash <- function(repo, name, rename, env=parent.frame())
     repo$stash(name, rename, env)
 
@@ -369,13 +461,19 @@ repo_stash <- function(repo, name, rename, env=parent.frame())
 #' @param repo An object of class repo.
 #' @param force If TRUE, no confirmation is asked.
 #' @return Used for side effects.
-repo_stashclear <- function(repo, force=F)
-    repo$stashclear(force)
-#' repo <- repo_open("_temp_repo", TRUE)
+#' @examples
+#' repo_path <- file.path(tempdir(), "example_repo")
+#' repo <- repo_open(repo_path, TRUE)
 #' tempdata <- runif(10)
 #' repo$stash("tempdata")
 #' repo$print(all=TRUE)
 #' repo$stashclear(TRUE)
+#'
+#' ## wiping temporary repo
+#' unlink(repo_path, TRUE)
+repo_stashclear <- function(repo, force=F)
+    repo$stashclear(force)
+
 
 #' Create a new item in the repo.
 #' 
@@ -400,8 +498,8 @@ repo_stashclear <- function(repo, force=F)
 #' @return Used for side effects.
 #' @examples
 #' ## Repository creation (or opening, if exists)
-#' ## Will create the directory "./_temp_repo"
-#' repo <- repo_open("_temp_repo", T)
+#' repo_path <- file.path(tempdir(), "example_repo")
+#' repo <- repo_open(repo_path, TRUE)
 #'
 #' ## As provenance string we will use the fully  name
 #' ## of the file containing this script. Use "normalizePath"
@@ -437,6 +535,9 @@ repo_stashclear <- function(repo, force=F)
 #'     tags = c("repo_put", "a_random_tag"), src, addversion=TRUE)
 #' print(repo, all=TRUE)
 #' repo$info("item1#1")
+#'
+#' ## wiping temporary repo
+#' unlink(repo_path, TRUE)
 repo_put <- function(repo, obj, name, description, tags, src=NULL,
                      depends = NULL, replace=F, asattach=F, to=NULL, addversion=F)
     repo$put(obj, name, description, tags, src,
@@ -452,6 +553,9 @@ repo_put <- function(repo, obj, name, description, tags, src=NULL,
 #' also be a on object of class function: in this case, its source is
 #' appended.
 #' @return Used for side effects.
+#'
+#' ## wiping temporary repo
+#' unlink(repo_path, TRUE)
 repo_append <- function(repo, id, txtorfunc)
     repo$append(id, txtorfunc)
 
@@ -461,9 +565,12 @@ repo_append <- function(repo, id, txtorfunc)
 #' @param repo An object of class repo.
 #' @return character cotaining the path to the root of the repo.
 #' @examples
-#' repo <- repo_open("_temp_repo", TRUE)
+#' repo_path <- file.path(tempdir(), "example_repo")
+#' repo <- repo_open(repo_path, TRUE)
 #' print(repo$root())
-
+#'
+#' ## wiping temporary repo
+#' unlink(repo_path, TRUE)
 repo_root <- function(repo)
     repo$root()
 

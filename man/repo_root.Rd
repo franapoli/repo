@@ -16,7 +16,11 @@ character cotaining the path to the root of the repo.
 Show path to repo root
 }
 \examples{
-repo <- repo_open("_temp_repo", TRUE)
+repo_path <- file.path(tempdir(), "example_repo")
+repo <- repo_open(repo_path, TRUE)
 print(repo$root())
+
+## wiping temporary repo
+unlink(repo_path, TRUE)
 }
 

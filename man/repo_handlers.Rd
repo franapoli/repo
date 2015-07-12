@@ -16,7 +16,8 @@ A list of functions.
 Provides alternative access to repo items.
 }
 \examples{
-repo <- repo_open("_temp_repo", T)
+repo_path <- file.path(tempdir(), "example_repo")
+repo <- repo_open(repo_path, TRUE)
 
 ## Putting some irrelevant data
 repo$put(1, "item1", "Sample item 1", "repo_handlers", replace=TRUE)
@@ -38,5 +39,8 @@ h$item1("info")
 repo$put(3, "item3", "Sample item 3", "repo_handlers", replace=TRUE)
 h <- repo$handlers()
 names(h)
+
+## wiping temporary repo
+unlink(repo_path, TRUE)
 }
 

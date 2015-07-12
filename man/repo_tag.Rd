@@ -24,10 +24,14 @@ Used for side effects.
 Add tags to an item.
 }
 \examples{
-repo <- repo_open("_temp_repo", TRUE)
+repo_path <- file.path(tempdir(), "example_repo")
+repo <- repo_open(repo_path, TRUE)
 repo$put(1, "item1", "Sample item 1", "tag1", replace=TRUE)
 repo$print(show="t")
 repo$tag("item1", "tag2")
 repo$print(show="t")
+
+## wiping temporary repo
+unlink(repo_path, TRUE)
 }
 

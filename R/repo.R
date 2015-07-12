@@ -52,20 +52,12 @@
 ##     [ ] Make examples buildable
 ## [X] Add notes field [rejected]
 
+globalVariables(c("DEBUG", "entries", "this"))
+
 library(digest) # digest
 library(tools) # md5sum
 #source("~/git/bbuck/repo/repoS3.R")
 
-#' Open an existing repository or create a new one.
-#' 
-#' @param root Path to store data in. Defaults to "~/.R_repo".
-#' @param force Don't ask for confirmation.
-#' @return An object of class Repo.
-#' @examples
-#' ## Creates a new repo in "./_temp_repo" without asking for
-#' ## confirmation.
-#' repo <- repo_open("_temp_repo", TRUE)
-#' repo$info()
 repo_open <- function(root="~/.R_repo", force=F)
 {
     DEBUG <- F
@@ -88,10 +80,12 @@ repo_open <- function(root="~/.R_repo", force=F)
         }
 
     
-    stopOnEmpty <- function() {
+    stopOnEmpty <- function(doreturn=F) {
         if(length(entries)<1) {
-            stop("Repository is empty.", call.=F)
+            if(doreturn)
+                return(1) else stop("Repository is empty.", call.=F)
         }
+        return(0)
     }
 
     stopOnNotFound <- function(names=NULL, tags=NULL)
@@ -318,26 +312,36 @@ repo_open <- function(root="~/.R_repo", force=F)
         {
           deps <- depgraph(depends, attached, generated)
           if(plot) {
-              library(igraph)
-            deps2 <- deps
-            rownames(deps2) <- colnames(deps2) <- basename(rownames(deps))
-            g <- graph.adjacency(deps2, weighted=c("type"))
-            plot(g, edge.label=c("depends", "attached", "generated")[get.edge.attribute(g,"type")])
+              if (requireNamespace("igraph", quietly = TRUE)) {
+                  deps2 <- deps
+                  rownames(deps2) <- colnames(deps2) <- basename(rownames(deps))
+                  g <- igraph::graph.adjacency(deps2, weighted=c("type"))
+                  igraph::plot.igraph(g, edge.label=c("depends", "attached", "generated")
+                               [igraph::get.edge.attribute(g,"type")])
+              } else {
+                  stop("The suggested package igraph is not installed.")
+              }              
           }
           invisible(depgraph())
         },
 
         check = function()
-        {
+            {
+                stopOnEmpty()
             entr <- entries
             for(i in 1:length(entr))
                 {
                     cat(paste0("Checking ", entr[[i]]$name, "..."))
-                    md5s <- md5sum(path.expand(entr[[i]]$dump))
-                    if(md5s != entr[[i]]$checksum) {
-                        cat(" changed!")
-                        warning("File has changed!")
-                    } else cat(" ok.")
+                    if(file.exists(path.expand(entr[[i]]$dump))){
+                        md5s <- md5sum(path.expand(entr[[i]]$dump))
+                        if(md5s != entr[[i]]$checksum) {
+                            cat(" changed!")
+                            warning("File has changed!")
+                        } else cat(" ok.")
+                    } else {
+                        cat(" not found!")
+                        warning("Missing file!")
+                    }
                     cat("\n")
                 }
             allfiles <- file.path(root, list.files(root, recursive=T))
@@ -467,7 +471,7 @@ repo_open <- function(root="~/.R_repo", force=F)
         info = function(name = NULL, tags = NULL)
         {
             stopOnEmpty()
-
+            
             if(!is.null(name))
                 stopOnNotFound(name)
             
@@ -628,12 +632,14 @@ repo_open <- function(root="~/.R_repo", force=F)
 
 
         stash = function(name, rename = name, env=parent.frame())
-        {
-            e <- getEntry(rename)
-            if(!is.null(e))
-                if(!"stash" %in% e$tags)
-                    stop(paste("A non-stash entry by the same name already exists,",
-                               "try setting the rename parameter."))
+            {
+                if(!stopOnEmpty(T)){
+                    e <- getEntry(rename)
+                    if(!is.null(e))
+                        if(!"stash" %in% e$tags)
+                            stop(paste("A non-stash entry by the same name already exists,",
+                                       "try setting the rename parameter."))
+                }
             
             obj <- get(name, envir=env)
             get("this", thisEnv)$put(obj, rename, "Stashed object",
@@ -642,7 +648,7 @@ repo_open <- function(root="~/.R_repo", force=F)
 
         stashclear = function(force=F)
         {
-            get("this", thisEnv)$rm(tags=c("stash", "hide"), force)
+            get("this", thisEnv)$rm(tags=c("stash", "hide"), force=force)
         },
 
         

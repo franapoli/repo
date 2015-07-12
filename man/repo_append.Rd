@@ -17,6 +17,9 @@ appended.}
 }
 \value{
 Used for side effects.
+
+## wiping temporary repo
+unlink(repo_path, TRUE)
 }
 \description{
 This feature is experimental.

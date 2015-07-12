@@ -28,8 +28,8 @@ Build and/or plots the repo's dependency graph
 }
 \examples{
 ## Repository creation (or opening, if exists)
-## Will create the directory "./_temp_repo"
-repo <- repo_open("_temp_repo", TRUE)
+repo_path <- file.path(tempdir(), "example_repo")
+repo <- repo_open(repo_path, TRUE)
 
 ## Producing some irrelevant data
 data1 <- 1:10
@@ -50,5 +50,8 @@ rownames(depmat) <- colnames(depmat) <- basename(rownames(depmat))
 print(depmat)
 ## The matrix can also be plotted as a graph (requires igraph package)
 ## repo$dependencies(generated=F) # turning off "generated" edges
+
+## wiping temporary repo
+unlink(repo_path, TRUE)
 }
 

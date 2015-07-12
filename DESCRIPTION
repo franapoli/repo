@@ -8,5 +8,5 @@ Maintainer: Francesco Napolitano <franapoli@gmail.com>
 Description: The repo package is meant to help with the management of R data files. It builds one (or more) centralized repository where R objects are stored together with corresponding annotations, tags, dependency notes, provenance traces. It also provides navigation tools to easily locate and load previously stored resources.
 License: file LICENSE
 Packaged: 2015-06-06 21:27:18 UTC; napolitano
-Depends: digest, tools
+Imports: digest, tools
 Suggests: igraph

@@ -23,8 +23,12 @@ TRUE on success, FALSE otherwise.
 Export repo's items to RDS file.
 }
 \examples{
-repo <- repo_open("_temp_repo", TRUE)
+repo_path <- file.path(tempdir(), "example_repo")
+repo <- repo_open(repo_path, TRUE)
 repo$put(1, "item1", "Sample item 1", "export", replace=TRUE)
-repo$export("item1")
+repo$export("item1", tempdir()) # creates item1.RDS in a tempdir
+
+## wiping temporary repo
+unlink(repo_path, TRUE)
 }
 

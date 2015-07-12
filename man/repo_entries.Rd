@@ -16,10 +16,14 @@ A detailed list of item entries.
 Low-level list of item entries.
 }
 \examples{
-repo <- repo_open("_temp_repo", TRUE)
+repo_path <- file.path(tempdir(), "example_repo")
+repo <- repo_open(repo_path, TRUE)
 repo$put(1, "item1", "Sample item 1", "entries", replace=TRUE)
 repo$put(2, "item2", "Sample item 2", "entries", replace=TRUE)
 repo$put(3, "item3", "Sample item 3", "entries", replace=TRUE)
 print(repo$entries())
+
+## wiping temporary repo
+unlink(repo_path, TRUE)
 }
 

@@ -22,9 +22,14 @@ Used for side effects.
 Copy items to another repo
 }
 \examples{
-repo <- repo_open("_temp_repo", TRUE)
-repo$put(0, "item1", "A sample item", "repo_check", replace=TRUE)
-repo2 <- repo_open("_temp_repo2", TRUE)
-repo$copy(repo2, "item1")
+repo_path <- file.path(tempdir(), "example_repo1")
+repo1 <- repo_open(repo_path, TRUE)
+repo1$put(0, "item1", "A sample item", "tag1", replace=TRUE)
+repo_path2 <- file.path(tempdir(), "example_repo2")
+repo2 <- repo_open(repo_path2, TRUE)
+repo1$copy(repo2, "item1")
+
+## wiping temporary repo
+unlink(repo_path, TRUE)
 }
 

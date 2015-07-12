@@ -2,12 +2,7 @@
 % Please edit documentation in R/repoS3.R
 \name{repo_put}
 \alias{repo_put}
-\title{repo <- repo_open("_temp_repo", TRUE)
-tempdata <- runif(10)
-repo$stash("tempdata")
-repo$print(all=TRUE)
-repo$stashclear(TRUE)
-Create a new item in the repo.}
+\title{Create a new item in the repo.}
 \usage{
 repo_put(repo, obj, name, description, tags, src = NULL, depends = NULL,
   replace = F, asattach = F, to = NULL, addversion = F)
@@ -46,17 +41,12 @@ new version of the same item.}
 Used for side effects.
 }
 \description{
-repo <- repo_open("_temp_repo", TRUE)
-tempdata <- runif(10)
-repo$stash("tempdata")
-repo$print(all=TRUE)
-repo$stashclear(TRUE)
 Create a new item in the repo.
 }
 \examples{
 ## Repository creation (or opening, if exists)
-## Will create the directory "./_temp_repo"
-repo <- repo_open("_temp_repo", T)
+repo_path <- file.path(tempdir(), "example_repo")
+repo <- repo_open(repo_path, TRUE)
 
 ## As provenance string we will use the fully  name
 ## of the file containing this script. Use "normalizePath"
@@ -92,5 +82,8 @@ repo$put(data1.2, name = "item1", "First item with additional noise",
     tags = c("repo_put", "a_random_tag"), src, addversion=TRUE)
 print(repo, all=TRUE)
 repo$info("item1#1")
+
+## wiping temporary repo
+unlink(repo_path, TRUE)
 }
 

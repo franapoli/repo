@@ -18,8 +18,12 @@ The previously stored object.
 Retrieve an item from the repo.
 }
 \examples{
-repo <- repo_open("_temp_repo", TRUE)
+repo_path <- file.path(tempdir(), "example_repo")
+repo <- repo_open(repo_path, TRUE)
 repo$put(1, "item1", "Sample item 1", "get", replace=TRUE)
 print(repo$get("item1"))
+
+## wiping temporary repo
+unlink(repo_path, TRUE)
 }
 

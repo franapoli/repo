@@ -36,9 +36,13 @@ raised. A different name can be specified through the rename
 parameter in such cases.
 }
 \examples{
-repo <- repo_open("_temp_repo", TRUE)
+repo_path <- file.path(tempdir(), "example_repo")
+repo <- repo_open(repo_path, TRUE)
 tempdata <- runif(10)
 repo$stash("tempdata")
 repo$info("tempdata")
+
+## wiping temporary repo
+unlink(repo_path, TRUE)
 }
 
