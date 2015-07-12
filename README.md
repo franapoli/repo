@@ -4,7 +4,6 @@
 <!-- Grab your social icons from https://github.com/carlsednaoui/gitsocial -->
 
 # repo
-*Thou Shalt Not save() or load()*
 
 Repo allows to store R data files in a central local repository, together
 with tags, annotations, provenance and dependence information. Any saved
