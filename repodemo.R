@@ -77,12 +77,11 @@
 #' In this section, some global variables will be defined and the
 #' necessary libraries loaded. First of all, the following will enable
 #' repo:
+library(repo)
 
 #+ include=FALSE
 system("rm -r repodemo")
 
-#+ eval=FALSE
-library(repo)
 
 #' Among annotations that can be added to items stored in the repo
 #' there's the provenance trace, which basically answers the question:
@@ -99,10 +98,10 @@ src <- normalizePath("repodemo.R")
 #' existing one in the same directory (by default, instead, the repo
 #' is created in "~/.R_repo"). To avoid confirmation requests during
 #' the generation of this document, they're turned off through the
-#' *forceYes* parameter. The variable *repo* will be used as the main
+#' *force* parameter. The variable *repo* will be used as the main
 #' interface to the repository.
 #'
-repo <- repo_open("repodemo", forceYes=T)
+repo <- repo_open("repodemo", force=T)
 
 #+ include=FALSE
 library(knitr)
