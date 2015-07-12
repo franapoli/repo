@@ -1,35 +1,34 @@
+<!-- Grab your social icons from https://github.com/carlsednaoui/gitsocial -->
+[1.2]: http://i.imgur.com/wWzX9uB.png (me on Twitter)
+[1]: http://www.twitter.com/franapoli
+<!-- Grab your social icons from https://github.com/carlsednaoui/gitsocial -->
+
 # repo
 *Thou Shalt Not save() or load()*
 
-Store your R data files in a central repository on your disk, together
-with tags, annotations, provenance and dependence information. Find
-and load any saved objects easily through the repo interface, without
-remembering its position on the disk.
+Repo allows to store R data files in a central local repository, together
+with tags, annotations, provenance and dependence information. Any saved
+object can then be easily located and loaded through the repo interface.
+
+Repo was developed by Francesco Napolitano [![alt text][1.2]][1]
 
 ## Tour
 
 Please check out the getting started guide at http://franapoli.github.io/repo.
 
 
-## Installation
+## Download and Installation
 
-### Download
+Repo is not on R repositories at the moment, but is available
+on Github at:
 
-Repo is not on R repositories at the moment. Git users can get it
-with:
+    https://github.com/franapoli/repo
 
-git clone https://github.com/franapoli/repo
-
-Otherwise visit the same site with your browser.
-
-
-### Install
-
-You can install repo from sources with:
+Repo can be installed from the downloaded sources as follows:
 
     install.packages("path-to-downloaded-source", type="source", repos=NULL)
 
-devtools users can install and download directly from github with:
+devtools users can download and install at once from github as follows:
 
     install_github("franapoli/repo", ref="dev")
 
