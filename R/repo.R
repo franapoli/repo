@@ -283,6 +283,23 @@ repo_open <- function(root="~/.R_repo", force=F)
             w <- findEntryIndex(name)
             return("attachment" %in% entries[[w]]$tags)
         }
+
+    attachments <- function(name)
+        {
+            r <- match(name,  sapply(entr, get, x="attachedto"))
+            if(is.na(r))
+                return(NULL)            
+            return(r)
+        }
+
+    dependants <- function(name)
+        {
+            r <- sapply(sapply(entr, get, x="depends"), match, x=name)
+            w <- which(!is.na(r))
+            if(length(w)<1)
+                return(NULL)            
+            return(w)
+        }
     
     compressPath <- function(path)
         {
@@ -418,39 +435,49 @@ repo_open <- function(root="~/.R_repo", force=F)
                     }
             }
 
-            labels <- c("ID", "Dims", "Tags", "Size")
+            labels <- c("ID", "a@><", "Dims", "Tags", "Size")
             names <- sapply(entr, get, x="name")
 
             a <- matrix(NA, length(names), length(labels))
             colnames(a) <- labels
 
+            attachs <- depends <- hasattach <- allows <- rep(" ", length(entr))
+                            
             tagsets <- lapply(entr, get, x="tags")
-            attachs <- which(sapply(tagsets, is.element, el="attachment"))
+            attachs[sapply(tagsets, is.element, el="attachment")] <- "x"
+            depends[!sapply((sapply(entr, get, x="depends")), is.null)] <- "x"
+            allows[!sapply((sapply(names, dependants)), is.null)] <- "x"
+            hasattach[!sapply((sapply(names, attachments)), is.null)] <- "x"
+            flags <- paste0(attachs, hasattach, depends, allows)
+
+            descriptions <- sapply(entr, get, x="description")
             
             tagsets <- lapply(tagsets, setdiff, y="attachment")
+            tagsets <- lapply(tagsets, setdiff, y="hide")
+            tagsets <- lapply(tagsets, setdiff, y="stash")
 
             prefixes <- rep("", length(names))
-            prefixes[attachs] <- "@"
+            #prefixes[attachs] <- "@"
             
             a[,"ID"] <- paste0(prefixes, names)
-
-            a[,"Dims"] <- sapply(lapply(entr, get, x="dims"), paste, collapse="x")
-            a[a[,"Dims"]=="", "Dims"] <- "-"
+            a[,2] <- flags
+            a[,"Dims"] <- sapply(lapply(entr, get, x="dims"), paste, collapse="x"); a[a[,"Dims"]=="", "Dims"] <- "-"            
             a[,"Tags"] <- sapply(tagsets, paste, collapse=", ")
             a[,"Size"] <- sapply(lapply(entr, get, x="size"), hmnRead)
-
 
             h <- rep(F,length(entr))
             if(!("hide" %in% tags))
               h <- sapply(tagsets, is.element, el="hide")
             h <- h | !(sapply(lapply(entr, get, x="attachedto"), is.null))
-            cols <- c(T, sapply(c("d","t","s"), grepl, show))
+            cols <- c(T, sapply(c("f","d","t","s"), grepl, show))
             if(all)
                 h[h] <- F            
-
+            m <- as.data.frame(a[!h,cols], nm="")
             if(sum(!h)>1)
-              print(as.data.frame(a[!h,cols], nm=""), quote=F, row.names=F) else
-            print(as.data.frame(a[!h,cols], nm=""), quote=F, row.names=T)
+                print(m, quote=F, row.names=F) else
+            print(m, quote=F, row.names=T)
+
+            invisible(m)
         },
 
         export = function(name, where=".", tags=NULL)
