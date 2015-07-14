@@ -1,62 +1,8 @@
 
-## TODOs:
-##
-## [X] Add general repo info at "info" without arguments
-## [X] Add optional confirmation to runwithtags
-##     [X] Disable confirmation in print
-## [X] Add a function for each object (loads as default)
-##     id <- "item1"; assign(id, function(f="get") a[[f]](name=id))
-## [X] change replace with replace
-## [X] Add tags
-## [X] Add names to all runwithtags (which now supports "runwithnames")
-## [X] Manage internal and multiple provenance
-## [ ] Add has-attachment and internal-provenance flags @ < >
-## [+] Manage columns in print (hide tags by default)
-## [X] Manage dependency graph
-##     [X] Build dependency graph
-##     [X] Plot dependency graph
-## [X] Add depends field
-## [+] Manage versions
-##     [X] add version
-##     [X] display last version, hide others
-##     [ ] group versions in display
-## [+] Attachments
-##     [X] Attach files
-##     [X] attach shortcut
-##     [X] Attach to resource
-##     [ ] Copy attachment
-##     [+] Manage attachments in print
-##         [ ] Manage attached to
-##     [X] Open attachments (look at openPDF)
-##     [X] Export
-## [ ] Consider switching to readable file names (not really necessary and require digest)
-## [X] Text resource:
-##     [X] Append
-##     [X] Source [dropped]
-## [X] Multiple repos
-##     [X] Manage concurrency
-##         [X] Make repo_close()
-##         [X] Use MD5
-##     [X] Copy to other repo
-## [X] Manage special flags ("hide")
-## [ ] Check environments (are the "get"-s and "assign"-s necessary?)
-##     check this line:  "## NOTE: do not indexMD5 <- md5sum(repofile)... doesn't work"
-## [X] Set entry details
-## [X] Show entry details
-## [X] Adjust print: convert to data frame
-## [X] Refactor: call "load" "get" and "add" "put"
-## [ ] Externalize methods ("me" list)
-## [X] Check the use of "message" (maybe replace with "cat")
-## [ ] S3-style methods and documentation
-##     [X] Document methods
-##     [ ] Make examples buildable
-## [X] Add notes field [rejected]
-
 globalVariables(c("DEBUG", "entries", "this"))
 
 library(digest) # digest
 library(tools) # md5sum
-#source("~/git/bbuck/repo/repoS3.R")
 
 repo_open <- function(root="~/.R_repo", force=F)
 {

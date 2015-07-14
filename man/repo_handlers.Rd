@@ -2,7 +2,7 @@
 % Please edit documentation in R/repoS3.R
 \name{repo_handlers}
 \alias{repo_handlers}
-\title{Provides alternative access to repo items.}
+\title{Provides simplified access to repo items.}
 \usage{
 repo_handlers(repo)
 }
@@ -13,7 +13,14 @@ repo_handlers(repo)
 A list of functions.
 }
 \description{
-Provides alternative access to repo items.
+Creates a list of functions, each one associated with a repository
+item, that can be used to access items more directly.
+}
+\details{
+Repository handlers are functions associated with
+items. As opposed to item names, they can take advantage of IDE
+autocompletion features and do not require quotation marks. An
+handler to the \code{repo} object itself is provided in the list.
 }
 \examples{
 repo_path <- file.path(tempdir(), "example_repo")

@@ -13,7 +13,8 @@ repo_tags(repo)
 Character vector of unique tags defined in the repo.
 }
 \description{
-List all tags
+Shows list of all unique tags associated with any item in the
+repository.
 }
 \examples{
 repo_path <- file.path(tempdir(), "example_repo")
@@ -30,5 +31,8 @@ repo$tags()
 
 ## wiping temporary repo
 unlink(repo_path, TRUE)
+}
+\seealso{
+repo_put
 }
 

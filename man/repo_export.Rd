@@ -2,7 +2,7 @@
 % Please edit documentation in R/repoS3.R
 \name{repo_export}
 \alias{repo_export}
-\title{Export repo's items to RDS file.}
+\title{Export \code{repo} items to RDS file.}
 \usage{
 repo_export(repo, name, where = ".", tags = NULL)
 }
@@ -20,7 +20,7 @@ list will be exported.}
 TRUE on success, FALSE otherwise.
 }
 \description{
-Export repo's items to RDS file.
+Export \code{repo} items to RDS file.
 }
 \examples{
 repo_path <- file.path(tempdir(), "example_repo")

@@ -13,7 +13,14 @@ repo_check(repo)
 Used for side effects.
 }
 \description{
-Check repo's integrity.
+Checks that all indexed files are present in the repository root
+and that are not corrupt.
+}
+\details{
+Every time the object associated to an item is stored, an
+MD5 checksum is saved to the repository index. \code{check} will
+use those to verify that the object did not change since the last
+\code{put} or \code{set} on the item.
 }
 \examples{
 repo_path <- file.path(tempdir(), "example_repo")

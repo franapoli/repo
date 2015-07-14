@@ -9,10 +9,12 @@
 \item{force}{Don't ask for confirmation.}
 }
 \value{
-An object of class Repo.
+An object of class \code{repo}.
 }
 \description{
-Open an existing repository or create a new one.
+If a repository does not exist at the specified location, creates a
+directory and stores the repository index in it. If a repository
+exists, the index is loaded and a \code{repo} object is built.
 }
 \examples{
 ## Creates a new repo in a temporary dir without asking for

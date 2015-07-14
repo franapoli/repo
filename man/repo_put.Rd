@@ -41,7 +41,18 @@ new version of the same item.}
 Used for side effects.
 }
 \description{
-Create a new item in the repo.
+Given an R object, stores it to an RDS file in the \code{repo} root
+and add an associated item to the \code{repo} index, including
+object name, description, tags and more.
+}
+\details{
+The item \code{name} can be any string, however it should
+be a concise identifier, possibly without special character (could
+become mandatory soon). Some tags have a special meaning, like
+"hide" (do not show the item by default), "attachment" (the item is
+an attachment - this should never be set manually), "stash" (the
+item is a stashed item, makes the item over-writable by other
+"stash" items by default).
 }
 \examples{
 ## Repository creation (or opening, if exists)

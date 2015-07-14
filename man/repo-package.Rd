@@ -15,9 +15,13 @@ objects are stored together with corresponding annotations, tags,
 dependency notes, provenance traces. It also provides navigation
 tools to easily locate and load previously stored resources.
 
-For a complete list of functions, use \code{library(help = "repo")}.
+Create a new repository with \code{rp <- repo_open()}.
 
-Create a new repository with \code{repo_open()}.
+Given the object rp of class \code{repo}, the \code{repo} function
+\code{foo} can be called in two ways: 1) \code{repo_foo(rp)} or 2)
+\code{rp$foo()}.
+
+For a complete list of functions, use \code{library(help = "repo")}.
 }
 \author{
 Francesco Napolitano \email{franapoli@gmail.com}

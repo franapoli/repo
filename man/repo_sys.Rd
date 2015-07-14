@@ -18,7 +18,8 @@ the item will be passed to the system program.}
 Used for side effects.
 }
 \description{
-Run system call on item
+Runs a system command passing as parameter the file name containing
+the object associated with an item.
 }
 \examples{
 repo_path <- file.path(tempdir(), "example_repo")

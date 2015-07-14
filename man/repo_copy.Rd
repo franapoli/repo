@@ -13,13 +13,14 @@ repo_copy(repo, destrepo, name, tags = NULL)
 
 \item{name}{The name of the object to copy}
 
-\item{tags}{If not NULL, copy items matching tags.}
+\item{tags}{If not NULL, copy all items matching tags.}
 }
 \value{
 Used for side effects.
 }
 \description{
-Copy items to another repo
+Copies an obj file from one repo to another and creates a new entry
+in the index of the destination repository. Supports tags.
 }
 \examples{
 repo_path <- file.path(tempdir(), "example_repo1")

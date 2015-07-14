@@ -43,4 +43,7 @@ repo$info("item1")
 ## wiping temporary repo
 unlink(repo_path, TRUE)
 }
+\seealso{
+repo_put
+}
 
