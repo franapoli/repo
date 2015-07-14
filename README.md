@@ -3,6 +3,10 @@
 [1]: http://www.twitter.com/franapoli
 <!-- Grab your social icons from https://github.com/carlsednaoui/gitsocial -->
 
+# Release notes:
+
+1.0b. First release candidate out.
+
 # repo
 
 Repo allows to store R data files in a central local repository, together
@@ -27,7 +31,11 @@ Repo can be installed from the downloaded sources as follows:
 
     install.packages("path-to-downloaded-source", type="source", repos=NULL)
 
-devtools users can download and install at once from github as follows:
+devtools users can download and install at once the latest stable
+version from github as follows:
+
+    install_github("franapoli/repo", ref="master")
+
+or the latest development version at:
 
     install_github("franapoli/repo", ref="dev")
-
