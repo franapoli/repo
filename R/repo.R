@@ -232,7 +232,7 @@ repo_open <- function(root="~/.R_repo", force=F)
 
     attachments <- function(name)
         {
-            r <- match(name,  sapply(entr, get, x="attachedto"))
+            r <- match(name,  sapply(entries, get, x="attachedto"))
             if(is.na(r))
                 return(NULL)            
             return(r)
@@ -240,7 +240,7 @@ repo_open <- function(root="~/.R_repo", force=F)
 
     dependants <- function(name)
         {
-            r <- sapply(sapply(entr, get, x="depends"), match, x=name)
+            r <- sapply(sapply(entries, get, x="depends"), match, x=name)
             w <- which(!is.na(r))
             if(length(w)<1)
                 return(NULL)            
