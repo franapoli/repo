@@ -69,25 +69,22 @@ library(repo)
 #+ include=FALSE
 system("rm -r repodemo")
 
-#' The fully qualified name of a script file is a good provenance
-#' trace for all the data produced by the script. It can be obtained
-#' like this:
-
-src <- normalizePath("repodemo.R")
-
-#' However, for this guide full paths from my hard drive will be
-#' hidden:
+#' The file name of a script is a good provenance trace for all the
+#' data produced by it. The R function *normalizePath* can be used to
+#' obtain the full path of the file. However, for this guide I won't
+#' include paths from my hard drive:
 
 src <- "repodemo.R"
 
-#' The following command creates a new repository in "./repodemo" (by
-#' default the repo is created in "~/.R_repo") or open an existing one
-#' in the same directory. To avoid confirmation requests during the
-#' generation of this document, they're turned off through the *force*
-#' parameter. The variable *repo* will be used as the main interface
-#' to the repository throughout this guide.
-#'
-repo <- repo_open("repodemo", force=T)
+#' The following command creates a new repository below a temporary
+#' path, which is ok for this demo. By default the repository would
+#' instead be created under "~/.R_repo". The same function opens the
+#' repository if already exists. To avoid confirmation requests during
+#' the generation of this document, they're turned off through the
+#' *force* parameter. The variable *repo* will be used as the main
+#' interface to the repository throughout this guide.
+
+repo <- repo_open(tempdir(), force=T)
 
 #+ include=FALSE
 library(knitr)
@@ -451,8 +448,11 @@ h$iris_cluVsSpecies("tag", "onenewtag")
 h$iris_cluVsSpecies("info")
 #' One may want to open a repo directly with:
 
-#+ message=FALSE
-h <- repo_open("repodemo")$handlers()
+#+ message=FALSE eval=FALSE
+h <- repo_open()$handlers()
+
+#+ include=FALSE
+h <- repo$handlers()
 
 #' In that case, the handler to the repo itself will come handy:
 
@@ -494,4 +494,4 @@ colnames(feattable) <- c("Method", "Description")
 kable(feattable)
 
 #+ include=FALSE
-system("rm -r repodemo")
+system(paste("rm -r", repo$root()))
