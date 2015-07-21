@@ -9,4 +9,6 @@ Description: The repo package is meant to help with the management of R data fil
 License: file LICENSE
 Packaged: 2015-06-06 21:27:18 UTC; napolitano
 Imports: digest, tools
-Suggests: igraph
+Suggests: igraph,
+    knitr
+VignetteBuilder: knitr
