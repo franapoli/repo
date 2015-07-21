@@ -66,9 +66,6 @@
 #' First of all, the following will enable repo:
 library(repo)
 
-#+ include=FALSE
-system("rm -r repodemo")
-
 #' The file name of a script is a good provenance trace for all the
 #' data produced by it. The R function *normalizePath* can be used to
 #' obtain the full path of the file. However, for this guide I won't
@@ -448,7 +445,7 @@ h$iris_cluVsSpecies("tag", "onenewtag")
 h$iris_cluVsSpecies("info")
 #' One may want to open a repo directly with:
 
-#+ message=FALSE eval=FALSE
+#+ message=FALSE, eval=FALSE
 h <- repo_open()$handlers()
 
 #+ include=FALSE
