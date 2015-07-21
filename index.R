@@ -2,12 +2,11 @@
 #' title: "Getting started with the *repo* R Data Manager"
 #' date:
 #' author: "Francesco Napolitano"
-#' output:
-#'   html_document:
-#'     theme: default
-#'     toc: true
-#'     self_contained: false
-#' 
+#' output: rmarkdown::html_vignette    
+#' vignette: >
+#'   %\VignetteIndexEntry{Vignette Title}
+#'   %\VignetteEngine{knitr::rmarkdown}
+#'   %\VignetteEncoding{UTF-8}
 #' ---
 #' 
 
