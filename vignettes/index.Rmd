@@ -2,16 +2,13 @@
 title: "Getting started with the *repo* R Data Manager"
 date:
 author: "Francesco Napolitano"
-output: rmarkdown::pdf_document
+output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{Getting started with repo}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-<br>
-<p style="text-align:center">**_"Thou Shalt Not save() Or load()"_**</p>
-<br>
 
 ## Introduction
 
@@ -183,8 +180,6 @@ iris2d <- irispca$scores[,c(1,2)]
 plot(iris2d, main="2D visualization of the Iris dataset",
      col=repo$get("irisLabels"))
 ```
-
-![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8-1.png) 
 
 Note that *irisLabels* is taken on the fly from the repo. This
 prevents the creation of a variable in the current environment and
