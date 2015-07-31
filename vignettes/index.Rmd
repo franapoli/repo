@@ -9,7 +9,10 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-
+```{r include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(fig.width=7, fig.height=7, comment="# ")
+```
 ## Introduction
 
 This is a getting-started guide to the *repo* R package, which
@@ -61,7 +64,7 @@ of the *repo* features.
 First of all, the following will enable repo:
 
 
-```r
+```{r}
 library(repo)
 ```
 
@@ -71,7 +74,7 @@ obtain the full path of the file. However, for this guide I won't
 include paths from my hard drive:
 
 
-```r
+```{r}
 src <- "repodemo.R"
 ```
 
@@ -84,15 +87,9 @@ the generation of this document, they're turned off through the
 interface to the repository throughout this guide.
 
 
-```r
+```{r}
 repo <- repo_open(tempdir(), force=T)
 ```
-
-```
-Repo root created.
-Repo created.
-```
-
 
 ## Populating the repository
 
@@ -109,7 +106,7 @@ package. However, here a normalized version of it will be stored in
 the repo. Here's the data to store:
 
 
-```r
+```{r}
 myiris <- scale(as.matrix(iris[,1:4]))
 ```
 
@@ -142,7 +139,7 @@ contents of *myiris* in the repo. The data will be actually saved
 in the repo root in RDS format.
 
 
-```r
+```{r}
 repo$put(
     obj = myiris,    
     name = "myiris",    
@@ -161,7 +158,7 @@ In this example, the class annotation will be stored
 separately. Here's a more compact call to *put*:
 
 
-```r
+```{r}
 repo$put(iris$Species, "irisLabels", "The Iris class lables.",
          c("labels", "iris", "repodemo"), src, replace=T)
 ```
@@ -173,8 +170,7 @@ visualization. The following code produces such visualization
 and shows it:
 
 
-
-```r
+```{r}
 irispca <- princomp(myiris)        
 iris2d <- irispca$scores[,c(1,2)]
 plot(iris2d, main="2D visualization of the Iris dataset",
@@ -199,13 +195,13 @@ parameters. However, two differences are worth noting:
 is attached to.
 
 
-
-```r
-pdf("iris2D.pdf")
+```{r}
+fpath <- file.path(repo$root(), "iris2D.pdf")
+pdf(fpath)
 plot(iris2d, main="2D visualization of the Iris dataset",
      col=repo$get("irisLabels"))
 invisible(dev.off())
-repo$attach("iris2D.pdf", "Iris 2D visualization obtained with PCA.",
+repo$attach(fpath, "Iris 2D visualization obtained with PCA.",
             c("visualization", "iris", "repodemo"), src, replace=T, to="myiris")
 ```
 
@@ -214,8 +210,8 @@ repo$attach("iris2D.pdf", "Iris 2D visualization obtained with PCA.",
 root, so the original one can be safely removed:
 
 
-```r
-invisible(file.remove("iris2D.pdf"))
+```{r}
+invisible(file.remove(fpath))
 ```
 
 Wanna see something even nicer? The attached PDF can be opened
@@ -224,7 +220,7 @@ method. On a Linux system, this command will run the Evince
 document viewer and show *iris2D.pdf*:
 
 
-```r
+```{r, eval=FALSE}
 repo$sys("iris2D.pdf", "evince")
 ```
 
@@ -232,24 +228,23 @@ Back to data analysis, the PCA eigenvalues showed below can give
 hints on the reliability of the 2D plot:
 
 
-```r
+```{r}
 plot(irispca)
 ```
-
-![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-12-1.png) 
 
  So attaching the plot of the PCA eigenvalues to the plot of the 2D
 visualization could be a good idea. This is attaching to an
 attachment and is OK.
 
 
-```r
-pdf("irispca.pdf")
+```{r}
+fpath <- file.path(repo$root(), "irispca.pdf")
+pdf(fpath)
 plot(irispca)
 invisible(dev.off())
-repo$attach("irispca.pdf", "Variance explained by the PCs of the Iris dataset",
+repo$attach(fpath, "Variance explained by the PCs of the Iris dataset",
             c("visualization", "iris", "repodemo"), src, replace=T, to="iris2D.pdf")
-invisible(file.remove("irispca.pdf"))
+invisible(file.remove(fpath))
 ```
 
 ### Storing results
@@ -266,7 +261,7 @@ of "provenance traces": setting this value is definitely encouraged
 practice.
 
 
-```r
+```{r}
 kiris <- kmeans(myiris, 5)$cluster
 repo$put(kiris, "iris_5clu", "Kmeans clustering of the Iris data, k=5.",
          c("metadata", "iris", "kmeans", "clustering", "repodemo"), src,
@@ -277,20 +272,19 @@ The following shows what the clustering looks like. The figure
 will be attached to the repo as well. Note the dependency.
 
 
-```r
+```{r}
 plot(iris2d, main="Iris dataset kmeans clustering", col=kiris)
 ```
 
-![plot of chunk unnamed-chunk-15](figure/unnamed-chunk-15-1.png) 
-
-```r
-pdf("iris2Dkm.pdf")
+```{r}
+fpath <- file.path(repo$root(), "iris2Dkm.pdf")
+pdf(fpath)
 plot(iris2d, main="Iris dataset kmeans clustering", col=kiris)
 invisible(dev.off())
-repo$attach("iris2Dkm.pdf", "Iris K-means clustering.",
+repo$attach(fpath, "Iris K-means clustering.",
             c("visualization", "iris", "clustering", "kmeans", "repodemo"), src,
             replace=T, to="iris_5clu")
-invisible(file.remove("iris2Dkm.pdf"))
+invisible(file.remove(fpath))
 ```
 
 
@@ -304,7 +298,7 @@ item from being shown by default. Attachments are automatically
 
 
 
-```r
+```{r}
 res <- table(repo$get("irisLabels"), kiris)
 repo$put(res, "iris_cluVsSpecies",
          paste("Contingency table of the kmeans clustering versus the",
@@ -321,7 +315,7 @@ about the repo:
 
 
 
-```r
+```{r}
 repo$info()
 ```
 
@@ -337,7 +331,7 @@ with some details, which by defaults are: name, dimensions, size.
 
 
 
-```r
+```{r}
 repo ## by default resolves to print(repo)
 ```
 
@@ -354,7 +348,7 @@ the items appear:
 
 
 
-```r
+```{r}
 print(repo, all=T)
 ```
 
@@ -375,7 +369,7 @@ items tagged with "clustering" will be shown:
 
 
 
-```r
+```{r}
 print(repo, tags="clustering", all=T)
 ```
 
@@ -392,7 +386,7 @@ selectively visualized this way:
 
 
 
-```r
+```{r}
 print(repo, tags="attachment", all=T)
 ```
 
@@ -407,34 +401,16 @@ print(repo, tags="attachment", all=T)
 For the same reasons, one may want to show only hidden items:
 
 
-```r
+```{r, eval=FALSE}
 print(repo, tags="hide", all=T)
-```
-
-```
-                      
-ID   iris_cluVsSpecies
-Dims               3x5
-Size             179 B
 ```
 
 Finally, also the columns shown can be selected. This command shows
 only the tags:
 
 
-```r
+```{r}
 repo$print(show="t", all=T)
-```
-
-```
-                ID                                                 Tags
-            myiris                              dataset, iris, repodemo
-        irisLabels                               labels, iris, repodemo
-       @iris2D.pdf                        visualization, iris, repodemo
-      @irispca.pdf                        visualization, iris, repodemo
-         iris_5clu         metadata, iris, kmeans, clustering, repodemo
-     @iris2Dkm.pdf    visualization, iris, clustering, kmeans, repodemo
- iris_cluVsSpecies result, iris, validation, clustering, repodemo, hide
 ```
 
 ### Showing dependencies
@@ -449,35 +425,21 @@ of type 1, 2 or 3 (*dependency*, *attachment* or
 *generation*). Here's how it looks like:
 
 
-```r
+```{r}
 depgraph <- repo$dependencies(plot=F)
 rownames(depgraph) <- colnames(depgraph) <- basename(rownames(depgraph))
+library(knitr)
 kable(depgraph)
 ```
-
-
-
-|                  | myiris| irisLabels| iris2D.pdf| irispca.pdf| iris_5clu| iris2Dkm.pdf| iris_cluVsSpecies| repodemo.R|
-|:-----------------|------:|----------:|----------:|-----------:|---------:|------------:|-----------------:|----------:|
-|myiris            |      0|          0|          0|           0|         0|            0|                 0|          3|
-|irisLabels        |      0|          0|          0|           0|         0|            0|                 0|          3|
-|iris2D.pdf        |      2|          0|          0|           0|         0|            0|                 0|          3|
-|irispca.pdf       |      0|          0|          2|           0|         0|            0|                 0|          3|
-|iris_5clu         |      1|          0|          0|           0|         0|            0|                 0|          3|
-|iris2Dkm.pdf      |      0|          0|          0|           0|         2|            0|                 0|          3|
-|iris_cluVsSpecies |      1|          1|          0|           0|         1|            0|                 0|          3|
-|repodemo.R        |      0|          0|          0|           0|         0|            0|                 0|          0|
 
 Omitting the *plot=F* parameter, the *dependencies* method will
 plot the dependency graph. This plot requires the *igraph* library.
 
 
 
-```r
+```{r}
 repo$dependencies()
 ```
-
-![plot of chunk unnamed-chunk-25](figure/unnamed-chunk-25-1.png) 
 
 This is a small repo and all resources were created by the same
 script, so the "generated" edges are not interesting. The three
@@ -486,11 +448,9 @@ looks like without the "generated" edges:
 
 
 
-```r
+```{r}
 repo$dependencies(generated=F)
 ```
-
-![plot of chunk unnamed-chunk-26](figure/unnamed-chunk-26-1.png) 
 
 ## Accessing items in the repo
 
@@ -502,7 +462,7 @@ the variable *myiris* from the repo and loads it into the variable
 
 
 
-```r
+```{r}
 x <- repo$get("myiris")
 ```
 
@@ -510,21 +470,8 @@ To get additional information about the entry, the *info* command
 can be used this way:
 
 
-```r
+```{r}
 repo$info("myiris")
-```
-
-```
-ID:           myiris
-Description:  A normalized version of the iris dataset coming with R. Normalization is made with the scale function with default parameters.
-Tags:         dataset, iris, repodemo
-Dimensions:   150x4
-Timestamp:    2015-07-21 22:50:28
-Size on disk: 1.82 kB
-Provenance:   repodemo.R
-Attached to:  -
-Stored in:    /tmp/Rtmpi5lTMd/ae/8c/b5/ae8cb58a595aa3446f10e9fa4dfd4954
-MD5 checksum: 5c7af9e2f20958da3aec48e558ab8a32
 ```
 
 ## Item versions and temporary items
@@ -548,7 +495,7 @@ we want to store such an alternative solution as an additional
 version of the *iris_5clu* item. This can be done as follows:
 
 
-```r
+```{r}
 kiris2 <- kmeans(myiris, 5)$cluster
 repo$put(kiris, "iris_5clu",
          "Kmeans clustering of the Iris data, k=5. Today's version!",
@@ -564,75 +511,30 @@ incremental integer.
 The new repo looks like the old one:
 
 
-```r
+```{r}
 repo
-```
-
-```
-         ID  Dims    Size
-     myiris 150x4 1.82 kB
- irisLabels   150   124 B
-  iris_5clu   150   110 B
 ```
 
 Except that *iris_5clu* is actually the one just put (look at the
 description):
 
 
-```r
+```{r}
 repo$info("iris_5clu")
-```
-
-```
-ID:           iris_5clu
-Description:  Kmeans clustering of the Iris data, k=5. Today's version!
-Tags:         metadata, iris, kmeans, clustering, repodemo
-Dimensions:   150
-Timestamp:    2015-07-21 22:50:30
-Size on disk: 110 B
-Provenance:   repodemo.R
-Attached to:  -
-Stored in:    /tmp/Rtmpi5lTMd/ff/6d/ce/ff6dce2d056afd01f0e1f0b13bc0e295
-MD5 checksum: 8bc7458157f0d1b8a3c9300ac39ef479
 ```
 
 while the old one has been renamed and hidden:
 
 
-```r
+```{r}
 repo$print(all=T)
-```
-
-```
-                ID  Dims    Size
-            myiris 150x4 1.82 kB
-        irisLabels   150   124 B
-       @iris2D.pdf     - 5.84 kB
-      @irispca.pdf     - 4.38 kB
-       iris_5clu#1   150   110 B
-     @iris2Dkm.pdf     - 5.99 kB
- iris_cluVsSpecies   3x5   179 B
-         iris_5clu   150   110 B
 ```
 
 However, it can be referred to as any other repo item:
 
 
-```r
+```{r}
 repo$info("iris_5clu#1")
-```
-
-```
-ID:           iris_5clu#1
-Description:  Kmeans clustering of the Iris data, k=5.
-Tags:         metadata, iris, kmeans, clustering, repodemo, hide
-Dimensions:   150
-Timestamp:    2015-07-21 22:50:30
-Size on disk: 110 B
-Provenance:   repodemo.R
-Attached to:  -
-Stored in:    /tmp/Rtmpi5lTMd/ff/6d/ce/ff6dce2d056afd01f0e1f0b13bc0e295
-MD5 checksum: 8bc7458157f0d1b8a3c9300ac39ef479
 ```
 
 ### Stashing
@@ -654,9 +556,13 @@ set the *dorun* variable to FALSE (BTW that's my personal practice)
 so that the script will *get* the precomputed variable from the
 repo.
 
+```{r include=FALSE}
+dorun <- FALSE
+result <- "This took 10 seconds to compute"
+repo$stash("result")
+```
 
-
-```r
+```{r}
 if(dorun) {
     Sys.sleep(10)
     result <- "This took 10 seconds to compute"
@@ -671,21 +577,8 @@ stashed items by the same name, and finally hide the newly created
 item.
 
 
-```r
+```{r}
 repo$info("result")
-```
-
-```
-ID:           result
-Description:  Stashed object
-Tags:         stash, hide
-Dimensions:   1
-Timestamp:    2015-07-21 22:50:30
-Size on disk: 74 B
-Provenance:   /home/ciccio/git/repo/repo
-Attached to:  -
-Stored in:    /tmp/Rtmpi5lTMd/a5/1a/c6/a51ac6da0abd674507d667f47462fa17
-MD5 checksum: 044889046af24c7dcdb77eb323b10106
 ```
 
 ## Handlers
@@ -698,89 +591,64 @@ methods (*get* by default) on the corresponding items. Easier by
 examples:
 
 
-```r
+```{r}
 h <- repo$handlers()
 names(h)
-```
-
-```
- [1] "myiris"            "irisLabels"        "iris2D.pdf"       
- [4] "irispca.pdf"       "iris_5clu#1"       "iris2Dkm.pdf"     
- [7] "iris_cluVsSpecies" "iris_5clu"         "result"           
-[10] "repo"             
 ```
 
 Handlers call *get* by default:
 
 
-```r
+```{r}
 print(h$iris_cluVsSpecies())
-```
-
-```
-            kiris
-              1  2  3  4  5
-  setosa      1  0  0  0 49
-  versicolor 19 22  9  0  0
-  virginica   2 16 20 12  0
 ```
 
 The *tag* method (not yet described)  adds a tag to an item:
 
 
-```r
+```{r}
 h$iris_cluVsSpecies("tag", "onenewtag")
 h$iris_cluVsSpecies("info")
-```
-
-```
-ID:           iris_cluVsSpecies
-Description:  Contingency table of the kmeans clustering versus the original labels of the Iris dataset.
-Tags:         result, iris, validation, clustering, repodemo, hide, onenewtag
-Dimensions:   3x5
-Timestamp:    2015-07-21 22:50:30
-Size on disk: 179 B
-Provenance:   repodemo.R
-Attached to:  -
-Stored in:    /tmp/Rtmpi5lTMd/71/f4/85/71f48579b98958bc63ab72b6b49d08b4
-MD5 checksum: 8dfdf75e597f8f989769a6a41539ac3d
 ```
 
 One may want to open a repo directly with:
 
 
-```r
-h <- repo_open()$handlers()
+```{r}
+h <- repo_open(repo$root())$handlers()
 ```
 
 
 In that case, the handler to the repo itself will come handy:
 
 
-```r
+```{r}
 h$repo
-```
-
-```
-         ID  Dims    Size
-     myiris 150x4 1.82 kB
- irisLabels   150   124 B
-  iris_5clu   150   110 B
 ```
 
 If items are removed or added, handlers may need a refresh:
 
 
-```r
+```{r}
 h <- h$repo$handlers()
 ```
+
+## Clearing the repository
+
+The following R command will completely remove the repo root and all
+the objects stored in it (in fact this could be rather dangerous):
+
+```{r}
+unlink(repo$root(), recursive=TRUE)
+```
+
 
 ## Other features
 
 The repo manual starts at:
 
 
-```r
+```{r, eval=FALSE}
 help(repo)
 ```
 
@@ -790,8 +658,8 @@ environment. Any call like *repo$func(x)* can be executed as
 try the following:
 
 
-```r
-## help(repo_func)
+```{r, eval=FALSE}
+help(repo_func)
 ```
 
 Here's a summary of most repo functions:
