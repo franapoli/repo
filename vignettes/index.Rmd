@@ -319,12 +319,6 @@ about the repo:
 repo$info()
 ```
 
-```
-Root:            /tmp/Rtmpi5lTMd 
-Number of items: 7 
-Total size:      18.44 kB 
-```
-
 The repo library supports an S3 *print* method that shows the
 contents of the repo. All non-hidden items will be shown, together
 with some details, which by defaults are: name, dimensions, size.
@@ -333,13 +327,6 @@ with some details, which by defaults are: name, dimensions, size.
 
 ```{r}
 repo ## by default resolves to print(repo)
-```
-
-```
-         ID  Dims    Size
-     myiris 150x4 1.82 kB
- irisLabels   150   124 B
-  iris_5clu   150   110 B
 ```
 
 
@@ -352,18 +339,6 @@ the items appear:
 print(repo, all=T)
 ```
 
-```
-                ID  Dims    Size
-            myiris 150x4 1.82 kB
-        irisLabels   150   124 B
-       @iris2D.pdf     - 5.84 kB
-      @irispca.pdf     - 4.38 kB
-         iris_5clu   150   110 B
-     @iris2Dkm.pdf     - 5.99 kB
- iris_cluVsSpecies   3x5   179 B
-```
-
-
 Items can also be listed selectively. With the following call, only
 items tagged with "clustering" will be shown:
 
@@ -373,14 +348,6 @@ items tagged with "clustering" will be shown:
 print(repo, tags="clustering", all=T)
 ```
 
-```
-                ID Dims    Size
-         iris_5clu  150   110 B
-     @iris2Dkm.pdf    - 5.99 kB
- iris_cluVsSpecies  3x5   179 B
-```
-
-
 All attachments have the *attachment* tag, so they can be
 selectively visualized this way:
 
@@ -389,14 +356,6 @@ selectively visualized this way:
 ```{r}
 print(repo, tags="attachment", all=T)
 ```
-
-```
-            ID Dims    Size
-   @iris2D.pdf    - 5.84 kB
-  @irispca.pdf    - 4.38 kB
- @iris2Dkm.pdf    - 5.99 kB
-```
-
 
 For the same reasons, one may want to show only hidden items:
 
