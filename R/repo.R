@@ -403,7 +403,7 @@ repo_open <- function(root="~/.R_repo", force=F)
             tagsets <- lapply(tagsets, setdiff, y="stash")
 
             prefixes <- rep("", length(names))
-            prefixes[attachs] <- "@"
+            prefixes[attachs == "x"] <- "@"
             
             a[,"ID"] <- paste0(prefixes, names)
             a[,2] <- flags
