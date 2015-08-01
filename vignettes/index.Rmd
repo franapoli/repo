@@ -11,7 +11,7 @@ vignette: >
 
 ```{r include=FALSE}
 library(knitr)
-knitr::opts_chunk$set(fig.width=7, fig.height=7, comment="# ")
+knitr::opts_chunk$set(fig.width=7, fig.height=7, comment="")
 ```
 ## Introduction
 
@@ -343,7 +343,6 @@ Items can also be listed selectively. With the following call, only
 items tagged with "clustering" will be shown:
 
 
-
 ```{r}
 print(repo, tags="clustering", all=T)
 ```
@@ -360,7 +359,7 @@ print(repo, tags="attachment", all=T)
 For the same reasons, one may want to show only hidden items:
 
 
-```{r, eval=FALSE}
+```{r}
 print(repo, tags="hide", all=T)
 ```
 
