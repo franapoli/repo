@@ -391,19 +391,20 @@ repo_open <- function(root="~/.R_repo", force=F)
                             
             tagsets <- lapply(entr, get, x="tags")
             attachs[sapply(tagsets, is.element, el="attachment")] <- "x"
-            depends[!sapply((sapply(entr, get, x="depends")), is.null)] <- "x"
+            depends[sapply(lapply(entr, get, x="depends"), length)>0] <- "x"
             allows[!sapply((sapply(names, dependants)), is.null)] <- "x"
             hasattach[!sapply((sapply(names, attachments)), is.null)] <- "x"
+
             flags <- paste0(attachs, hasattach, depends, allows)
 
             descriptions <- sapply(entr, get, x="description")
             
             tagsets <- lapply(tagsets, setdiff, y="attachment")
-            tagsets <- lapply(tagsets, setdiff, y="hide")
+            #tagsets <- lapply(tagsets, setdiff, y="hide")
             tagsets <- lapply(tagsets, setdiff, y="stash")
 
             prefixes <- rep("", length(names))
-            prefixes[attachs] <- "@"
+            prefixes[attachs == "x"] <- "@"
             
             a[,"ID"] <- paste0(prefixes, names)
             a[,2] <- flags
@@ -419,9 +420,11 @@ repo_open <- function(root="~/.R_repo", force=F)
             if(all)
                 h[h] <- F            
             m <- as.data.frame(a[!h,cols], nm="")
+            ## if(sum(!h)>1)
+            ##     print(m, quote=F, row.names=F) else
+            ## print(m, quote=F, row.names=T)
             if(sum(!h)>1)
-                print(m, quote=F, row.names=F) else
-            print(m, quote=F, row.names=T)
+                print(m, quote=F, row.names=F) else print(t(m), quote=F, row.names=F)
 
             invisible(m)
         },

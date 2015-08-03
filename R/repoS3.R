@@ -270,7 +270,7 @@ repo_sys <- function(repo, name, command)
 #' ## wiping temporary repo
 #' unlink(repo_path, TRUE)
 print.repo <- function(x, tags=NULL, all=F, show="ds", ...)
-    x$print(tags, all, show="ds")
+    x$print(tags, all, show=show)
 
 #' Export \code{repo} items to RDS file.
 #' 

@@ -5,7 +5,8 @@
 
 # Release notes:
 
-1.0b. First release candidate out.
++ Jul 30 2015
+    1.0 released.
 
 # repo
 
