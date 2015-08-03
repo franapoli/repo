@@ -3,8 +3,9 @@
 [1]: http://www.twitter.com/franapoli
 <!-- Grab your social icons from https://github.com/carlsednaoui/gitsocial -->
 
-# Release notes:
-
+# News:
++ Aug 3 2015
+    Now on CRAN
 + Jul 30 2015
     1.0 released.
 
