@@ -3,8 +3,9 @@
 [1]: http://www.twitter.com/franapoli
 <!-- Grab your social icons from https://github.com/carlsednaoui/gitsocial -->
 
-# Release notes:
-
+# News:
++ Aug 3 2015
+    Now on CRAN
 + Jul 30 2015
     1.0 released.
 
@@ -23,8 +24,17 @@ Please check out the getting started guide at http://franapoli.github.io/repo.
 
 ## Download and Installation
 
-Repo is not on R repositories at the moment, but is available
-on Github at:
+### Latest release on CRAN
+
+Repo is now on CRAN, just use:
+
+    install.packages("repo")
+    
+to install the latest release.
+
+### Latest development on GitHub
+
+Latest development version is available on Github at:
 
     https://github.com/franapoli/repo
 
@@ -32,11 +42,8 @@ Repo can be installed from the downloaded sources as follows:
 
     install.packages("path-to-downloaded-source", type="source", repos=NULL)
 
-devtools users can download and install at once the latest stable
+devtools users can download and install at once the latest development
 version from github as follows:
 
-    install_github("franapoli/repo", ref="master")
-
-or the latest development version at:
-
     install_github("franapoli/repo", ref="dev")
+
