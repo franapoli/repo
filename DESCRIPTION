@@ -5,7 +5,7 @@ Version: 1.0
 Date: 2015-07-30
 Author: Francesco Napolitano <franapoli@gmail.com>
 Maintainer: Francesco Napolitano <franapoli@gmail.com>
-Description: The repo package is meant to help with the management of R data objects and avoid manual storage/retrieval through Rdata files. It builds one (or more) centralized repository where R objects are stored together with corresponding annotations, tags, dependency notes, provenance traces. Plus, it provides navigation tools to easily locate and load previously stored resources.
+Description: This is an R data manager meant to avoid manual storage/retrieval of R data through the file system. It builds one (or more) centralized repository where R objects are stored together with annotations, tags, dependency notes, provenance traces. Plus, it provides navigation tools to easily locate and load previously stored resources.
 License: GPL-3
 Imports: digest, tools
 Suggests: igraph,
