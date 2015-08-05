@@ -250,10 +250,18 @@ repo_sys <- function(repo, name, command)
 #' @param x An object of class repo.
 #' @param tags A list of character tags. Only items matching all the
 #' tags will be shown.
+#' @param tagfun How to combine tags (see Details).
 #' @param all Show also items tagged with "hide".
 #' @param show Select columns to show.
 #' @param ... Further arguments passed to or from other methods
 #' @return Used for side effects.
+#' @details The \code{tagfun} param specifies how to combine multiple
+#' tags when matching items. It can be either a character or a
+#' function. As a character, it can be one of \code{OR}, \code{AND} or
+#' \code{NOT} to specify that one, all or none of the tags must be
+#' matched, respectively. If it is a function, it must take two tag
+#' vectors, the first of which corresponds to \code{tags}, and return
+#' TRUE for a match, FALSE otherwise.
 #' @examples
 #' repo_path <- file.path(tempdir(), "example_repo")
 #' repo <- repo_open(repo_path, TRUE)
@@ -269,8 +277,8 @@ repo_sys <- function(repo, name, command)
 #'
 #' ## wiping temporary repo
 #' unlink(repo_path, TRUE)
-print.repo <- function(x, tags=NULL, all=F, show="ds", ...)
-    x$print(tags, all, show=show)
+print.repo <- function(x, tags=NULL, tagfun, all=F, show="ds", ...)
+    x$print(tags=tags, tafgun=tagfun, all=all, show=show)
 
 #' Export \code{repo} items to RDS file.
 #' 

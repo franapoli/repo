@@ -54,9 +54,9 @@ repo_open <- function(root="~/.R_repo", force=F)
             return(entries[[e]])
         }
 
-    runWithTags <- function(f, tags, names, askconfirm, ...) {
+    runWithTags <- function(f, tags, names, askconfirm, tagfun="OR", ...) {
         if(!is.null(tags))
-            e <- findEntries(tags) else {
+            e <- findEntries(tags, tagfun) else {
                 dbnames <- sapply(entries, get, x="name")
                 e <- match(names, dbnames)
                 if(any(is.na(e))) {
@@ -217,10 +217,21 @@ repo_open <- function(root="~/.R_repo", force=F)
             return(w)
         }
 
-    findEntries <- function(tags)
-        {
+    findEntries <- function(tags, tagfun="OR")
+        {           
             tagsets <- lapply(entries, get, x="tags")
-            w <- sapply(tagsets, function(x)all(tags %in% x))
+
+            if(is.character(tagfun) && tagfun =="AND")
+                tagfun <- function(x, tags=tags)all(tags %in% x)
+            if(is.character(tagfun) && tagfun=="NOT")
+                tagfun <- function(x, tags=tags)all(!(tags %in% x))
+            if(is.character(tagfun) && tagfun=="OR")
+                tagfun <- function(x, tags=tags)any(tags %in% x)
+
+            if(class(tagfun)!="function")
+                stop("tagfun must be either a function or one of OR, AND, NOT")
+
+            w <- sapply(tagsets, tagfun, tags)
             return(which(w))
         }
 
@@ -365,13 +376,13 @@ repo_open <- function(root="~/.R_repo", force=F)
             system(syscomm)
         },
 
-        print = function(tags=NULL, all=F, show="ds")
+        print = function(tags=NULL, tagfun="OR", all=F, show="ds")
         {
             stopOnEmpty()
             
             entr <- entries
             if(!is.null(tags)) {
-                w <- findEntries(tags)
+                w <- findEntries(tags, tagfun)
                 if(length(w)<1)
                     {
                         message("Tags not found.")
@@ -392,7 +403,7 @@ repo_open <- function(root="~/.R_repo", force=F)
             tagsets <- lapply(entr, get, x="tags")
             attachs[sapply(tagsets, is.element, el="attachment")] <- "x"
             depends[sapply(lapply(entr, get, x="depends"), length)>0] <- "x"
-            allows[!sapply((sapply(names, dependants)), is.null)] <- "x"
+            allows[!sapply(lapply(names, dependants), length)>0] <- "x"
             hasattach[!sapply((sapply(names, attachments)), is.null)] <- "x"
 
             flags <- paste0(attachs, hasattach, depends, allows)
@@ -404,7 +415,7 @@ repo_open <- function(root="~/.R_repo", force=F)
             tagsets <- lapply(tagsets, setdiff, y="stash")
 
             prefixes <- rep("", length(names))
-            prefixes[attachs == "x"] <- "@"
+            prefixes[attachs == "x"] <- "@"                        
             
             a[,"ID"] <- paste0(prefixes, names)
             a[,2] <- flags
@@ -774,3 +785,17 @@ repo_open <- function(root="~/.R_repo", force=F)
     return(me)
 }
 
+
+#' repo_path <- file.path(tempdir(), "example_repo")
+#' repo <- repo_open(repo_path, TRUE)
+#' data1 <- 1:10
+#' data2 <- data1 * 2
+#' data3 <- data1 / 2
+#'
+#' repo$put(data1, "item1", "First item", c("tag1", "tag2"), replace=TRUE)
+#' repo$put(data2, "item2", "Item dependent on item1",
+#'     c("tag2", "tag3"), depends="item1", replace=TRUE)
+#' repo$put(data3, "item3", "Item dependent on item1 and item2",
+#'     c("tag3", "tag4"), depends=c("item1", "item2"), replace=TRUE)
+#'
+#' unlink(repo$root(), TRUE)

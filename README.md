@@ -4,10 +4,25 @@
 <!-- Grab your social icons from https://github.com/carlsednaoui/gitsocial -->
 
 # News:
+
+## Current:
+
++ When using multiple tags now by default they match when at least one
+matches (OR).
+
++ Now tags can be matched using OR, AND, NOT or any external logical
+function.
+
++ Fixed a bug in print when showing one item.
+
+## 1.0
+
 + Aug 3 2015
     Now on CRAN
+
 + Jul 30 2015
     1.0 released.
+
 
 # repo
 
