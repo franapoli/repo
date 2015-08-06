@@ -217,21 +217,28 @@ repo_open <- function(root="~/.R_repo", force=F)
             return(w)
         }
 
-    findEntries <- function(tags, tagfun="OR")
-        {           
-            tagsets <- lapply(entries, get, x="tags")
+    findEntries <- function(tags=NULL, tagfun="OR", find=NULL)
+        {
+            if(!is.null(tags)) {
+                   tagsets <- lapply(entries, get, x="tags")
 
-            if(is.character(tagfun) && tagfun =="AND")
-                tagfun <- function(x, tags=tags)all(tags %in% x)
-            if(is.character(tagfun) && tagfun=="NOT")
-                tagfun <- function(x, tags=tags)all(!(tags %in% x))
-            if(is.character(tagfun) && tagfun=="OR")
-                tagfun <- function(x, tags=tags)any(tags %in% x)
+                   if(is.character(tagfun) && tagfun =="AND")
+                       tagfun <- function(x, tags=tags)all(tags %in% x)
+                   if(is.character(tagfun) && tagfun=="NOT")
+                       tagfun <- function(x, tags=tags)all(!(tags %in% x))
+                   if(is.character(tagfun) && tagfun=="OR")
+                       tagfun <- function(x, tags=tags)any(tags %in% x)
 
-            if(class(tagfun)!="function")
-                stop("tagfun must be either a function or one of OR, AND, NOT")
+                   if(class(tagfun)!="function")
+                       stop("tagfun must be either a function or one of OR, AND, NOT")
 
-            w <- sapply(tagsets, tagfun, tags)
+                   w <- sapply(tagsets, tagfun, tags)
+               } else {
+                   strmat <- entriesToMat(1:length(entries))
+                   w <- apply(strmat, 1, function(l)
+                       length(grep(find, l, ignore.case=T))>0)
+               }
+               
             return(which(w))
         }
 
@@ -263,6 +270,41 @@ repo_open <- function(root="~/.R_repo", force=F)
             hp <- path.expand("~")
             return(gsub(paste0("^",hp), "~", path))
         }
+
+    entriesToMat <- function(w)
+        {
+            entr <- entries[w]
+
+            labels <- c("ID", "a@><", "Dims", "Tags", "Size")
+            names <- sapply(entr, get, x="name")
+
+            a <- matrix(NA, length(names), length(labels))
+            colnames(a) <- labels
+
+            attachs <- depends <- hasattach <- allows <- rep(" ", length(entr))
+                            
+            tagsets <- lapply(entr, get, x="tags")
+            attachs[sapply(tagsets, is.element, el="attachment")] <- "x"
+            depends[sapply(lapply(entr, get, x="depends"), length)>0] <- "x"
+            allows[!sapply(lapply(names, dependants), length)>0] <- "x"
+            hasattach[!sapply((sapply(names, attachments)), is.null)] <- "x"            
+
+            flags <- paste0(attachs, hasattach, depends, allows)
+            
+            descriptions <- sapply(entr, get, x="description")
+            prefixes <- rep("", length(names))
+            prefixes[attachs == "x"] <- "@"                        
+
+            a[,"ID"] <- paste0(prefixes, names)
+            a[,2] <- flags
+            a[,"Dims"] <- sapply(lapply(entr, get, x="dims"), paste, collapse="x");
+            a[a[,"Dims"]=="", "Dims"] <- "-"            
+            a[,"Tags"] <- sapply(tagsets, paste, collapse=", ")
+            a[,"Size"] <- sapply(lapply(entr, get, x="size"), hmnRead)
+
+            return(a)
+        }
+
     
     cutString <- function(text, len, dotsafter=T)
         {
@@ -376,13 +418,19 @@ repo_open <- function(root="~/.R_repo", force=F)
             system(syscomm)
         },
 
-        print = function(tags=NULL, tagfun="OR", all=F, show="ds")
+        print = function(tags=NULL, tagfun="OR", find=NULL, all=F, show="ds")
         {
+            ## TODO: Part of the cose in now in function entriesToMat,
+            ## should be removed from here.
+
+            if(!is.null(tags) & !is.null(find))
+                stop("Please provide either tags or find.")
+            
             stopOnEmpty()
             
             entr <- entries
-            if(!is.null(tags)) {
-                w <- findEntries(tags, tagfun)
+            if(!is.null(tags) | !is.null(find)) {
+                w <- findEntries(tags=tags, tagfun=tagfun, find=find)
                 if(length(w)<1)
                     {
                         message("Tags not found.")
@@ -392,6 +440,7 @@ repo_open <- function(root="~/.R_repo", force=F)
                     }
             }
 
+            
             labels <- c("ID", "a@><", "Dims", "Tags", "Size")
             names <- sapply(entr, get, x="name")
 

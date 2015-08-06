@@ -251,6 +251,7 @@ repo_sys <- function(repo, name, command)
 #' @param tags A list of character tags. Only items matching all the
 #' tags will be shown.
 #' @param tagfun How to combine tags (see Details).
+#' @param find Character to match any filed (see Details).
 #' @param all Show also items tagged with "hide".
 #' @param show Select columns to show.
 #' @param ... Further arguments passed to or from other methods
@@ -262,6 +263,10 @@ repo_sys <- function(repo, name, command)
 #' matched, respectively. If it is a function, it must take two tag
 #' vectors, the first of which corresponds to \code{tags}, and return
 #' TRUE for a match, FALSE otherwise.
+#'
+#' The find param can be any character string to be matched against
+#' any item field, including string-converted size (like "10x3").
+#' 
 #' @examples
 #' repo_path <- file.path(tempdir(), "example_repo")
 #' repo <- repo_open(repo_path, TRUE)
@@ -277,8 +282,8 @@ repo_sys <- function(repo, name, command)
 #'
 #' ## wiping temporary repo
 #' unlink(repo_path, TRUE)
-print.repo <- function(x, tags=NULL, tagfun, all=F, show="ds", ...)
-    x$print(tags=tags, tafgun=tagfun, all=all, show=show)
+print.repo <- function(x, tags=NULL, tagfun, find=NULL, all=F, show="ds", ...)
+    x$print(tags=tags, tafgun=tagfun, find=find, all=all, show=show)
 
 #' Export \code{repo} items to RDS file.
 #' 

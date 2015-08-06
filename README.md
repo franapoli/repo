@@ -7,6 +7,8 @@
 
 ## Current:
 
++ Added search field in print to match anything in items.
+
 + When using multiple tags now by default they match when at least one
 matches (OR).
 
