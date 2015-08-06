@@ -282,8 +282,8 @@ repo_sys <- function(repo, name, command)
 #'
 #' ## wiping temporary repo
 #' unlink(repo_path, TRUE)
-print.repo <- function(x, tags=NULL, tagfun, find=NULL, all=F, show="ds", ...)
-    x$print(tags=tags, tafgun=tagfun, find=find, all=all, show=show)
+print.repo <- function(x, tags=NULL, tagfun="OR", find=NULL, all=F, show="ds", ...)
+    x$print(tags=tags, tagfun=tagfun, find=find, all=all, show=show)
 
 #' Export \code{repo} items to RDS file.
 #' 
