@@ -7,7 +7,8 @@
 
 ## Current:
 
-+ Added search field in print to match anything in items.
++ Added search field in print to match anything in items and the
+corresponding "find" shortcut method.
 
 + When using multiple tags now by default they match when at least one
 matches (OR).

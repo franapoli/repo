@@ -418,6 +418,11 @@ repo_open <- function(root="~/.R_repo", force=F)
             system(syscomm)
         },
 
+        find = function(what, all=F, show="ds")
+        {
+        get("this", thisEnv)$print(find=what, all=all, show=show)
+        },
+        
         print = function(tags=NULL, tagfun="OR", find=NULL, all=F, show="ds")
         {
             ## TODO: Part of the cose in now in function entriesToMat,
@@ -433,7 +438,7 @@ repo_open <- function(root="~/.R_repo", force=F)
                 w <- findEntries(tags=tags, tagfun=tagfun, find=find)
                 if(length(w)<1)
                     {
-                        message("Tags not found.")
+                        message("No matches.")
                         return(invisible())
                     } else {
                         entr <- entr[w]

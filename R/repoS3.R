@@ -245,6 +245,39 @@ repo_tags <- function(repo) repo$tags()
 repo_sys <- function(repo, name, command)
     repo$sys(name, command)
 
+#' Match items by matching any field
+#'
+#' @param x An object of class repo.
+#' @param find Character to match any filed (see Details).
+#' @param all Show also items tagged with "hide".
+#' @param show Select columns to show.
+#' @return Used for side effects.
+#' @details
+#'
+#' This function actually calls print specifying the find
+#' parameters. The find parameter can be any character string to be
+#' matched against any item field, including string-converted size
+#' (like "10x3").
+#' 
+#' @examples
+#' repo_path <- file.path(tempdir(), "example_repo")
+#' 
+#' repo <- repo_open(repo_path, TRUE)
+#' repo$put(1, "item1", "Sample item 1", c("tag1", "tag2"), replace=TRUE)
+#' repo$put(2, "item2", "Sample item 2", c("tag1", "hide"), replace=TRUE)
+#' repo$put(3, "item3", "Sample item 3", c("tag2", "tag3"), replace=TRUE)
+#' repo$print()
+#' repo$find("tEm2")
+#' repo$find("ag2", show="t")
+#' 
+#' ## wiping the temp repo
+#' unlink(repo_path, TRUE)
+#'
+#' ## wiping temporary repo
+#' unlink(repo_path, TRUE)
+repo_find <- function(x, find=NULL, all=F, show="ds")
+    x$find(find=find, all=all, show=show)
+
 #' Show a summary of the repository contents.
 #'
 #' @param x An object of class repo.
