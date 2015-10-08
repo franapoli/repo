@@ -3,9 +3,13 @@
 [1]: http://www.twitter.com/franapoli
 <!-- Grab your social icons from https://github.com/carlsednaoui/gitsocial -->
 
-# News
+# Dev branch disclaimer
 
-## Development version
+This is the Repo development branch. It could be unstable and cause
+problems, you may want to check out the master branch for a safer
+version.
+
+# News
 
 List updated on 10/08/2015
 
@@ -22,14 +26,6 @@ matches (OR).
 function.
 
 + Fixed a bug in print when showing one item.
-
-## v1.0
-
-+ Aug 3 2015
-    Now on CRAN
-
-+ Jul 30 2015
-    1.0 released.
 
 
 # repo
@@ -70,3 +66,12 @@ version from github as follows:
 
     install_github("franapoli/repo", ref="dev")
 
+
+# Version history
+## v1.0
+
++ Aug 3 2015
+    Now on CRAN
+
++ Jul 30 2015
+    1.0 released.
