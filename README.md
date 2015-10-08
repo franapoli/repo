@@ -3,9 +3,14 @@
 [1]: http://www.twitter.com/franapoli
 <!-- Grab your social icons from https://github.com/carlsednaoui/gitsocial -->
 
-# News:
+# News
 
-## Current:
+## Development version
+
+List updated on 10/08/2015
+
++ Atomization of item replacement to avoid the possibility of data
+loss.
 
 + Added search field in print to match anything in items and the
 corresponding "find" shortcut method.
@@ -18,7 +23,7 @@ function.
 
 + Fixed a bug in print when showing one item.
 
-## 1.0
+## v1.0
 
 + Aug 3 2015
     Now on CRAN

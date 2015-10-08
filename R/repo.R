@@ -146,6 +146,23 @@ repo_open <- function(root="~/.R_repo", force=F)
             return(!(name %in% names))
         }
 
+    rmData <- function(name, phase)
+    {
+        temp <- getEntry(name)
+        fpath <- temp$dump
+        if(phase=="temp") {
+            file.rename(temp$dump, paste0(temp$dump, ".remove_me"))
+        } 
+        if(phase=="finalize") {
+            file.remove(paste0(temp$dump, ".remove_me"))
+        }
+        if(phase=="undo") {
+            file.rename(paste0(temp$dump, ".remove_me"), temp$dump)
+        }
+        
+        return(list(path=fpath, size=file.info(fpath)$size))
+    }
+
     storeData <- function(name, obj, attach=F)
         {
             opath <- buildpath(name)
@@ -204,6 +221,7 @@ repo_open <- function(root="~/.R_repo", force=F)
             if(e==-1)
                 cat("Repo is empty.\n")
         }
+
     findEntryIndex <- function(name)
         {
             if(is.null(entries) | length(entries)<1) {
@@ -569,7 +587,9 @@ repo_open <- function(root="~/.R_repo", force=F)
                 if(is.null(e))
                     return(invisible(NULL))
 
-                file.remove(entries[[e]]$dump)
+                rmData(name, "temp")
+                rmData(name, "finalize")
+
                 assign("entries", entries[-e], thisEnv)                
                 storeIndex()
             }
@@ -650,15 +670,24 @@ repo_open <- function(root="~/.R_repo", force=F)
                 if(!is.null(dim(obj)))
                     dims <- dim(obj) else dims <- length(obj)
                 
-                if(!is.null(newname))
-                    file.remove(entr$dump)
-                
-                fdata <- get("storeData", thisEnv)(entr$name, obj)
-                entr$class <- class(obj)
-                entr$dump <- fdata[["path"]]
-                entr$size <- fdata[["size"]]
-                entr$checksum <- md5sum(path.expand(fdata[["path"]]))
-                entr$dims <- dims
+                if(!is.null(newname)) {
+
+                    rmData(entr$name, "temp")
+                    tryCatch({
+                        fdata <- get("storeData", thisEnv)(entr$name, obj)
+                        entr$class <- class(obj)
+                        entr$dump <- fdata[["path"]]
+                        entr$size <- fdata[["size"]]
+                        entr$checksum <- md5sum(path.expand(fdata[["path"]]))
+                        entr$dims <- dims
+                    }, error = function(e) {
+                        print(e)
+                        rmData(name, "undo")
+                    }, finally = {
+                        rmData(name, "finalize")
+                    }
+                    )                
+                }
             }
             entries[[w]] <- entr
             assign("entries", entries, thisEnv)
@@ -714,9 +743,6 @@ repo_open <- function(root="~/.R_repo", force=F)
                     return(invisible(NULL))
                 }
 
-            if(!notexist & replace)
-                get("this", thisEnv)$rm(name)
-
             
             if(!asattach) {
                 if(!is.null(dim(obj)))
@@ -730,9 +756,6 @@ repo_open <- function(root="~/.R_repo", force=F)
             if(!is.null(to))
                 stopOnNotFound(to)
 
-            fdata <- get("storeData", thisEnv)(name, obj, asattach)
-            fname <- fdata[["path"]]
-            fsize <- fdata[["size"]]
 
             if(is.null(src)) {
                 storedfrom <- getwd()
@@ -747,23 +770,45 @@ repo_open <- function(root="~/.R_repo", force=F)
                           class = class(obj),
                           dims = dims,
                           timestamp = Sys.time(),
-                          dump = fname,
-                          size = fsize,
-                          checksum = md5sum(path.expand(fname)),
+                          dump = NULL,
+                          size = NULL,
+                          checksum = NULL,
                           source = storedfrom,
                           depends = depends,
-                          attachedto = to)
-
+                          attachedto = to)            
+            
             if(!notexist & addversion) {
                 newname <- checkVersions(name)$new
                 get("this", thisEnv)$set(name, newname=newname)
                 get("this", thisEnv)$tag(newname, "hide")
             }            
-            
+
             entr <- get("entries", thisEnv)
-            entr[[length(entries)+1]] <- repoE
-            assign("entries", entr, thisEnv)
-            get("storeIndex", thisEnv)()
+            
+            if(!notexist & replace) {
+                ei <- findEntryIndex(name)
+                rmData(name, "temp")
+                oldEntr <- entr[[ei]]
+            } else ei <- length(entries)+1
+
+            tryCatch({
+                fdata <- get("storeData", thisEnv)(name, obj, asattach)
+            }, error = function(e) {
+                print(e)
+                if(!notexist & replace) 
+                    rmData(name, "undo")
+            }, finally = {
+                repoE["dump"] <- fdata[["path"]]
+                repoE["size"] <- fdata[["size"]]
+                repoE["checksum"] <- md5sum(path.expand(fdata[["path"]]))
+                entr[[ei]] <- repoE
+                assign("entries", entr, thisEnv)
+                get("storeIndex", thisEnv)()
+                
+                if(!notexist & replace)
+                    rmData(name, "finalize")
+            }
+            )                         
         },        
         
         test=function()

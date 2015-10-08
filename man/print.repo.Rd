@@ -4,13 +4,18 @@
 \alias{print.repo}
 \title{Show a summary of the repository contents.}
 \usage{
-\method{print}{repo}(x, tags = NULL, all = F, show = "ds", ...)
+\method{print}{repo}(x, tags = NULL, tagfun = "OR", find = NULL,
+  all = F, show = "ds", ...)
 }
 \arguments{
 \item{x}{An object of class repo.}
 
 \item{tags}{A list of character tags. Only items matching all the
 tags will be shown.}
+
+\item{tagfun}{How to combine tags (see Details).}
+
+\item{find}{Character to match any filed (see Details).}
 
 \item{all}{Show also items tagged with "hide".}
 
@@ -23,6 +28,18 @@ Used for side effects.
 }
 \description{
 Show a summary of the repository contents.
+}
+\details{
+The \code{tagfun} param specifies how to combine multiple
+tags when matching items. It can be either a character or a
+function. As a character, it can be one of \code{OR}, \code{AND} or
+\code{NOT} to specify that one, all or none of the tags must be
+matched, respectively. If it is a function, it must take two tag
+vectors, the first of which corresponds to \code{tags}, and return
+TRUE for a match, FALSE otherwise.
+
+The find param can be any character string to be matched against
+any item field, including string-converted size (like "10x3").
 }
 \examples{
 repo_path <- file.path(tempdir(), "example_repo")
