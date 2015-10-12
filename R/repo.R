@@ -11,7 +11,6 @@ repo_open <- function(root="~/.R_repo", force=F)
     checkVersions <- function(name)
         {
             names <- sapply(entries, get, x="name")
-            #names <- c("sadf","fasd#2","abc","abc#1", "abc#2","sdfa","abc#23")
             ## searching for names ending with # and a number
             w <- regexpr(paste0(name, "#[[:digit:]]+$"), names)
             
@@ -25,6 +24,14 @@ repo_open <- function(root="~/.R_repo", force=F)
             return(list(w=which(w!=-1), v=v, new=newname))
         }
 
+
+    relativePath <- function(path)
+    {
+        sep <- .Platform$file.sep
+        root <- get("root",thisEnv)                
+        relpath <- gsub(paste0(root, sep), "", path ,fixed=T)
+        return(relpath)
+    }
     
     stopOnEmpty <- function(doreturn=F) {
         if(length(entries)<1) {
@@ -34,6 +41,14 @@ repo_open <- function(root="~/.R_repo", force=F)
         return(0)
     }
 
+    setEntry <- function(name, newEntry)
+    {
+        stopOnNotFound(name)
+        e <- findEntryIndex(name)
+        entries[[e]] <- newEntry
+        assign("entries", entries, thisEnv)
+    }
+    
     stopOnNotFound <- function(names=NULL, tags=NULL)
         {
             stopOnEmpty()
@@ -599,10 +614,20 @@ repo_open <- function(root="~/.R_repo", force=F)
         {          
             if(checkName(name))
                 stop("ID not found.")
-            if(isAttachment(name))
-                stop("Get is valid for attachemnts.")
             entry <- getEntry(name)
-            data <- readRDS(entry$dump) 
+            root <- get("root",thisEnv)
+            if(substr(entry$dump, 1, nchar(root)) == root) {
+                message(paste0("This resource was indexed in a deprecated (absolute path) format. ",
+                               "Now updating from absolute:\n", entry$dump, "\nto relative:\n", relativePath(entry$dump), "."))
+                entry$dump <- relativePath(entry$dump)
+                setEntry(name, entry)
+                storeIndex()
+                }
+
+            if(isAttachment(name))
+              stop("Get is not valid for attachemnts.")
+
+            data <- readRDS(file.path(root, entry$dump))
             
             return(data)
         },
@@ -798,7 +823,7 @@ repo_open <- function(root="~/.R_repo", force=F)
                 if(!notexist & replace) 
                     rmData(name, "undo")
             }, finally = {
-                repoE["dump"] <- fdata[["path"]]
+                repoE["dump"] <- relativePath(fdata[["path"]])
                 repoE["size"] <- fdata[["size"]]
                 repoE["checksum"] <- md5sum(path.expand(fdata[["path"]]))
                 entr[[ei]] <- repoE

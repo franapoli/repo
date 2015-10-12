@@ -7,14 +7,25 @@
 
 This is the Repo development branch. It could be unstable and cause
 problems, you may want to check out the master branch for a safer
-version.
+version. You may really want to backup *at least* your repo index file
+before updating (you can find it with `repo$root()`).
 
 # News
 
-List updated on 10/08/2015
+10/12/2015
+
++ Absolute to relative paths for stored objects. This allows to easily
+rebase a repository, for example to a remote machine, without affecting
+the index.
+
++ Automatic update of old repository entries upon resource loading.
+
+10/08/2015
 
 + Atomization of item replacement to avoid the possibility of data
 loss.
+
+Earlier...
 
 + Added search field in print to match anything in items and the
 corresponding "find" shortcut method.
