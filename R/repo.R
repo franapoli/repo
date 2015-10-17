@@ -612,14 +612,27 @@ repo_open <- function(root="~/.R_repo", force=F)
 
         get = function(name)
         {          
-            if(checkName(name))
-                stop("ID not found.")
+            if(checkName(name)){
+                message("ID not found.")
+                enames <- sapply(entries, get, x="name")
+                x <- agrep(name, enames)
+                if(length(x)>0) {
+                    x <- x[abs(sapply(enames[x],nchar) - nchar(name))<=3]
+                    message(paste0(
+                        "Maybe you were looking for: ",
+                        paste0(enames[x], collapse=", ")
+                    ))
+                }
+                return(invisible())
+            }
             entry <- getEntry(name)
             root <- get("root",thisEnv)
-            if(substr(entry$dump, 1, nchar(root)) == root) {
-                message(paste0("This resource was indexed in a deprecated (absolute path) format. ",
-                               "Now updating from absolute:\n", entry$dump, "\nto relative:\n", relativePath(entry$dump), "."))
-                entry$dump <- relativePath(entry$dump)
+            if(substr(normalizePath(entry$dump, mustWork=F), 1, nchar(root)) == root) {
+                newpath <- relativePath(normalizePath(entry$dump, mustWork=F))
+                message(paste0("This resource was indexed in a deprecated format. ",
+                               "Now updating position from:\n", entry$dump, "\nto:\n",
+                               newpath))
+                entry$dump <- newpath
                 setEntry(name, entry)
                 storeIndex()
                 }
