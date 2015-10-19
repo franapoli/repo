@@ -608,7 +608,67 @@ repo_open <- function(root="~/.R_repo", force=F)
                 assign("entries", entries[-e], thisEnv)                
                 storeIndex()
             }
-        },
+      },
+
+        bulkedit = function(outfile=NULL, infile=NULL)
+            {
+                if(!xor(is.null(infile), is.null(outfile)))
+                    stop("Please provide exactly one of infile or outfile.")
+
+                if(!is.null(outfile)) {
+                    if(file.exists(outfile))
+                        stop("File already exists.")
+                
+                    outf <- file(outfile,"at")
+                    writeLines(paste0(digest(entries),
+                                    " EDIT NEXT LINES ONLY. FIELDS MUST BE TAB-SEPARATED.",
+                                    "TAGS MUST BE COMMA-SEPARATED."), outfile)
+                    for(i in 1:length(entries)){
+                        line <- paste0(c(
+                            entries[[i]]$name,
+                            entries[[i]]$description,
+                            paste0(entries[[i]]$tags, collapse=", "),
+                            entries[[i]]$source,
+                            entries[[i]]$attachedto,
+                            entries[[i]]$depednds),
+                                       collapse="\t"
+                                       )
+                        writeLines(line, outf)
+                    }
+                    close(outf)
+                } else {
+                    checkIndexUnchanged()
+                                
+                    if(!file.exists(infile))
+                        stop("Can't find input file.")
+                
+                    indata <- strsplit(readLines(infile), "\t")
+
+                    csum <- substr(indata[[1]],1,32) 
+                    if(csum != digest(entries))
+                        stop(paste0("Checksum mismatch: it seems that input data were ",
+                            "made for entries that have changed in the meantime. \n",
+                            ## "Current checksum is: ", digest(entries), "\n",
+                            ## "Checksum in input file is: ", indata[[1]], "\n",
+                            "Overwriting could be dangerous, so I will stop here. ",
+                            "Call bulkedit again to create a new input file.")
+                            )
+                    indata <- indata[-1]
+
+                    rset <- get("this", thisEnv)$set
+
+                    for(i in 1:length(indata)) {
+                        entries[[i]]$name <- indata[[i]][[1]]
+                        entries[[i]]$description <- indata[[i]][[2]]
+                        entries[[i]]$tags <- strsplit(gsub(" ", "", entries[[i]]$tags), ",")
+                        entries[[i]]$source <- indata[[i]][[4]]
+                    }
+
+                    assign("entries", entries, thisEnv)                
+                    storeIndex()
+                    message("Entries updated.")
+                }
+            },
 
         get = function(name)
         {          

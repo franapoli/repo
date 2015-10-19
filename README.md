@@ -12,9 +12,13 @@ before updating (you can find it with `repo$root()`).
 
 # News
 
+10/19/2015
+
++ Added Bulk-edit feature.
+
 10/17/2015
 
-+ Added "Maybe you were looking for" feature to `get`.
++ Added "Maybe-you-were-looking-for" feature to `get`.
 + Fixed bug with managing new relative paths.
 
 10/12/2015

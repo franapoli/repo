@@ -445,11 +445,35 @@ repo_tag <- function(repo, name = NULL, newtags, tags = NULL)
 #' repo$print(show="t")
 #' repo$untag("item1", "tag2")
 #' repo$print(show="t")
-#'
+#' 
 #' ## wiping temporary repo
 #' unlink(repo_path, TRUE)
 repo_untag <- function(repo, name = NULL, rmtags, tags = NULL)
     repo$untag(name, rmtags, tags)
+
+#' Edit all items info using a text file.
+#' 
+#' @details Exactly one of `outfile` or `infile` must be supplied. All repo entries data are copied to a tab-separated file when using the `outfile` parameter. All repo entries are updated reading from `infile` when the `infile` parameter is used. Within the TAGS field, tags must be comma-separated. The system writes a checksum to the `outfile` that precludes using it as `infile` if repo has changed in the meantime.
+#' @param repo An object of class repo.
+#' @param outfile Name of a file to put entries data to.
+#' @param infile Name of a file to read entries data from.
+#' @return Used for side effects.
+#' @seealso repo_set
+#' @examples
+#' repo_path <- file.path(tempdir(), "example_repo")
+#' repo <- repo_open(repo_path, TRUE)
+#' repo$put(1, "item1", "Sample item 1", c("tag1", "tag2"), replace=TRUE)
+#' 
+#' items_data_file <- tempfile()
+#' repo$bulkedit(items_data_file)
+#' ## Manually edit items_data_file, then update items:
+#' repo$bulkedit(infile=items_data_file)
+#' 
+#' ## wiping temporary repo
+#' unlink(repo_path, TRUE)
+repo_bulkedit <- function(repo, outfile=NULL, infile=NULL)
+    repo$bulkedit(outfile, infile)
+
 
 #' Edit an existing item.
 #' 
