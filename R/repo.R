@@ -6,8 +6,33 @@ library(tools) # md5sum
 
 repo_open <- function(root="~/.R_repo", force=F)
 {
-    DEBUG <- F
+    DEBUG <- F    
 
+    checkTags <- function(tags, name=NULL)
+    {
+
+        dups <- which(duplicated(tolower(tags)))
+        if(length(dups)>0)
+            warning(paste0("The following tags are duplicated (not case sensitive): ",
+                        paste0(tags[dups], collapse=", ")))
+        
+        if(!is.null(name)) {
+            e <- getEntry(name)
+            comm <- intersect(tolower(e$tags), tolower(tags))
+            if(length(comm)>0)
+                warning(paste0("The following tags are already present (not case sensitive): ",
+                            paste0(comm, collapse=", ")))
+        }
+        reservedTags <- c("stash", "attachment")
+        if(any(tolower(tags) %in% reservedTags))
+            stop(paste0("The following tags are reserved: ",
+                        paste0(tags[tolower(tags) %in% reservedTags], collapse =", "),
+                        ".")
+                 )
+
+        return(unique(tags))
+    }
+    
     checkVersions <- function(name)
         {
             names <- sapply(entries, get, x="name")
@@ -497,9 +522,9 @@ repo_open <- function(root="~/.R_repo", force=F)
 
             descriptions <- sapply(entr, get, x="description")
             
-            tagsets <- lapply(tagsets, setdiff, y="attachment")
+            #tagsets <- lapply(tagsets, setdiff, y="attachment")
             #tagsets <- lapply(tagsets, setdiff, y="hide")
-            tagsets <- lapply(tagsets, setdiff, y="stash")
+            #tagsets <- lapply(tagsets, setdiff, y="stash")
 
             prefixes <- rep("", length(names))
             prefixes[attachs == "x"] <- "@"                        
@@ -511,16 +536,21 @@ repo_open <- function(root="~/.R_repo", force=F)
             a[,"Size"] <- sapply(lapply(entr, get, x="size"), hmnRead)
 
             h <- rep(F,length(entr))
-            if(!("hide" %in% tags))
-              h <- sapply(tagsets, is.element, el="hide")
-            h <- h | !(sapply(lapply(entr, get, x="attachedto"), is.null))
+            hidden <- sapply(tagsets, is.element, el="hide")
+
+            if(!all)
+                h[hidden] <- T
+
+            if(length(entr)>1 & all(h))
+            {
+                message("All matched entries are hidden, use all=T.")
+                return(invisible(NULL))
+            }
+
+                       
             cols <- c(T, sapply(c("f","d","t","s"), grepl, show))
-            if(all)
-                h[h] <- F            
             m <- as.data.frame(a[!h,cols], nm="")
-            ## if(sum(!h)>1)
-            ##     print(m, quote=F, row.names=F) else
-            ## print(m, quote=F, row.names=T)
+
             if(sum(!h)>1)
                 print(m, quote=F, row.names=F) else print(t(m), quote=F, row.names=F)
 
@@ -757,10 +787,13 @@ repo_open <- function(root="~/.R_repo", force=F)
                 entr$name <- newname
             if(!is.null(description))
                 entr$description <- description
-            if(!is.null(tags))
-                entr$tags <- tags
-            if(!is.null(addtags))
-                entr$tags <- unique(c(entr$tags, addtags))
+            if(!is.null(tags)) {
+                
+                entr$tags <- checkTags(tags)
+            }
+            if(!is.null(addtags)) {
+                entr$tags <- unique(c(entr$tags, checkTags(addtags, name)))
+            }
             if(!is.null(src))
                 entr$src <- newname
 

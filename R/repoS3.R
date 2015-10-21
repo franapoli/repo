@@ -123,12 +123,12 @@ repo_check <- function(repo) repo$check()
 
 #' Copy items to another repo
 #'
-#' Copies an obj file from one repo to another and creates a new entry
-#' in the index of the destination repository. Supports tags.
+#' Copies an object file from one repo to another and creates a new entry
+#' in the index of the destination repository. Supports tags and multiple names.
 #' 
 #' @param repo An object of class repo (will copy from it)
 #' @param destrepo An object of class repo (will copy to it)
-#' @param name The name of the object to copy
+#' @param name The name (or list of names) of the item/s to copy
 #' @param tags If not NULL, copy all items matching tags.
 #' @return Used for side effects.
 #' @examples
@@ -321,7 +321,7 @@ print.repo <- function(x, tags=NULL, tagfun="OR", find=NULL, all=F, show="ds", .
 #' Export \code{repo} items to RDS file.
 #' 
 #' @param repo An object of class repo.
-#' @param name Name of the item to export.
+#' @param name Name (or list of names) of the item/s to export.
 #' @param where Destination directory
 #' @param tags List of tags: all items tagged with all the tags in the
 #' list will be exported.
@@ -340,7 +340,7 @@ repo_export <- function(repo, name, where=".", tags=NULL)
 #' Provides detailed information about an item.
 #' 
 #' @param repo An object of class repo.
-#' @param name Item name. If both name and tags are NULL, information
+#' @param name Item name (or list of names). If both name and tags are NULL, information
 #' about the whole repo will be provided.
 #' @param tags List of tags: info will run on all items matching the tag list.
 #' @return Used for side effects.

@@ -12,6 +12,11 @@ before updating (you can find it with `repo$root()`).
 
 # News
 
+10/21/2015
+
++ Added check points for reserved tags and warnings for existing tags
++ Improved print reaction when all matching results are hidden
+
 10/19/2015
 
 + Added Bulk-edit feature.
