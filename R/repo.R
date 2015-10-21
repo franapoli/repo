@@ -6,8 +6,19 @@ library(tools) # md5sum
 
 repo_open <- function(root="~/.R_repo", force=F)
 {
-    DEBUG <- F    
+    DEBUG <- F
 
+    getFile <- function(name)
+        {
+            entry <- getEntry(name)
+
+            if(substr(normalizePath(entry$dump, mustWork=F), 1, nchar(root)) == root) {
+                fpath <- normalizePath(entry$dump, mustWork=F)
+                } else fpath <- normalizePath(file.path(root, entry$dump))
+
+            return(fpath)
+        }
+    
     checkTags <- function(tags, name=NULL)
     {
 
@@ -402,32 +413,39 @@ repo_open <- function(root="~/.R_repo", force=F)
         check = function()
             {
                 stopOnEmpty()
-            entr <- entries
-            for(i in 1:length(entr))
+                entr <- entries
+
+                warn <- 0
+                for(i in 1:length(entr))
                 {
                     cat(paste0("Checking ", entr[[i]]$name, "..."))
-                    if(file.exists(path.expand(entr[[i]]$dump))){
-                        md5s <- md5sum(path.expand(entr[[i]]$dump))
+                    if(file.exists(getFile(entr[[i]]$name))){
+                        md5s <- md5sum(getFile(entr[[i]]$name))
                         if(md5s != entr[[i]]$checksum) {
                             cat(" changed!")
                             warning("File has changed!")
                         } else cat(" ok.")
                     } else {
                         cat(" not found!")
-                        warning("Missing file!")
+                        warn <- warn + 1
                     }
                     cat("\n")
                 }
-            allfiles <- file.path(root, list.files(root, recursive=T))
-            dumps <- sapply(entr, get, x="dump")            
-            junk <- setdiff(path.expand(allfiles), path.expand(dumps))
-            if(length(junk)>0){
-                cat("\nThe following files in Repo root have no associated Repo entry:\n")
-                cat(paste(junk, collapse="\n"))
-            }
-            cat("\n")
-            invisible()
-        },
+                if(warn > 0)
+                    warning(paste0("There were ", warn, " missing files!"))
+
+        cat("\nChecking there are No extraneous files in repo root...")
+                allfiles <- file.path(root, list.files(root, recursive=T))
+                dumps <- sapply(sapply(entries, get, x="name"), getFile)
+                junk <- setdiff(path.expand(allfiles), path.expand(dumps))
+                junk <- setdiff(junk, repofile)
+                if(length(junk)>0){
+                    cat("Extraneous files found.\nThe following files in Repo root have no associated Repo entry:\n")
+                    cat(paste(junk, collapse="\n"))
+                } else cat(" ok.")
+                cat("\n")
+                invisible()
+            },
 
         copy = function(destrepo, name, tags=NULL)
         {            
@@ -730,7 +748,7 @@ repo_open <- function(root="~/.R_repo", force=F)
             if(isAttachment(name))
               stop("Get is not valid for attachemnts.")
 
-            data <- readRDS(file.path(root, entry$dump))
+            data <- readRDS(getFile(name))
             
             return(data)
         },

@@ -14,6 +14,7 @@ before updating (you can find it with `repo$root()`).
 
 10/21/2015
 
++ Fixed regression in `check` after moving to relative paths
 + Added check points for reserved tags and warnings for existing tags
 + Improved print reaction when all matching results are hidden
 
