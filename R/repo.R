@@ -8,13 +8,14 @@ repo_open <- function(root="~/.R_repo", force=F)
 {
     DEBUG <- F
 
+    
     getFile <- function(name)
         {
             entry <- getEntry(name)
 
             if(substr(normalizePath(entry$dump, mustWork=F), 1, nchar(root)) == root) {
                 fpath <- normalizePath(entry$dump, mustWork=F)
-                } else fpath <- normalizePath(file.path(root, entry$dump))
+                } else fpath <- normalizePath(file.path(root, entry$dump), mustWork=F)
 
             return(fpath)
         }
@@ -199,19 +200,19 @@ repo_open <- function(root="~/.R_repo", force=F)
 
     rmData <- function(name, phase)
     {
-        temp <- getEntry(name)
-        fpath <- temp$dump
+        fpath <- getFile(name)
+        
         if(phase=="temp") {
-            file.rename(temp$dump, paste0(temp$dump, ".remove_me"))
+            file.rename(fpath, paste0(fpath, ".remove_me"))
         } 
         if(phase=="finalize") {
-            file.remove(paste0(temp$dump, ".remove_me"))
+            file.remove(paste0(fpath, ".remove_me"))
         }
         if(phase=="undo") {
-            file.rename(paste0(temp$dump, ".remove_me"), temp$dump)
+            file.rename(paste0(fpath, ".remove_me"), fpath)
         }
         
-        return(list(path=fpath, size=file.info(fpath)$size))
+        return(invisible(NULL))
     }
 
     storeData <- function(name, obj, attach=F)
@@ -225,9 +226,15 @@ repo_open <- function(root="~/.R_repo", force=F)
                 dir.create(do.call(file.path, opath[1:4]))
 
             fpath <- do.call(file.path, opath)
-            if(!attach)
-                saveRDS(obj, fpath) else 
-            file.copy(obj, fpath)
+
+            if(!attach) {
+                saveRDS(obj, fpath)
+                } else {
+                    didwork <- file.copy(obj, fpath)
+                    if(!didwork)
+                        stop(paste0("There was an error while trying to write file: ",
+                                    fpath))
+                }
                 
             return(list(path=fpath, size=file.info(fpath)$size))
         }
@@ -434,15 +441,15 @@ repo_open <- function(root="~/.R_repo", force=F)
                 if(warn > 0)
                     warning(paste0("There were ", warn, " missing files!"))
 
-        cat("\nChecking there are No extraneous files in repo root...")
+        cat("\nChecking for extraneous files in repo root... ")
                 allfiles <- file.path(root, list.files(root, recursive=T))
                 dumps <- sapply(sapply(entries, get, x="name"), getFile)
                 junk <- setdiff(path.expand(allfiles), path.expand(dumps))
                 junk <- setdiff(junk, repofile)
                 if(length(junk)>0){
-                    cat("Extraneous files found.\nThe following files in Repo root have no associated Repo entry:\n")
+                    cat("found some:\n")
                     cat(paste(junk, collapse="\n"))
-                } else cat(" ok.")
+                } else cat("ok.")
                 cat("\n")
                 invisible()
             },
@@ -872,13 +879,20 @@ repo_open <- function(root="~/.R_repo", force=F)
 
         
         put = function(obj, name, description, tags, src=NULL,
-            depends=NULL, replace=F, asattach=F, to=NULL, addversion=F)
+            depends=NULL, replace=F, notes=NULL, asattach=F, to=NULL, addversion=F)
         {
             checkIndexUnchanged()
             
             if(missing(obj) | missing(name) | missing(description) | missing(tags))
                 stop("You must provide all of: obj, name, description, tags.")
 
+            if(!is.null(src)) {
+                fcheck <- sapply(src, file.exists)
+                if(!all(fcheck))
+                    stop(paste0("The following sources could not be found: ",
+                                paste0(src, collapse=", ")))
+            }
+            
             if(!is.null(to))
                 asattach <- T
 
@@ -957,7 +971,23 @@ repo_open <- function(root="~/.R_repo", force=F)
                 if(!notexist & replace)
                     rmData(name, "finalize")
             }
-            )                         
+            )
+
+            if(asattach)
+                get("this", thisEnv)$tag(name, "hide")
+
+            if(!is.null(src))
+                for(i in 1:length(src))
+                    {
+                        if(checkName(src[[i]]))
+                            if(getEntry(src[[i]])$to[[1]] != name) {
+                                message(paste0(src, " already attached to an existing item, creating new version."))
+                                get("this", thisEnv)$attach(src[[i]], paste0("Source code for ", name),
+                                                            c("source", file_ext(src[[i]])), addversion=T, to=name)
+                            } else get("this", thisEnv)$attach(src[[i]], paste0("Source code for ", name),
+                                                               c("source", file_ext(src[[i]])), replace=replace, to=name)
+
+                    }
         },        
         
         test=function()
