@@ -12,6 +12,10 @@ before updating (you can find it with `repo$root()`).
 
 # News
 
++ Added safe-remove of data
++ Added auto-attach of sources
++ Added notes filed
+
 10/21/2015
 
 + Fixed regression in `check` after moving to relative paths
