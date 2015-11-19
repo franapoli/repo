@@ -3,15 +3,19 @@
 [1]: http://www.twitter.com/franapoli
 <!-- Grab your social icons from https://github.com/carlsednaoui/gitsocial -->
 
-# Dev branch disclaimer
+# Untested branch disclaimer
 
-This is the Repo development branch. It could be unstable and cause
-problems, you may want to check out the master branch for a safer
-version. You may really want to backup *at least* your repo index file
-before updating (you can find it with `repo$root()`).
+This is the Repo untested branch. Code in this branch has never been
+tested and could easily not run at all. You may want to check out the
+master branch for a safer version. You may really want to backup *at
+least* your repo index file before trying this branch (your index file
+is in `repo$root()`).
 
 # News
 
+11/19/2015
+
++ Sources are now auto-attached
 + Added safe-remove of data
 + Added auto-attach of sources
 + Added notes filed
