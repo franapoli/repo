@@ -484,6 +484,7 @@ repo_bulkedit <- function(repo, outfile=NULL, infile=NULL)
 #' @param description Item's description.
 #' @param tags New item's tags as a ist of character.
 #' @param src New item's provenance as a list of character.
+#' @param depends List of item names indicating dependancies.
 #' @param addtags Tags to be added to current item's tags. Can not be
 #' used together with the parameter "tags".
 #' @return Used for side effects.
@@ -499,8 +500,8 @@ repo_bulkedit <- function(repo, outfile=NULL, infile=NULL)
 #'
 #' ## wiping temporary repo
 #' unlink(repo_path, TRUE)
-repo_set <- function(repo, name, obj=NULL, newname=NULL, description=NULL, tags=NULL, src=NULL, addtags=NULL)
-    repo$set(name, obj, newname, description, tags, src, addtags)
+repo_set <- function(repo, name, obj=NULL, newname=NULL, description=NULL, tags=NULL, src=NULL, depends=NULL, addtags=NULL)
+    repo$set(name, obj, newname, description, tags, src, depensd, addtags)
 
 #' Create a new item from an existing file.
 #' 
@@ -617,7 +618,7 @@ repo_stashclear <- function(repo, force=F)
 #' the object was downloaded, and so on. If one of the provenance
 #' strings matches the name of a repo's item, this will create a
 #' dependency link.
-#' @param depends The name of an item on which this item depends.
+#' @param depends List of character: dependant items.
 #' @param replace If the item exists, overwrite the specified fields.
 #' @param asattach Specifies that the item is to be trated as an
 #' attachment (see attach).
@@ -635,7 +636,10 @@ repo_stashclear <- function(repo, force=F)
 #' ## for fully qualified name (causes problems if used in
 #' ## the example).
 #'
-#' src <- "repoS3.R"
+#' ## Creating a fake source file hypothetically containing
+#' ## this source code. It will be attached into the repo.
+#' src <- tempfile()
+#' writeLines("# Fake source file", src)
 #' 
 #' ## Producing some irrelevant data
 #' data1 <- 1:10

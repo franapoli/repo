@@ -791,7 +791,7 @@ repo_open <- function(root="~/.R_repo", force=F)
                 }
         },
         
-        set = function(name, obj=NULL, newname=NULL, description=NULL, tags=NULL, src=NULL, addtags=NULL)
+        set = function(name, obj=NULL, newname=NULL, description=NULL, tags=NULL, src=NULL, depends=NULL, addtags=NULL)
         {
             checkIndexUnchanged()                    
             
@@ -979,13 +979,14 @@ repo_open <- function(root="~/.R_repo", force=F)
             if(!is.null(src))
                 for(i in 1:length(src))
                     {
-                        if(checkName(src[[i]]))
-                            if(getEntry(src[[i]])$to[[1]] != name) {
-                                message(paste0(src, " already attached to an existing item, creating new version."))
+                        if(checkName(src[[i]])){
+                            att = getEntry(src[[i]])$attachedto
+                            if(!is.null(att) && att != name) {
+                                message(paste0(src," already attached to an existing item, creating new version."))
                                 get("this", thisEnv)$attach(src[[i]], paste0("Source code for ", name),
                                                             c("source", file_ext(src[[i]])), addversion=T, to=name)
                             } else get("this", thisEnv)$attach(src[[i]], paste0("Source code for ", name),
-                                                               c("source", file_ext(src[[i]])), replace=replace, to=name)
+                                                               c("source", file_ext(src[[i]])), replace=replace, to=name)}
 
                     }
         },        
