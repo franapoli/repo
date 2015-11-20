@@ -3,13 +3,14 @@
 [1]: http://www.twitter.com/franapoli
 <!-- Grab your social icons from https://github.com/carlsednaoui/gitsocial -->
 
-# Untested branch disclaimer
+# Dev branch disclaimer
 
-This is the Repo untested branch. Code in this branch has never been
-tested and could easily not run at all. You may want to check out the
-master branch for a safer version. You may really want to backup *at
-least* your repo index file before trying this branch (your index file
-is in `repo$root()`).
+This is the Repo development branch. It is merged from the untested
+branch as soon as all example code runs without errors. Since this
+doesn't necessarily mean that it's really working, you may want to
+check out the master branch for a safer version. You may really want
+to backup *at least* your repo index (you can find it with
+`repo$root()`) file before updating to a dev version.
 
 # News
 
