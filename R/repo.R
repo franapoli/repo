@@ -458,11 +458,11 @@ repo_open <- function(root="~/.R_repo", force=F)
             sizes = sapply(entries, get, x="size")
             names(sizes) <- sapply(entries, get, x="name")
             if(length(sizes)>10) {
-                sizesS <- sort(sizes, decreasing=T)
-                sizesS <- c(sizesS[1:9], sum(sizesS[10:length(sizesS)]))
+                sizes <- sort(sizes, decreasing=T)
+                sizes <- c(sizes[1:9], sum(sizes[10:length(sizesS)]))
                 names(sizesS)[10] <- "Other"
             }
-            pie(sizesS)
+            pie(sizes)
         },
 
         copy = function(destrepo, name, tags=NULL)
