@@ -13,6 +13,10 @@ is in `repo$root()`).
 
 # News
 
+12/03/2015
+
++ Initial Shiny interface
+
 11/19/2015
 
 + Sources are now auto-attached

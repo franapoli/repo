@@ -1,8 +1,13 @@
-library(shiny)
-library(repo)
 
 repo_cpanel <- function(reporoot=NULL, env=globalenv()){
 
+    if(require(shiny)) {
+        library(shiny)
+    } else {
+        stop("You need to install the Shiny library to use repo_cpanel")
+    }
+                          
+    
     if(is.null(reporoot))
         repo <- repo_open() else repo <- repo_open(reporoot)
     

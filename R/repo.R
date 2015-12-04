@@ -462,8 +462,7 @@ repo_open <- function(root="~/.R_repo", force=F)
                 sizes <- c(sizes[1:9], sum(sizes[10:length(sizes)]))
                 names(sizes)[10] <- "Other"
             }
-            #pie(sizes)
-            return(sizes)
+            pie(sizes)
         },
 
         copy = function(destrepo, name, tags=NULL)
