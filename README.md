@@ -14,6 +14,10 @@ to backup *at least* your repo index (you can find it with
 
 # News
 
+12/07/2015
+
++ Initial Shiny interface
+
 11/19/2015
 
 + Sources are now auto-attached

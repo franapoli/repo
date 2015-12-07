@@ -454,6 +454,17 @@ repo_open <- function(root="~/.R_repo", force=F)
                 invisible()
             },
 
+        pies = function() {
+            sizes = sapply(entries, get, x="size")
+            names(sizes) <- sapply(entries, get, x="name")
+            if(length(sizes)>10) {
+                sizes <- sort(sizes, decreasing=T)
+                sizes <- c(sizes[1:9], sum(sizes[10:length(sizes)]))
+                names(sizes)[10] <- "Other"
+            }
+            pie(sizes)
+        },
+
         copy = function(destrepo, name, tags=NULL)
         {            
             if(!("repo" %in% class(destrepo)))

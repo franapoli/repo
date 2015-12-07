@@ -16,6 +16,7 @@ Imports:
     tools
 Suggests:
     igraph,
-    knitr
+    knitr,
+    shiny
 VignetteBuilder: knitr
 RoxygenNote: 5.0.1
