@@ -890,9 +890,19 @@ repo_open <- function(root="~/.R_repo", force=F)
 
         
         put = function(obj, name, description, tags, src=NULL,
-            depends=NULL, replace=F, notes=NULL, asattach=F, to=NULL, addversion=F)
+            depends=NULL, replace=F, notes=NULL, asattach=F, to=NULL, addversion = F)
         {
             checkIndexUnchanged()
+
+            if(addversion)
+                stop("addversion is deprecated, use replace=\"addversion\"")
+            
+            if(replace == "addversion") {
+                ## This code is to cope with new interface after
+                ## removing addversion parameter
+                addversion = T 
+                replace = F
+            }
             
             if(missing(obj) | missing(name) | missing(description) | missing(tags))
                 stop("You must provide all of: obj, name, description, tags.")
@@ -935,8 +945,8 @@ repo_open <- function(root="~/.R_repo", force=F)
                 storedfrom <- getwd()
             } else storedfrom <- src
             
-            if(!all(sapply(storedfrom, checkName)))
-                message("At least one provenance is internal.")
+            ## if(!all(sapply(storedfrom, checkName)))
+            ##     message("At least one provenance is internal.")
            
             repoE <- list(name = name,
                           description = description,

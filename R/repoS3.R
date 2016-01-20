@@ -613,18 +613,17 @@ repo_stashclear <- function(repo, force=F)
 #' @param description A character description of the item.
 #' @param tags A list of tags to sort the item. Tags are useful for
 #' selecting sets of items and run bulk actions.
-#' @param src The item's provenance as a list of character. Usually
-#' the name of the script producing the stored object, a website where
-#' the object was downloaded, and so on. If one of the provenance
-#' strings matches the name of a repo's item, this will create a
-#' dependency link.
-#' @param depends List of character: dependant items.
-#' @param replace If the item exists, overwrite the specified fields.
+#' @param src Name of the file containing the source that generates
+#' obj. The source will be attached to the item. If a source by that
+#' name already exists, a new version will be created.
+#' @param depends List of character: items that depend on this item.
+#' @param replace One of: V, F, "addversion". Default is F. If V,
+#' overwrite an existing item by the same name. If F stops with an
+#' error. If "addversion" the new item is stored as a new version and
+#' the old item is renamed by appending a "#N" suffix.
 #' @param asattach Specifies that the item is to be trated as an
 #' attachment (see attach).
 #' @param to Optionally specifies which item this item is attached to.
-#' @param addversion If TRUE and an item named name exists, create a
-#' new version of the same item.
 #' @return Used for side effects.
 #' @examples
 #' ## Repository creation (or opening, if exists)
