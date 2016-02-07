@@ -1,7 +1,7 @@
 Package: repo
 Type: Package
 Title: A Resource Manager for R Objects
-Version: 1.9.0.0
+Version: 1.9.0.1
 Date: 2015-07-30
 Author: Francesco Napolitano <franapoli@gmail.com>
 Maintainer: Francesco Napolitano <franapoli@gmail.com>
