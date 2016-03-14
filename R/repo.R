@@ -243,7 +243,7 @@ repo_open <- function(root="~/.R_repo", force=F)
         {
             stopOnEmpty()
             if(!any(c(depends, attached, generated)))
-              stop("One of depends, attached and generated must be true.")
+              stop("One of depends, attached or generated must be true.")
             
             nodes <- unique(unlist(sapply(entries, get, x="name")))
             if(generated) {
@@ -507,7 +507,7 @@ repo_open <- function(root="~/.R_repo", force=F)
         {
             stopOnNotFound(name)
             e <- getEntry(name)
-            syscomm <- paste0(command, " ", e[["dump"]])
+            syscomm <-paste0(command, " ", file.path(root, e[["dump"]]))
             message(paste("Running system command:", syscomm))
             system(syscomm)
         },
@@ -519,7 +519,7 @@ repo_open <- function(root="~/.R_repo", force=F)
         
         print = function(tags=NULL, tagfun="OR", find=NULL, all=F, show="ds")
         {
-            ## TODO: Part of the cose in now in function entriesToMat,
+            ## TODO: Part of the code is now in function entriesToMat,
             ## should be removed from here.
 
             if(!is.null(tags) & !is.null(find))
@@ -642,6 +642,7 @@ repo_open <- function(root="~/.R_repo", force=F)
 
                 if(is.null(entries[[e]]$attachedto))
                     att <- "-"
+                else att <- entries[[e]]$attachedto
 
                 vals <- c(entries[[e]]$name, entries[[e]]$description,
                           paste0(entries[[e]]$tags, collapse=", "),
@@ -908,9 +909,9 @@ repo_open <- function(root="~/.R_repo", force=F)
                 stop("You must provide all of: obj, name, description, tags.")
 
             if(!is.null(src)) {
-                fcheck <- sapply(src, file.exists)
+                fcheck <- sapply(src, function(x) file.exists(x) && !file.info(x)$isdir)
                 if(!all(fcheck))
-                    stop(paste0("The following sources could not be found: ",
+                    stop(paste0("The following source file/s could not be found: ",
                                 paste0(src, collapse=", ")))
             }
             
@@ -941,9 +942,10 @@ repo_open <- function(root="~/.R_repo", force=F)
                 stopOnNotFound(to)
 
 
-            if(is.null(src)) {
-                storedfrom <- getwd()
-            } else storedfrom <- src
+            ## if(is.null(src)) {
+            ##     storedfrom <- getwd()
+            ## } else
+                storedfrom <- src
             
             ## if(!all(sapply(storedfrom, checkName)))
             ##     message("At least one provenance is internal.")
@@ -999,18 +1001,24 @@ repo_open <- function(root="~/.R_repo", force=F)
 
             if(!is.null(src))
                 for(i in 1:length(src))
-                    {
-                        if(checkName(src[[i]])){
-                            att = getEntry(src[[i]])$attachedto
-                            if(!is.null(att) && att != name) {
-                                message(paste0(src," already attached to an existing item, creating new version."))
-                                get("this", thisEnv)$attach(src[[i]], paste0("Source code for ", name),
-                                                            c("source", file_ext(src[[i]])), addversion=T, to=name)
-                            } else get("this", thisEnv)$attach(src[[i]], paste0("Source code for ", name),
-                                                               c("source", file_ext(src[[i]])), replace=replace, to=name)}
+                {
+                    if(checkName(src[[i]])){
+                        att = getEntry(src[[i]])$attachedto
+                        if(!is.null(att) && att != name) {
+                            message(paste0(src," already attached to an existing item, creating new version."))
+                            get("this", thisEnv)$attach(src[[i]], paste0("Source code for ", name),
+                                                        c("source", file_ext(src[[i]])), addversion=T, to=name)
+                        } else get("this", thisEnv)$attach(src[[i]], paste0("Source code for ", name),
+                                                           c("source", file_ext(src[[i]])), replace=replace, to=name)}
 
-                    }
-        },        
+                }
+        },
+
+
+      cpanel=function()
+      {
+          repo_cpanel(repo$root())
+      },
         
         test=function()
         {
