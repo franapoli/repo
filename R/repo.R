@@ -1,6 +1,5 @@
 
 ## TODO:
-##   - lazydo documentation
 ##   - URL management
 
 globalVariables(c("DEBUG", "entries", "this"))

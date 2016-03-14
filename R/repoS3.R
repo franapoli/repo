@@ -429,6 +429,65 @@ repo_entries <- function(repo)repo$entries()
 repo_tag <- function(repo, name = NULL, newtags, tags = NULL)
     repo$tag(name, newtags, tags)
 
+
+#' Run expression with cache.
+#'
+#' lazydo searches the repo for previous execution of an
+#' expression. If a previous execution is found, the result is loaded
+#' and returned. Otherwise, the expression is executed and the result
+#' stashed.
+#'
+#' @param repo An object of class repo.
+#' @param name An item name.
+#' @param newtags A list of tags that will be added to the item's tag
+#'     list.
+#' @param tags A list of tags: newtags will be added to all items
+#'     matching the list.
+#' @return Results of the expression (either loaded or computed on the
+#'     fly).
+#' @details The expression results are stashed as usual. The name of
+#'     the resource is obtained by digesting the expression, so it
+#'     will look like an MD5 string in the repo.
+#' 
+#' @examples
+#' repo_path <- file.path(tempdir(), "example_repo")
+#' repo <- repo_open(repo_path, TRUE)
+#' expr <- expression(
+#'     {
+#'         v <- vector("numeric", 10)
+#'         for(i in 1:10) {
+#'             v[i] <- i
+#'             Sys.sleep(1/10)
+#'         }
+#'         print("Done.")
+#'         v
+#'     }
+#' )
+#' 
+#' system.time(repo$lazydo(expr)) # first run
+#' ## Repo needs to build resource.
+#' ## [1] "Done."
+#' ##    user  system elapsed 
+#' ##   0.006   0.000   1.007
+#'
+#' system.time(repo$lazydo(expr)) # second run
+#' ## Repo found precomputed resource.
+#' ##    user  system elapsed 
+#' ##   0.000   0.004   0.001
+#'
+#' ## The item's name in the repo can be obtained using digest:
+#' library(digest)
+#' resname <- digest(expr)
+#' ## Or as the name of the last item added:
+#' resname <- tail(repo$entries(),1)[[1]]$name
+#' 
+#' repo$rm(resname) ## single cached item cleared
+#'
+#' ## wiping temporary repo
+#' unlink(repo_path, TRUE)
+repo_lazydo = function(repo, expr, force=F, env=parent.frame())
+    repo$lazydo(expr, force, env)
+
 #' Remove tags from an item.
 #' 
 #' @param repo An object of class repo.
