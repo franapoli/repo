@@ -13,6 +13,11 @@ is in `repo$root()`).
 
 # News
 
+03/14/2016
+
++ added lazydo (run expression and cache results)
++ working on managing remote resources
+
 12/03/2015
 
 + Initial Shiny interface
