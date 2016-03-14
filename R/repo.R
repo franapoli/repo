@@ -1,4 +1,8 @@
 
+## TODO:
+##   - lazydo documentation
+##   - URL management
+
 globalVariables(c("DEBUG", "entries", "this"))
 
 library(digest) # digest
@@ -31,11 +35,18 @@ repo_open <- function(root="~/.R_repo", force=F)
                        stop("Repo is empty.")
                    },
                    "MISS_OBJ_HAS_URL" = {
-                       stop("The file object could not be found. However, it can be downloaded using pull.")
+                       stop(paste0("The file object could not be found. ",
+                                   "However, it can be downloaded using pull."))
                    },
                    "NO_URL" = {
                        stop("The object has no associated URL.")
                    },
+                   "LAZY_FOUND" = {
+                       message("Repo found precomputed resource.")
+                   },
+                   "LAZY_NOT_FOUND" = {
+                       message("Repo needs to build resource.")
+                   }
                    )
 
         }
@@ -815,6 +826,21 @@ repo_open <- function(root="~/.R_repo", force=F)
                     get("this", thisEnv)$set(name, addtags=newtags)                   
         },
 
+      lazydo = function(expr, force=F, env=parent.frame())
+      {
+          resname <- digest(expr)
+          if(checkName(resname) || force)
+          {
+              handleErr("LAZY_NOT_FOUND")
+              res <- eval(expr, envir=env)
+              get("this", thisEnv)$stash("res",resname)
+              return(res)
+          } else {
+              handleErr("LAZY_FOUND")
+               return(get("this", thisEnv)$get(resname))
+           }
+      },
+
 
         untag = function(name = NULL, rmtags, tags = NULL)
         {
@@ -933,12 +959,9 @@ repo_open <- function(root="~/.R_repo", force=F)
             repo$set("name", obj=tf)
         },
         
-        put = function(obj, name, description, tags, src=NULL,
-<<<<<<< HEAD
-            depends=NULL, replace=F, notes=NULL, asattach=F, to=NULL, addversion = F)
-=======
+      put = function(obj, name, description, tags, src=NULL,                       
             depends=NULL, replace=F, notes=NULL, asattach=F, to=NULL, addversion=F, URL=NULL)
->>>>>>> 26abcdba93571ab6c21a824fcc8f87d506917611
+
         {
             checkIndexUnchanged()
 
@@ -955,20 +978,13 @@ repo_open <- function(root="~/.R_repo", force=F)
             if(missing(obj) | missing(name) | missing(description) | missing(tags))
                 stop("You must provide all of: obj, name, description, tags.")
 
-<<<<<<< HEAD
-            if(!is.null(src)) {
-                fcheck <- sapply(src, function(x) file.exists(x) && !file.info(x)$isdir)
-                if(!all(fcheck))
-                    stop(paste0("The following source file/s could not be found: ",
-                                paste0(src, collapse=", ")))
-=======
+
             if(is.null(src)) {
                 src <- getwd()
             } else {
                 fcheck <- sapply(src, file.exists)
                 if(!all(fcheck))
                     handleErr("SRC_NOT_FOUND", src)
->>>>>>> 26abcdba93571ab6c21a824fcc8f87d506917611
             }
 
             
@@ -994,18 +1010,9 @@ repo_open <- function(root="~/.R_repo", force=F)
             if(!is.null(to))
                 stopOnNotFound(to)
 
-<<<<<<< HEAD
 
-            ## if(is.null(src)) {
-            ##     storedfrom <- getwd()
-            ## } else
-                storedfrom <- src
+            storedfrom <- src
             
-            ## if(!all(sapply(storedfrom, checkName)))
-            ##     message("At least one provenance is internal.")
-           
-=======
->>>>>>> 26abcdba93571ab6c21a824fcc8f87d506917611
             repoE <- list(name = name,
                           description = description,
                           tags = tags,
@@ -1055,31 +1062,13 @@ repo_open <- function(root="~/.R_repo", force=F)
 
             if(asattach)
                 get("this", thisEnv)$tag(name, "hide")
-
-<<<<<<< HEAD
-            if(!is.null(src))
-                for(i in 1:length(src))
-                {
-                    if(checkName(src[[i]])){
-                        att = getEntry(src[[i]])$attachedto
-                        if(!is.null(att) && att != name) {
-                            message(paste0(src," already attached to an existing item, creating new version."))
-                            get("this", thisEnv)$attach(src[[i]], paste0("Source code for ", name),
-                                                        c("source", file_ext(src[[i]])), addversion=T, to=name)
-                        } else get("this", thisEnv)$attach(src[[i]], paste0("Source code for ", name),
-                                                           c("source", file_ext(src[[i]])), replace=replace, to=name)}
-
-                }
         },
 
-
+      
       cpanel=function()
       {
           repo_cpanel(repo$root())
       },
-=======
-        },        
->>>>>>> 26abcdba93571ab6c21a824fcc8f87d506917611
         
         test=function()
         {
