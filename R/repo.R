@@ -1,6 +1,4 @@
 
-## TODO:
-##   - URL management
 
 globalVariables(c("DEBUG", "entries", "this"))
 
@@ -26,6 +24,9 @@ repo_open <- function(root="~/.R_repo", force=F)
                    },
                    "ID_RESERVED" = {
                        stop(paste0("Id not valid (reserved): ", lpars))
+                   },
+                   "TAG_RESERVED" = {
+                       warning(paste0("Reserved TAG used: ", lpars))
                    },
                    "SRC_NOT_FOUND" = {
                        stop(paste0("Source not found: ", lpars))
@@ -61,6 +62,36 @@ repo_open <- function(root="~/.R_repo", force=F)
 
             return(fpath)
         }
+
+    setData <- function(name, obj, asattach)
+    {
+        w <- findEntryIndex(name)
+        newdata <- list()
+
+        if(!asattach) {
+            if(!is.null(dim(obj)))
+                dims <- dim(obj) else dims <- length(obj)
+        } else dims <- NULL
+
+        rmData(name, "temp")            
+        
+        tryCatch({
+            fdata <- storeData(name, obj)
+        }, error = function(e) {
+            print(e)
+            rmData(name, "undo")
+        }, finally = {
+            rmData(name, "finalize")
+        }
+        )                
+        
+        newdata[["dump"]] <- relativePath(fdata[["path"]])
+        newdata[["size"]] <- fdata[["size"]]
+        newdata[["checksum"]] <- md5sum(path.expand(fdata[["path"]]))
+        newdata[["dims"]] <- dims
+
+        return(newdata)
+    }
     
     checkTags <- function(tags, name=NULL)
     {
@@ -79,7 +110,7 @@ repo_open <- function(root="~/.R_repo", force=F)
         }
         reservedTags <- c("stash", "attachment")
         if(any(tolower(tags) %in% reservedTags))
-            handleErr("ID_RESERVED", tags[tolower(tags) %in% reservedTags])                 
+            handleErr("TAG_RESERVED", tags[tolower(tags) %in% reservedTags])                 
 
         return(unique(tags))
     }
@@ -237,6 +268,9 @@ repo_open <- function(root="~/.R_repo", force=F)
     rmData <- function(name, phase)
     {
         fpath <- getFile(name)
+
+        if(!file.exists(fpath))
+            return(invisible(0))
         
         if(phase=="temp") {
             file.rename(fpath, paste0(fpath, ".remove_me"))
@@ -576,7 +610,7 @@ repo_open <- function(root="~/.R_repo", force=F)
             }
 
             
-            labels <- c("ID", "a@><", "Dims", "Tags", "Size", "URL")
+            labels <- c("ID", "a@><", "Dims", "Tags", "Size")
             names <- sapply(entr, get, x="name")
 
             a <- matrix(NA, length(names), length(labels))
@@ -673,19 +707,25 @@ repo_open <- function(root="~/.R_repo", force=F)
                     stop("Identifier not found.")
 
                 labels <- c("ID:", "Description:", "Tags:",
-                            "Dimensions:", "Timestamp:", "Size on disk:",
-                            "Provenance:", "Attached to:", "Stored in:", "MD5 checksum:")
+                            "Dimensions:", "Timestamp:",
+                            "Size on disk:", "Provenance:",
+                            "Attached to:", "Stored in:", 
+                            "MD5 checksum:", "URL:")
                 maxlen <- max(sapply(labels, nchar))
 
                 if(is.null(entries[[e]]$attachedto))
                     att <- "-" else att <- paste(entries[[e]]$attachedto, collapse=", ")
+                if(is.null(entries[[e]]$URL))
+                    url <- "-" else url <- entries[[e]]$URL
 
                 vals <- c(entries[[e]]$name, entries[[e]]$description,
                           paste0(entries[[e]]$tags, collapse=", "),
                           paste(entries[[e]]$dims, collapse="x"),
-                          as.character(entries[[e]]$timestamp), hmnRead(entries[[e]]$size),
-                          paste(entries[[e]]$source, collapse=", "), att, entries[[e]]$dump,
-                          entries[[e]]$checksum)
+                          as.character(entries[[e]]$timestamp),
+                          hmnRead(entries[[e]]$size),
+                          paste(entries[[e]]$source, collapse=", "),
+                          att, entries[[e]]$dump, entries[[e]]
+                          $checksum, url)
                 cat(paste0(format(labels, width=maxlen+1), vals, "\n"), sep="")
                 cat("\n")
             }
@@ -869,7 +909,7 @@ repo_open <- function(root="~/.R_repo", force=F)
                 stop("You can not specify both tags and addtags.")
             
             if(checkName(name))
-                stop("Identifier not found.")
+                handleErr(ID_NOT_FOUND, name)
 
             w <- findEntryIndex(name)
             entr <- entries[[w]]
@@ -879,46 +919,30 @@ repo_open <- function(root="~/.R_repo", force=F)
                 entr$name <- newname
             if(!is.null(description))
                 entr$description <- description
-            if(!is.null(tags)) {
-                
+            if(!is.null(tags)) {                
                 entr$tags <- checkTags(tags)
             }
             if(!is.null(addtags)) {
                 entr$tags <- unique(c(entr$tags, checkTags(addtags, name)))
             }
             if(!is.null(src))
-                entr$src <- newname
+                entr$src <- src
 
-            if(!is.null(URL))
+            if(!missing(URL))
                 entr$URL <- URL
 
-            if(!is.null(obj)) {
-                if(!is.null(dim(obj)))
-                    dims <- dim(obj) else dims <- length(obj)
-                
-                if(!is.null(newname)) {
-
-                    rmData(entr$name, "temp")
-                    tryCatch({
-                        fdata <- get("storeData", thisEnv)(entr$name, obj)
-                        entr$class <- class(obj)
-                        entr$dump <- fdata[["path"]]
-                        entr$size <- fdata[["size"]]
-                        entr$checksum <- md5sum(path.expand(fdata[["path"]]))
-                        entr$dims <- dims
-                    }, error = function(e) {
-                        print(e)
-                        rmData(name, "undo")
-                    }, finally = {
-                        rmData(name, "finalize")
-                    }
-                    )                
-                }
+            if(!is.null(obj)) {                
+                newinfo <- setData(entr$name, obj, isAttachment(entr$name))
+                entr$dump <- newinfo[["dump"]]
+                entr$size <- newinfo[["size"]]
+                entr$checksum <- newinfo[["checksum"]]
+                entr$dims <- newinfo[["dims"]]
             }
-            entries[[w]] <- entr
-            assign("entries", entries, thisEnv)
-            storeIndex()
-        },
+            
+      entries[[w]] <- entr
+      assign("entries", entries, thisEnv)
+      storeIndex()
+    },
 
 
         
@@ -955,7 +979,7 @@ repo_open <- function(root="~/.R_repo", force=F)
                 handleErr("NO_URL", name)
             tf <- tempfile()
             download.file(e$URL, tf)
-            repo$set("name", obj=tf)
+            repo$set(name, obj=tf)
         },
         
       put = function(obj, name, description, tags, src=NULL,                       
