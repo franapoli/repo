@@ -118,7 +118,6 @@ repo_dependencies <- function(repo, depends=T, attached=T, generated=T, plot=T)
 #' 
 #' ## wiping temporary repo
 #' unlink(repo_path, TRUE)
-
 repo_check <- function(repo) repo$check()
 
 #' Copy items to another repo
@@ -141,6 +140,7 @@ repo_check <- function(repo) repo$check()
 #'
 #' ## wiping temporary repo
 #' unlink(repo_path, TRUE)
+#' unlink(repo_path2, TRUE)
 
 repo_copy <- function(repo, destrepo, name, tags=NULL)
     repo$copy(destrepo, name, tags)
@@ -661,28 +661,28 @@ repo_stashclear <- function(repo, force=F)
 #' object name, description, tags and more.
 #' 
 #' @details The item \code{name} can be any string, however it should
-#' be a concise identifier, possibly without special character (could
-#' become mandatory soon). Some tags have a special meaning, like
-#' "hide" (do not show the item by default), "attachment" (the item is
-#' an attachment - this should never be set manually), "stash" (the
-#' item is a stashed item, makes the item over-writable by other
-#' "stash" items by default).
+#'     be a concise identifier, possibly without special character
+#'     (could become mandatory soon). Some tags have a special
+#'     meaning, like "hide" (do not show the item by default),
+#'     "attachment" (the item is an attachment - this should never be
+#'     set manually), "stash" (the item is a stashed item, makes the
+#'     item over-writable by other "stash" items by default).
 #' @param repo An object of class repo.
 #' @param obj An R object to store in the repo.
 #' @param name A character identifier for the new item.
 #' @param description A character description of the item.
 #' @param tags A list of tags to sort the item. Tags are useful for
-#' selecting sets of items and run bulk actions.
+#'     selecting sets of items and run bulk actions.
 #' @param src Name of the file containing the source that generates
-#' obj. The source will be attached to the item. If a source by that
-#' name already exists, a new version will be created.
+#'     obj. The source will be attached to the item. If a source by
+#'     that name already exists, a new version will be created.
 #' @param depends List of character: items that depend on this item.
 #' @param replace One of: V, F, "addversion". Default is F. If V,
-#' overwrite an existing item by the same name. If F stops with an
-#' error. If "addversion" the new item is stored as a new version and
-#' the old item is renamed by appending a "#N" suffix.
+#'     overwrite an existing item by the same name. If F stops with an
+#'     error. If "addversion" the new item is stored as a new version
+#'     and the old item is renamed by appending a "#N" suffix.
 #' @param asattach Specifies that the item is to be trated as an
-#' attachment (see attach).
+#'     attachment (see attach).
 #' @param to Optionally specifies which item this item is attached to.
 #' @return Used for side effects.
 #' @examples
@@ -712,7 +712,6 @@ repo_stashclear <- function(repo, force=F)
 #'     description = "First item",
 #'     tags = c("repo_put", "a_random_tag"),
 #'     src = src,
-#'     replace=TRUE
 #'     )
 #' repo$put(data2, "item2", "Item dependent on item1",
 #'     "repo_dependencies", src, "item1", replace=TRUE)
@@ -724,29 +723,30 @@ repo_stashclear <- function(repo, force=F)
 #' ## Creating another version of item1
 #' data1.2 <- data1 + runif(10)
 #' repo$put(data1.2, name = "item1", "First item with additional noise",
-#'     tags = c("repo_put", "a_random_tag"), src, addversion=TRUE)
+#'     tags = c("repo_put", "a_random_tag"), src, replace="addversion")
 #' print(repo, all=TRUE)
 #' repo$info("item1#1")
 #'
 #' ## wiping temporary repo
 #' unlink(repo_path, TRUE)
 repo_put <- function(repo, obj, name, description, tags, src=NULL,
-                     depends = NULL, replace=F, asattach=F, to=NULL, addversion=F)
+                     depends = NULL, replace=F, asattach=F, to=NULL)
     repo$put(obj, name, description, tags, src,
-             depends, replace, asattach, to, addversion)
+             depends, replace, asattach, to)
 
-#' Download item's remote content
+#' Download item remote content
 #'
-#' @param repo An object of class repo.
-#' @param name Name of the existing item that will be updated.
-#' @param replace If TRUE, existing item's object is overwritten.
-#' @return Used for side effects.
 #' @details Repo index files can be used as pointers to remote
 #'     data. The pull function will download the actual data from the
 #'     Internet, including regular items or attachment. Another use of
 #'     the URL item's parameter is to attach a remote resource without
 #'     downloading it.
+#' @param repo An object of class repo.
+#' @param name Name of the existing item that will be updated.
+#' @param replace If TRUE, existing item's object is overwritten.
+#' @return Used for side effects.
 #' @examples
+#' ## Repository creation (or opening, if exists)
 #' repo_path <- file.path(tempdir(), "example_repo")
 #' repo <- repo_open(repo_path, TRUE)
 #'
@@ -773,9 +773,6 @@ repo_pull <- function(repo, name, replace=F)
 #' also be a on object of class function: in this case, its source is
 #' appended.
 #' @return Used for side effects.
-#'
-#' ## wiping temporary repo
-#' unlink(repo_path, TRUE)
 repo_append <- function(repo, id, txtorfunc)
     repo$append(id, txtorfunc)
 

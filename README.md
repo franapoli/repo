@@ -13,6 +13,12 @@ is in `repo$root()`).
 
 # News
 
+03/18/2016
+
++ New pull feature now working
++ All tested, moving to dev branch
+
+
 03/14/2016
 
 + added lazydo (run expression and cache results)

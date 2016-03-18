@@ -149,7 +149,7 @@ repo_open <- function(root="~/.R_repo", force=F)
     stopOnEmpty <- function(doreturn=F) {
         if(length(entries)<1) {
             if(doreturn)
-                return(1) else handlErr("EMPTY_REPO")
+                return(1) else handleErr("EMPTY_REPO")
         }
         return(0)
     }
@@ -987,11 +987,11 @@ repo_open <- function(root="~/.R_repo", force=F)
             if(file.exists(e$dump) && !replace)
                 handleErr("DATA_ALREADY_THERE", name)
             tf <- tempfile()
-            download.file(e$URL, tf)
+            download.file(e$URL, tf, method="wget")
+
             if(isAttachment(name)) {
                 repo$set(name, obj=tf)
-            } else repo$set(name, obj=readRDS(tf))
-            
+            } else repo$set(name, obj=readRDS(tf))            
         },
         
       put = function(obj, name, description, tags, src=NULL,                       

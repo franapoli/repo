@@ -5,7 +5,7 @@
 \title{Create a new item in the repo.}
 \usage{
 repo_put(repo, obj, name, description, tags, src = NULL, depends = NULL,
-  replace = F, asattach = F, to = NULL, addversion = F)
+  replace = F, asattach = F, to = NULL)
 }
 \arguments{
 \item{repo}{An object of class repo.}
@@ -19,23 +19,21 @@ repo_put(repo, obj, name, description, tags, src = NULL, depends = NULL,
 \item{tags}{A list of tags to sort the item. Tags are useful for
 selecting sets of items and run bulk actions.}
 
-\item{src}{The item's provenance as a list of character. Usually
-the name of the script producing the stored object, a website where
-the object was downloaded, and so on. If one of the provenance
-strings matches the name of a repo's item, this will create a
-dependency link.}
+\item{src}{Name of the file containing the source that generates
+obj. The source will be attached to the item. If a source by
+that name already exists, a new version will be created.}
 
-\item{depends}{List of character: dependant items.}
+\item{depends}{List of character: items that depend on this item.}
 
-\item{replace}{If the item exists, overwrite the specified fields.}
+\item{replace}{One of: V, F, "addversion". Default is F. If V,
+overwrite an existing item by the same name. If F stops with an
+error. If "addversion" the new item is stored as a new version
+and the old item is renamed by appending a "#N" suffix.}
 
 \item{asattach}{Specifies that the item is to be trated as an
 attachment (see attach).}
 
 \item{to}{Optionally specifies which item this item is attached to.}
-
-\item{addversion}{If TRUE and an item named name exists, create a
-new version of the same item.}
 }
 \value{
 Used for side effects.
@@ -47,12 +45,12 @@ object name, description, tags and more.
 }
 \details{
 The item \code{name} can be any string, however it should
-be a concise identifier, possibly without special character (could
-become mandatory soon). Some tags have a special meaning, like
-"hide" (do not show the item by default), "attachment" (the item is
-an attachment - this should never be set manually), "stash" (the
-item is a stashed item, makes the item over-writable by other
-"stash" items by default).
+    be a concise identifier, possibly without special character
+    (could become mandatory soon). Some tags have a special
+    meaning, like "hide" (do not show the item by default),
+    "attachment" (the item is an attachment - this should never be
+    set manually), "stash" (the item is a stashed item, makes the
+    item over-writable by other "stash" items by default).
 }
 \examples{
 ## Repository creation (or opening, if exists)
@@ -81,7 +79,6 @@ repo$put(
     description = "First item",
     tags = c("repo_put", "a_random_tag"),
     src = src,
-    replace=TRUE
     )
 repo$put(data2, "item2", "Item dependent on item1",
     "repo_dependencies", src, "item1", replace=TRUE)
@@ -93,7 +90,7 @@ print(repo)
 ## Creating another version of item1
 data1.2 <- data1 + runif(10)
 repo$put(data1.2, name = "item1", "First item with additional noise",
-    tags = c("repo_put", "a_random_tag"), src, addversion=TRUE)
+    tags = c("repo_put", "a_random_tag"), src, replace="addversion")
 print(repo, all=TRUE)
 repo$info("item1#1")
 

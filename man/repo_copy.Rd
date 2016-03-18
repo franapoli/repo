@@ -32,5 +32,6 @@ repo1$copy(repo2, "item1")
 
 ## wiping temporary repo
 unlink(repo_path, TRUE)
+unlink(repo_path2, TRUE)
 }
 

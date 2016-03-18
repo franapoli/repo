@@ -385,7 +385,7 @@ repo:
 
 * Add a new object (*repo$put*)
 * Overwrite an existing object (*repo$put(replace=T)*)
-* Add a new version of an existing object (*repo$put(addversion = T)*)
+* Add a new version of an existing object (*repo$put(replace="addversion")*)
 * Stash an object as temporary (*repo$stash*)
 
 The first two were covered before, this section will deal with the
@@ -404,13 +404,13 @@ kiris2 <- kmeans(myiris, 5)$cluster
 repo$put(kiris, "iris_5clu",
          "Kmeans clustering of the Iris data, k=5. Today's version!",
          c("metadata", "iris", "kmeans", "clustering", "repodemo"), src,
-         depends="myiris", addversion=T)
+         depends="myiris", replace="addversion")
 ```
 
-* **addversion** when TRUE, tells repo to add a new version of an
-existing object. The new object will replace the old one and the
-old one will be renamed adding the suffix "#N", with N being an
-incremental integer.
+* **addversion** when replace is set to "addversion", repo will add a
+new version of an existing object. The new object will replace the old
+one and the old one will be renamed adding the suffix "#N", with N
+being an incremental integer.
 
 The new repo looks like the old one:
 
