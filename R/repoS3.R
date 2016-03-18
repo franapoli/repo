@@ -559,7 +559,8 @@ repo_bulkedit <- function(repo, outfile=NULL, infile=NULL)
 #'
 #' ## wiping temporary repo
 #' unlink(repo_path, TRUE)
-repo_set <- function(repo, name, obj=NULL, newname=NULL, description=NULL, tags=NULL, src=NULL, depends=NULL, addtags=NULL)
+repo_set <- function(repo, name, obj=NULL, newname=NULL, description=NULL,
+                     tags=NULL, src=NULL, depends=NULL, addtags=NULL)
     repo$set(name, obj, newname, description, tags, src, depensd, addtags)
 
 #' Create a new item from an existing file.
@@ -733,6 +734,34 @@ repo_put <- function(repo, obj, name, description, tags, src=NULL,
                      depends = NULL, replace=F, asattach=F, to=NULL, addversion=F)
     repo$put(obj, name, description, tags, src,
              depends, replace, asattach, to, addversion)
+
+#' Download item's remote content
+#'
+#' @param repo An object of class repo.
+#' @param name Name of the existing item that will be updated.
+#' @param replace If TRUE, existing item's object is overwritten.
+#' @return Used for side effects.
+#' @details Repo index files can be used as pointers to remote
+#'     data. The pull function will download the actual data from the
+#'     Internet, including regular items or attachment. Another use of
+#'     the URL item's parameter is to attach a remote resource without
+#'     downloading it.
+#' @examples
+#' repo_path <- file.path(tempdir(), "example_repo")
+#' repo <- repo_open(repo_path, TRUE)
+#'
+#' ## The following item will have remote source
+#' repo$put("Local content", "item1", "Sample item 1", "tag",
+#'          URL="http://www.francesconapolitano.it/repo/remote")
+#' print(repo$get("item1"))
+#' repo$pull("item1", replace=T)
+#' print(repo$get("item1"))
+#'
+#' ## wiping temporary repo
+#' unlink(repo_path, TRUE)
+repo_pull <- function(repo, name, replace=F)
+    repo$pull(name, replace)
+
 
 #' Append text to an existing item content.
 #'

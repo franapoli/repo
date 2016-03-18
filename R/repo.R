@@ -1,5 +1,4 @@
 
-
 globalVariables(c("DEBUG", "entries", "this"))
 
 library(digest) # digest
@@ -21,6 +20,9 @@ repo_open <- function(root="~/.R_repo", force=F)
                    },
                    "ID_NOT_FOUND" = {
                        stop(paste0("Item not found: ", lpars))
+                   },
+                   "ID_EXISTING" = {
+                       stop(paste0("There is already an item with this name: ", lpars))
                    },
                    "ID_RESERVED" = {
                        stop(paste0("Id not valid (reserved): ", lpars))
@@ -46,6 +48,10 @@ repo_open <- function(root="~/.R_repo", force=F)
                    },
                    "LAZY_NOT_FOUND" = {
                        message("Repo needs to build resource.")
+                   },
+                   "DATA_ALREADY_THERE" = {
+                       stop(paste0("There is existing content for ", lpars, ". ",
+                                   "Use replace=T to overwrite."))
                    }
                    )
 
@@ -76,7 +82,7 @@ repo_open <- function(root="~/.R_repo", force=F)
         rmData(name, "temp")            
         
         tryCatch({
-            fdata <- storeData(name, obj)
+            fdata <- storeData(name, obj, asattach)
         }, error = function(e) {
             print(e)
             rmData(name, "undo")
@@ -249,7 +255,8 @@ repo_open <- function(root="~/.R_repo", force=F)
 
     buildpath <- function(resname)
         {
-            resname <- digest(resname)
+            ##resname <- digest(resname)
+            resname <- paste0(sample(c(0:9,letters), 32, T),collapse="")
             return(list(root,
                         substr(resname, 1, 2),
                         substr(resname, 3, 4),
@@ -909,7 +916,7 @@ repo_open <- function(root="~/.R_repo", force=F)
                 stop("You can not specify both tags and addtags.")
             
             if(checkName(name))
-                handleErr(ID_NOT_FOUND, name)
+                handleErr("ID_NOT_FOUND", name)
 
             w <- findEntryIndex(name)
             entr <- entries[[w]]
@@ -931,7 +938,7 @@ repo_open <- function(root="~/.R_repo", force=F)
             if(!missing(URL))
                 entr$URL <- URL
 
-            if(!is.null(obj)) {                
+            if(!is.null(obj)) {
                 newinfo <- setData(entr$name, obj, isAttachment(entr$name))
                 entr$dump <- newinfo[["dump"]]
                 entr$size <- newinfo[["size"]]
@@ -973,13 +980,18 @@ repo_open <- function(root="~/.R_repo", force=F)
             get("this", thisEnv)$rm(tags=c("stash", "hide"), force=force)
         },
 
-        pull = function(name) {
+        pull = function(name, replace=F) {
             e <- getEntry(name)
             if(is.null(e$URL))
                 handleErr("NO_URL", name)
+            if(file.exists(e$dump) && !replace)
+                handleErr("DATA_ALREADY_THERE", name)
             tf <- tempfile()
             download.file(e$URL, tf)
-            repo$set(name, obj=tf)
+            if(isAttachment(name)) {
+                repo$set(name, obj=tf)
+            } else repo$set(name, obj=readRDS(tf))
+            
         },
         
       put = function(obj, name, description, tags, src=NULL,                       
@@ -1019,7 +1031,7 @@ repo_open <- function(root="~/.R_repo", force=F)
 
             notexist <- checkName(name)
             if(!notexist & !replace & !addversion)
-                handleErr("ID_NOT_FOUND", name)
+                handleErr("ID_EXISTING", name)
             
             if(!asattach) {
                 if(!is.null(dim(obj)))
