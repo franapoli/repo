@@ -7,16 +7,23 @@
 
 This is the Repo development branch. It is merged from the untested
 branch as soon as all example code runs without errors. Since this
-doesn't necessarily mean that it's really working, you may want to
-check out the master branch for a safer version. You may really want
-to backup *at least* your repo index (you can find it with
-`repo$root()`) file before updating to a dev version.
+doesn't necessarily mean that everything is working robustly, you may
+want to check out the master branch for a safer version. Backup *at
+least* your repo index (you can find it with `repo$root()`) file
+before updating to a dev version.
 
 # News
+
+03/18/2016
+
++ New pull feature now working
++ added lazydo (run expression and cache results)
++ Sources auto-attach suspended (had problems)
 
 12/07/2015
 
 + Initial Shiny interface
+
 
 11/19/2015
 

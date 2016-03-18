@@ -4,9 +4,58 @@ globalVariables(c("DEBUG", "entries", "this"))
 library(digest) # digest
 library(tools) # md5sum
 
+
 repo_open <- function(root="~/.R_repo", force=F)
 {
     DEBUG <- F
+
+    handleErr <- function(err, ...)
+        {
+            pars <- list(...)
+            if(length(pars)>0)
+                lpars <- paste0(paste(pars[[1]], collapse=", "), ".")
+            switch(err,
+                   "DEBUG" = {
+                       message(pars[[1]])
+                   },
+                   "ID_NOT_FOUND" = {
+                       stop(paste0("Item not found: ", lpars))
+                   },
+                   "ID_EXISTING" = {
+                       stop(paste0("There is already an item with this name: ", lpars))
+                   },
+                   "ID_RESERVED" = {
+                       stop(paste0("Id not valid (reserved): ", lpars))
+                   },
+                   "TAG_RESERVED" = {
+                       warning(paste0("Reserved TAG used: ", lpars))
+                   },
+                   "SRC_NOT_FOUND" = {
+                       stop(paste0("Source not found: ", lpars))
+                   },
+                   "EMPTY_REPO" = {
+                       stop("Repo is empty.")
+                   },
+                   "MISS_OBJ_HAS_URL" = {
+                       stop(paste0("The file object could not be found. ",
+                                   "However, it can be downloaded using pull."))
+                   },
+                   "NO_URL" = {
+                       stop("The object has no associated URL.")
+                   },
+                   "LAZY_FOUND" = {
+                       message("Repo found precomputed resource.")
+                   },
+                   "LAZY_NOT_FOUND" = {
+                       message("Repo needs to build resource.")
+                   },
+                   "DATA_ALREADY_THERE" = {
+                       stop(paste0("There is existing content for ", lpars, ". ",
+                                   "Use replace=T to overwrite."))
+                   }
+                   )
+
+        }
 
     
     getFile <- function(name)
@@ -19,6 +68,36 @@ repo_open <- function(root="~/.R_repo", force=F)
 
             return(fpath)
         }
+
+    setData <- function(name, obj, asattach)
+    {
+        w <- findEntryIndex(name)
+        newdata <- list()
+
+        if(!asattach) {
+            if(!is.null(dim(obj)))
+                dims <- dim(obj) else dims <- length(obj)
+        } else dims <- NULL
+
+        rmData(name, "temp")            
+        
+        tryCatch({
+            fdata <- storeData(name, obj, asattach)
+        }, error = function(e) {
+            print(e)
+            rmData(name, "undo")
+        }, finally = {
+            rmData(name, "finalize")
+        }
+        )                
+        
+        newdata[["dump"]] <- relativePath(fdata[["path"]])
+        newdata[["size"]] <- fdata[["size"]]
+        newdata[["checksum"]] <- md5sum(path.expand(fdata[["path"]]))
+        newdata[["dims"]] <- dims
+
+        return(newdata)
+    }
     
     checkTags <- function(tags, name=NULL)
     {
@@ -37,10 +116,7 @@ repo_open <- function(root="~/.R_repo", force=F)
         }
         reservedTags <- c("stash", "attachment")
         if(any(tolower(tags) %in% reservedTags))
-            stop(paste0("The following tags are reserved: ",
-                        paste0(tags[tolower(tags) %in% reservedTags], collapse =", "),
-                        ".")
-                 )
+            handleErr("TAG_RESERVED", tags[tolower(tags) %in% reservedTags])                 
 
         return(unique(tags))
     }
@@ -73,7 +149,7 @@ repo_open <- function(root="~/.R_repo", force=F)
     stopOnEmpty <- function(doreturn=F) {
         if(length(entries)<1) {
             if(doreturn)
-                return(1) else stop("Repository is empty.", call.=F)
+                return(1) else handleErr("EMPTY_REPO")
         }
         return(0)
     }
@@ -91,11 +167,8 @@ repo_open <- function(root="~/.R_repo", force=F)
             stopOnEmpty()
             allnames <- sapply(entries, get, x="name")
             w <- match(names, allnames)
-            if(all(is.na(w))){
-                msg <- paste0("The following entries could not be matched: ",
-                              paste(names[is.na(w)], collapse=", "), ".")
-                stop(msg, call.=F)
-            }
+            if(all(is.na(w)))
+                handleErr("ID_NOT_FOUND", names[is.na(w)])
         }
     
     getEntry <- function(name) {
@@ -182,7 +255,8 @@ repo_open <- function(root="~/.R_repo", force=F)
 
     buildpath <- function(resname)
         {
-            resname <- digest(resname)
+            ##resname <- digest(resname)
+            resname <- paste0(sample(c(0:9,letters), 32, T),collapse="")
             return(list(root,
                         substr(resname, 1, 2),
                         substr(resname, 3, 4),
@@ -201,6 +275,9 @@ repo_open <- function(root="~/.R_repo", force=F)
     rmData <- function(name, phase)
     {
         fpath <- getFile(name)
+
+        if(!file.exists(fpath))
+            return(invisible(0))
         
         if(phase=="temp") {
             file.rename(fpath, paste0(fpath, ".remove_me"))
@@ -243,7 +320,7 @@ repo_open <- function(root="~/.R_repo", force=F)
         {
             stopOnEmpty()
             if(!any(c(depends, attached, generated)))
-              stop("One of depends, attached and generated must be true.")
+              stop("One of depends, attached or generated must be true.")
             
             nodes <- unique(unlist(sapply(entries, get, x="name")))
             if(generated) {
@@ -507,7 +584,7 @@ repo_open <- function(root="~/.R_repo", force=F)
         {
             stopOnNotFound(name)
             e <- getEntry(name)
-            syscomm <- paste0(command, " ", e[["dump"]])
+            syscomm <-paste0(command, " ", file.path(root, e[["dump"]]))
             message(paste("Running system command:", syscomm))
             system(syscomm)
         },
@@ -519,7 +596,7 @@ repo_open <- function(root="~/.R_repo", force=F)
         
         print = function(tags=NULL, tagfun="OR", find=NULL, all=F, show="ds")
         {
-            ## TODO: Part of the cose in now in function entriesToMat,
+            ## TODO: Part of the code is now in function entriesToMat,
             ## should be removed from here.
 
             if(!is.null(tags) & !is.null(find))
@@ -570,6 +647,7 @@ repo_open <- function(root="~/.R_repo", force=F)
             a[,"Dims"] <- sapply(lapply(entr, get, x="dims"), paste, collapse="x"); a[a[,"Dims"]=="", "Dims"] <- "-"            
             a[,"Tags"] <- sapply(tagsets, paste, collapse=", ")
             a[,"Size"] <- sapply(lapply(entr, get, x="size"), hmnRead)
+            ##a[,"URL"] <- sapply(entr, get, x="URL")
 
             h <- rep(F,length(entr))
             hidden <- sapply(tagsets, is.element, el="hide")
@@ -636,19 +714,25 @@ repo_open <- function(root="~/.R_repo", force=F)
                     stop("Identifier not found.")
 
                 labels <- c("ID:", "Description:", "Tags:",
-                            "Dimensions:", "Timestamp:", "Size on disk:",
-                            "Provenance:", "Attached to:", "Stored in:", "MD5 checksum:")
+                            "Dimensions:", "Timestamp:",
+                            "Size on disk:", "Provenance:",
+                            "Attached to:", "Stored in:", 
+                            "MD5 checksum:", "URL:")
                 maxlen <- max(sapply(labels, nchar))
 
                 if(is.null(entries[[e]]$attachedto))
-                    att <- "-"
+                    att <- "-" else att <- paste(entries[[e]]$attachedto, collapse=", ")
+                if(is.null(entries[[e]]$URL))
+                    url <- "-" else url <- entries[[e]]$URL
 
                 vals <- c(entries[[e]]$name, entries[[e]]$description,
                           paste0(entries[[e]]$tags, collapse=", "),
                           paste(entries[[e]]$dims, collapse="x"),
-                          as.character(entries[[e]]$timestamp), hmnRead(entries[[e]]$size),
-                          paste(entries[[e]]$source, collapse=", "), att, entries[[e]]$dump,
-                          entries[[e]]$checksum)
+                          as.character(entries[[e]]$timestamp),
+                          hmnRead(entries[[e]]$size),
+                          paste(entries[[e]]$source, collapse=", "),
+                          att, entries[[e]]$dump, entries[[e]]
+                          $checksum, url)
                 cat(paste0(format(labels, width=maxlen+1), vals, "\n"), sep="")
                 cat("\n")
             }
@@ -738,8 +822,7 @@ repo_open <- function(root="~/.R_repo", force=F)
 
         get = function(name)
         {          
-            if(checkName(name)){
-                message("ID not found.")
+            if(checkName(name)){                
                 enames <- sapply(entries, get, x="name")
                 x <- agrep(name, enames)
                 if(length(x)>0) {
@@ -749,6 +832,7 @@ repo_open <- function(root="~/.R_repo", force=F)
                         paste0(enames[x], collapse=", ")
                     ))
                 }
+                handleErr("ID_NOT_FOUND", name)
                 return(invisible())
             }
             entry <- getEntry(name)
@@ -764,9 +848,12 @@ repo_open <- function(root="~/.R_repo", force=F)
                 }
 
             if(isAttachment(name))
-              stop("Get is not valid for attachemnts.")
+              stop("Get is not valid for attachments.")
 
-            data <- readRDS(getFile(name))
+            f <- getFile(name)
+            if(!file.exists(f) && !is.null(entry$URL))
+                handleErr("MISS_OBJ_HAS_URL")
+            data <- readRDS(f)
             
             return(data)
         },
@@ -785,6 +872,21 @@ repo_open <- function(root="~/.R_repo", force=F)
                     get("this", thisEnv)$set(name, addtags=newtags)                   
         },
 
+      lazydo = function(expr, force=F, env=parent.frame())
+      {
+          resname <- digest(expr)
+          if(checkName(resname) || force)
+          {
+              handleErr("LAZY_NOT_FOUND")
+              res <- eval(expr, envir=env)
+              get("this", thisEnv)$stash("res",resname)
+              return(res)
+          } else {
+              handleErr("LAZY_FOUND")
+               return(get("this", thisEnv)$get(resname))
+           }
+      },
+
 
         untag = function(name = NULL, rmtags, tags = NULL)
         {
@@ -802,18 +904,19 @@ repo_open <- function(root="~/.R_repo", force=F)
                 }
         },
         
-        set = function(name, obj=NULL, newname=NULL, description=NULL, tags=NULL, src=NULL, depends=NULL, addtags=NULL)
+        set = function(name, obj=NULL, newname=NULL, description=NULL,
+            tags=NULL, src=NULL, depends=NULL, addtags=NULL, URL=NULL)
         {
             checkIndexUnchanged()                    
             
             if(missing(name) | (missing(newname) & missing(obj) & missing(description) &
-                                 missing(tags) & missing(addtags)  & missing(src)))
+                                 missing(tags) & missing(addtags)  & missing(src) & missing(URL)))
                 stop("You must provide name and one of: obj, description, tags or addtags, src.")
             if(!missing(tags) & !missing(addtags))
                 stop("You can not specify both tags and addtags.")
             
             if(checkName(name))
-                stop("Identifier not found.")
+                handleErr("ID_NOT_FOUND", name)
 
             w <- findEntryIndex(name)
             entr <- entries[[w]]
@@ -823,44 +926,33 @@ repo_open <- function(root="~/.R_repo", force=F)
                 entr$name <- newname
             if(!is.null(description))
                 entr$description <- description
-            if(!is.null(tags)) {
-                
+            if(!is.null(tags)) {                
                 entr$tags <- checkTags(tags)
             }
             if(!is.null(addtags)) {
                 entr$tags <- unique(c(entr$tags, checkTags(addtags, name)))
             }
             if(!is.null(src))
-                entr$src <- newname
+                entr$src <- src
+
+            if(!missing(URL))
+                entr$URL <- URL
 
             if(!is.null(obj)) {
-                if(!is.null(dim(obj)))
-                    dims <- dim(obj) else dims <- length(obj)
-                
-                if(!is.null(newname)) {
-
-                    rmData(entr$name, "temp")
-                    tryCatch({
-                        fdata <- get("storeData", thisEnv)(entr$name, obj)
-                        entr$class <- class(obj)
-                        entr$dump <- fdata[["path"]]
-                        entr$size <- fdata[["size"]]
-                        entr$checksum <- md5sum(path.expand(fdata[["path"]]))
-                        entr$dims <- dims
-                    }, error = function(e) {
-                        print(e)
-                        rmData(name, "undo")
-                    }, finally = {
-                        rmData(name, "finalize")
-                    }
-                    )                
-                }
+                newinfo <- setData(entr$name, obj, isAttachment(entr$name))
+                entr$dump <- newinfo[["dump"]]
+                entr$size <- newinfo[["size"]]
+                entr$checksum <- newinfo[["checksum"]]
+                entr$dims <- newinfo[["dims"]]
             }
-            entries[[w]] <- entr
-            assign("entries", entries, thisEnv)
-            storeIndex()
-        },
+            
+      entries[[w]] <- entr
+      assign("entries", entries, thisEnv)
+      storeIndex()
+    },
 
+
+        
         attach = function(filepath, description, tags, src=NULL, replace=F, to=NULL)
         {
             get("this", thisEnv)$put(filepath, basename(filepath),
@@ -888,35 +980,58 @@ repo_open <- function(root="~/.R_repo", force=F)
             get("this", thisEnv)$rm(tags=c("stash", "hide"), force=force)
         },
 
+        pull = function(name, replace=F) {
+            e <- getEntry(name)
+            if(is.null(e$URL))
+                handleErr("NO_URL", name)
+            if(file.exists(e$dump) && !replace)
+                handleErr("DATA_ALREADY_THERE", name)
+            tf <- tempfile()
+            download.file(e$URL, tf, method="wget")
+
+            if(isAttachment(name)) {
+                repo$set(name, obj=tf)
+            } else repo$set(name, obj=readRDS(tf))            
+        },
         
-        put = function(obj, name, description, tags, src=NULL,
-            depends=NULL, replace=F, notes=NULL, asattach=F, to=NULL, addversion=F)
+      put = function(obj, name, description, tags, src=NULL,                       
+            depends=NULL, replace=F, notes=NULL, asattach=F, to=NULL, addversion=F, URL=NULL)
+
         {
             checkIndexUnchanged()
+
+            if(addversion)
+                stop("addversion is deprecated, use replace=\"addversion\"")
+            
+            if(replace == "addversion") {
+                ## This code is to cope with new interface after
+                ## removing addversion parameter
+                addversion = T 
+                replace = F
+            }
             
             if(missing(obj) | missing(name) | missing(description) | missing(tags))
                 stop("You must provide all of: obj, name, description, tags.")
 
-            if(!is.null(src)) {
+
+            if(is.null(src)) {
+                src <- getwd()
+            } else {
                 fcheck <- sapply(src, file.exists)
                 if(!all(fcheck))
-                    stop(paste0("The following sources could not be found: ",
-                                paste0(src, collapse=", ")))
+                    handleErr("SRC_NOT_FOUND", src)
             }
+
             
             if(!is.null(to))
                 asattach <- T
 
             if(name == "repo")
-                stop("Name repo is reserved.")
-            
+                handleErr("ID_RESERVED")
+
             notexist <- checkName(name)
             if(!notexist & !replace & !addversion)
-                {                    
-                    cat("Identifier already used.\n")
-                    return(invisible(NULL))
-                }
-
+                handleErr("ID_EXISTING", name)
             
             if(!asattach) {
                 if(!is.null(dim(obj)))
@@ -931,13 +1046,8 @@ repo_open <- function(root="~/.R_repo", force=F)
                 stopOnNotFound(to)
 
 
-            if(is.null(src)) {
-                storedfrom <- getwd()
-            } else storedfrom <- src
+            storedfrom <- src
             
-            if(!all(sapply(storedfrom, checkName)))
-                message("At least one provenance is internal.")
-           
             repoE <- list(name = name,
                           description = description,
                           tags = tags,
@@ -947,9 +1057,10 @@ repo_open <- function(root="~/.R_repo", force=F)
                           dump = NULL,
                           size = NULL,
                           checksum = NULL,
-                          source = storedfrom,
+                          source = src,
                           depends = depends,
-                          attachedto = to)            
+                          attachedto = to,
+                          URL = URL)            
             
             if(!notexist & addversion) {
                 newname <- checkVersions(name)$new
@@ -986,21 +1097,13 @@ repo_open <- function(root="~/.R_repo", force=F)
 
             if(asattach)
                 get("this", thisEnv)$tag(name, "hide")
+        },
 
-            if(!is.null(src))
-                for(i in 1:length(src))
-                    {
-                        if(checkName(src[[i]])){
-                            att = getEntry(src[[i]])$attachedto
-                            if(!is.null(att) && att != name) {
-                                message(paste0(src," already attached to an existing item, creating new version."))
-                                get("this", thisEnv)$attach(src[[i]], paste0("Source code for ", name),
-                                                            c("source", file_ext(src[[i]])), addversion=T, to=name)
-                            } else get("this", thisEnv)$attach(src[[i]], paste0("Source code for ", name),
-                                                               c("source", file_ext(src[[i]])), replace=replace, to=name)}
-
-                    }
-        },        
+      
+      cpanel=function()
+      {
+          repo_cpanel(repo$root())
+      },
         
         test=function()
         {
