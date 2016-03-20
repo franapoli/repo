@@ -22,7 +22,7 @@ Repo was developed by Francesco Napolitano [![alt text][1.2]][1]
 ## Getting Started
 
 Please check out the getting started guide
-[here](https://cdn.rawgit.com/franapoli/repo/gh-pages-dev/index.html).
+[here](https://rawgit.com/franapoli/repo/gh-pages-dev/index.html).
 
 
 ## Download and Installation
