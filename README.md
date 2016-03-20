@@ -3,18 +3,27 @@
 [1]: http://www.twitter.com/franapoli
 <!-- Grab your social icons from https://github.com/carlsednaoui/gitsocial -->
 
-# Dev branch
+# Untested branch disclaimer
 
-This is the Repo development branch. It is merged from the untested
-branch as soon as all example code runs without errors.
+This is the Repo untested branch. Code in this branch has never been
+tested and could not run at all. You may want to check out the
+dev or master branch for a safer version. You may really want to backup *at
+least* your repo index file before trying this branch (your index file
+is in `repo$root()`).
 
+# News for the untested branch
+(main news in the NEWS file)
 
-# Repo
+03/30/3026
 
-Repo is a data-centered data flow manager. It allows to store R data
-files in a central local repository, together with tags, annotations,
-provenance and dependence information. Any saved object can then be
-easily located and loaded through the repo interface.
++ Merged latest fix from the dev branch
++ The NEWS file now used for main news
+
+# repo
+
+Repo allows to store R data files in a central local repository, together
+with tags, annotations, provenance and dependence information. Any saved
+object can then be easily located and loaded through the repo interface.
 
 Repo was developed by Francesco Napolitano [![alt text][1.2]][1]
 
