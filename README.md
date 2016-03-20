@@ -14,8 +14,10 @@ is in `repo$root()`).
 # News for the untested branch
 (main news in the NEWS file)
 
-03/30/3026
+03/20/3026
 
++ Fixed warnings in cpanel
++ All check() now passed
 + Merged latest fix from the dev branch
 + The NEWS file now used for main news
 

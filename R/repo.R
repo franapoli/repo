@@ -990,8 +990,8 @@ repo_open <- function(root="~/.R_repo", force=F)
             download.file(e$URL, tf, method="wget")
 
             if(isAttachment(name)) {
-                repo$set(name, obj=tf)
-            } else repo$set(name, obj=readRDS(tf))            
+                get("this", thisEnv)$set(name, obj=tf)
+            } else get("this", thisEnv)$set(name, obj=readRDS(tf))            
         },
         
       put = function(obj, name, description, tags, src=NULL,                       
@@ -1102,7 +1102,7 @@ repo_open <- function(root="~/.R_repo", force=F)
       
       cpanel=function()
       {
-          repo_cpanel(repo$root())
+          repo_cpanel(get("this", thisEnv)$root())
       },
         
         test=function()

@@ -438,11 +438,9 @@ repo_tag <- function(repo, name = NULL, newtags, tags = NULL)
 #' stashed.
 #'
 #' @param repo An object of class repo.
-#' @param name An item name.
-#' @param newtags A list of tags that will be added to the item's tag
-#'     list.
-#' @param tags A list of tags: newtags will be added to all items
-#'     matching the list.
+#' @param expr An object of class exrepssion (the code to run).
+#' @param force If TRUE, execute expr anyway
+#' @param env Environment for expr, defaults to parent.
 #' @return Results of the expression (either loaded or computed on the
 #'     fly).
 #' @details The expression results are stashed as usual. The name of
@@ -561,7 +559,7 @@ repo_bulkedit <- function(repo, outfile=NULL, infile=NULL)
 #' unlink(repo_path, TRUE)
 repo_set <- function(repo, name, obj=NULL, newname=NULL, description=NULL,
                      tags=NULL, src=NULL, depends=NULL, addtags=NULL)
-    repo$set(name, obj, newname, description, tags, src, depensd, addtags)
+    repo$set(name, obj, newname, description, tags, src, depends, addtags)
 
 #' Create a new item from an existing file.
 #' 
