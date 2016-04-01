@@ -1,6 +1,11 @@
 # News
 
-03/19/2015
+04/01/2016
+
++ Bugfixes in lazydo
++ Minor additions to docs
+
+03/19/2016
 
 + Further testing
 + vignette updated

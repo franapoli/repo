@@ -416,6 +416,7 @@ repo_entries <- function(repo)repo$entries()
 #' @param tags A list of tags: newtags will be added to all items
 #' matching the list.
 #' @return Used for side effects.
+#' @seealso repo_untag, repo_set
 #' @examples
 #' repo_path <- file.path(tempdir(), "example_repo")
 #' repo <- repo_open(repo_path, TRUE)
@@ -444,8 +445,13 @@ repo_tag <- function(repo, name = NULL, newtags, tags = NULL)
 #' @return Results of the expression (either loaded or computed on the
 #'     fly).
 #' @details The expression results are stashed as usual. The name of
-#'     the resource is obtained by digesting the expression, so it
-#'     will look like an MD5 string in the repo.
+#' the resource is obtained by digesting the expression, so it will
+#' look like an MD5 string in the repo. Note that the expression, and
+#' not its result, will uniquely identify the item in the repo.
+#'
+#' The new item is automatically tagged with "stash", "hide" and
+#' "lazydo".
+#' @seealso repo_stash, repo_put
 #' 
 #' @examples
 #' repo_path <- file.path(tempdir(), "example_repo")
@@ -462,13 +468,13 @@ repo_tag <- function(repo, name = NULL, newtags, tags = NULL)
 #'     }
 #' )
 #' 
-#' system.time(repo$lazydo(expr)) # first run
+#' system.time(v <- repo$lazydo(expr)) # first run
 #' ## Repo needs to build resource.
 #' ## [1] "Done."
 #' ##    user  system elapsed 
 #' ##   0.006   0.000   1.007
 #'
-#' system.time(repo$lazydo(expr)) # second run
+#' system.time(v <- repo$lazydo(expr)) # second run
 #' ## Repo found precomputed resource.
 #' ##    user  system elapsed 
 #' ##   0.000   0.004   0.001
@@ -495,6 +501,7 @@ repo_lazydo = function(repo, expr, force=F, env=parent.frame())
 #' @param tags A list of tags: rmtags will be removed from all items
 #' matching the list.
 #' @return Used for side effects.
+#' @seealso repo_tag, repo_set
 #' @examples
 #' repo_path <- file.path(tempdir(), "example_repo")
 #' repo <- repo_open(repo_path, TRUE)
@@ -621,6 +628,7 @@ repo_attach <- function(repo, filepath, description, tags, src=NULL, replace=F, 
 #' @param env Environment containing the variable by the specified
 #' name. Resolves to parent frame by default.
 #' @return Used for side effects.
+#' @seealso repo_put
 #' @examples
 #' repo_path <- file.path(tempdir(), "example_repo")
 #' repo <- repo_open(repo_path, TRUE)
@@ -638,6 +646,7 @@ repo_stash <- function(repo, name, rename, env=parent.frame())
 #' @param repo An object of class repo.
 #' @param force If TRUE, no confirmation is asked.
 #' @return Used for side effects.
+#' @seealso repo_rm, repo_stash
 #' @examples
 #' repo_path <- file.path(tempdir(), "example_repo")
 #' repo <- repo_open(repo_path, TRUE)

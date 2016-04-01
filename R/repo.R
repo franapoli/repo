@@ -44,10 +44,10 @@ repo_open <- function(root="~/.R_repo", force=F)
                        stop("The object has no associated URL.")
                    },
                    "LAZY_FOUND" = {
-                       message("Repo found precomputed resource.")
+                       message("lazydo found precomputed resource.")
                    },
                    "LAZY_NOT_FOUND" = {
-                       message("Repo needs to build resource.")
+                       ## message("Repo needs to build resource.")
                    },
                    "DATA_ALREADY_THERE" = {
                        stop(paste0("There is existing content for ", lpars, ". ",
@@ -874,12 +874,15 @@ repo_open <- function(root="~/.R_repo", force=F)
 
       lazydo = function(expr, force=F, env=parent.frame())
       {
-          resname <- digest(expr)
+          resname <- digest(substitute(expr))
           if(checkName(resname) || force)
           {
               handleErr("LAZY_NOT_FOUND")
               res <- eval(expr, envir=env)
               get("this", thisEnv)$stash("res",resname)
+              get("this", thisEnv)$set(resname,
+                                       description=as.character(expr),
+                                       addtags="lazydo")
               return(res)
           } else {
               handleErr("LAZY_FOUND")
