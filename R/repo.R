@@ -255,7 +255,6 @@ repo_open <- function(root="~/.R_repo", force=F)
 
     buildpath <- function(resname)
         {
-            ##resname <- digest(resname)
             resname <- paste0(sample(c(0:9,letters), 32, T),collapse="")
             return(list(root,
                         substr(resname, 1, 2),
@@ -998,8 +997,8 @@ repo_open <- function(root="~/.R_repo", force=F)
         },
         
       put = function(obj, name, description, tags, src=NULL,                       
-            depends=NULL, replace=F, notes=NULL, asattach=F, to=NULL, addversion=F, URL=NULL)
-
+                     depends=NULL, replace=F, notes=NULL, asattach=F,
+                     to=NULL, addversion=F, URL=NULL)
         {
             checkIndexUnchanged()
 
@@ -1085,16 +1084,22 @@ repo_open <- function(root="~/.R_repo", force=F)
                 print(e)
                 if(!notexist & replace) 
                     rmData(name, "undo")
+
+                stop("Error writing data.")
             }, finally = {
-                repoE["dump"] <- relativePath(fdata[["path"]])
                 repoE["size"] <- fdata[["size"]]
                 repoE["checksum"] <- md5sum(path.expand(fdata[["path"]]))
+                repoE["dump"] <- relativePath(fdata[["path"]])
+
+                ## rmData must be called before overwriting the old
+                ## entry (particularly the dump field)
+                if(!notexist & replace)
+                    rmData(name, "finalize")
+
                 entr[[ei]] <- repoE
                 assign("entries", entr, thisEnv)
                 get("storeIndex", thisEnv)()
                 
-                if(!notexist & replace)
-                    rmData(name, "finalize")
             }
             )
 

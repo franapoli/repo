@@ -3,11 +3,27 @@
 [1]: http://www.twitter.com/franapoli
 <!-- Grab your social icons from https://github.com/carlsednaoui/gitsocial -->
 
-# Dev branch
+# Untested branch disclaimer
 
-This is the Repo development branch. It is merged from the untested
-branch as soon as all example code runs without errors.
+This is the Repo untested branch. Code in this branch has never been
+tested and could not run at all. You may want to check out the
+dev or master branch for a safer version. You may really want to backup *at
+least* your repo index file before trying this branch (your index file
+is in `repo$root()`).
 
+# News for the untested branch
+(main news in the NEWS file)
+
+04/24/2016
+
++ Fixed bug when replacing entries due to new scheme for naming files.
+
+03/20/3026
+
++ Fixed warnings in cpanel
++ All check() now passed
++ Merged latest fix from the dev branch
++ The NEWS file now used for main news
 
 # Repo
 
