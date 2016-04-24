@@ -274,18 +274,23 @@ repo_open <- function(root="~/.R_repo", force=F)
     rmData <- function(name, phase)
     {
         fpath <- getFile(name)
+        fpath_temp <- paste0(fpath, ".remove_me")
 
-        if(!file.exists(fpath))
+        if(!file.exists(fpath) && !file.exists(fpath_temp)){
+            ## this should never happen, unless file was removed from
+            ## something else:
+            warning(paste("File to be removed was not found:", fpath))
             return(invisible(0))
+        }
         
         if(phase=="temp") {
-            file.rename(fpath, paste0(fpath, ".remove_me"))
+            file.rename(fpath, fpath_temp)
         } 
         if(phase=="finalize") {
-            file.remove(paste0(fpath, ".remove_me"))
+            file.remove(fpath_temp)
         }
         if(phase=="undo") {
-            file.rename(paste0(fpath, ".remove_me"), fpath)
+            file.rename(fpath_temp, fpath)
         }
         
         return(invisible(NULL))
@@ -1071,20 +1076,19 @@ repo_open <- function(root="~/.R_repo", force=F)
             }            
 
             entr <- get("entries", thisEnv)
-            
+
             if(!notexist & replace) {
                 ei <- findEntryIndex(name)
                 rmData(name, "temp")
                 oldEntr <- entr[[ei]]
             } else ei <- length(entries)+1
-
+            
             tryCatch({
                 fdata <- get("storeData", thisEnv)(name, obj, asattach)
             }, error = function(e) {
                 print(e)
                 if(!notexist & replace) 
                     rmData(name, "undo")
-
                 stop("Error writing data.")
             }, finally = {
                 repoE["size"] <- fdata[["size"]]
