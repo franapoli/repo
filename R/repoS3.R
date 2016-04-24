@@ -621,25 +621,22 @@ repo_attach <- function(repo, filepath, description, tags, src=NULL, replace=F, 
 #' raised. A different name can be specified through the rename
 #' parameter in such cases.
 #' @param repo An object of class repo.
-#' @param name A character containing the name of the variable to store.
-#' @param rename An optional character containing the new name for the
-#' variable. Useful if a non-stash variable named "name" already
-#' exists.
-#' @param env Environment containing the variable by the specified
-#' name. Resolves to parent frame by default.
+#' @param object The object to store in the repo.
+#' @param name An optional character containing the new name for the
+#' item. Otherwise the name of object is used as item's name.
 #' @return Used for side effects.
-#' @seealso repo_put
+#' @seealso repo_put, repo_lazydo
 #' @examples
 #' repo_path <- file.path(tempdir(), "example_repo")
 #' repo <- repo_open(repo_path, TRUE)
 #' tempdata <- runif(10)
-#' repo$stash("tempdata")
+#' repo$stash(tempdata)
 #' repo$info("tempdata")
 #'
 #' ## wiping temporary repo
 #' unlink(repo_path, TRUE)
-repo_stash <- function(repo, name, rename, env=parent.frame())
-    repo$stash(name, rename, env)
+repo_stash <- function(repo, object, name=deparse(substitute(object)))
+    repo$stash(object, name)
 
 #' Remove all stashed data
 #'

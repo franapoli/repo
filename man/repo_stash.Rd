@@ -4,19 +4,15 @@
 \alias{repo_stash}
 \title{Quickly store temporary data}
 \usage{
-repo_stash(repo, name, rename, env = parent.frame())
+repo_stash(repo, object, name = deparse(substitute(object)))
 }
 \arguments{
 \item{repo}{An object of class repo.}
 
-\item{name}{A character containing the name of the variable to store.}
+\item{object}{The object to store in the repo.}
 
-\item{rename}{An optional character containing the new name for the
-variable. Useful if a non-stash variable named "name" already
-exists.}
-
-\item{env}{Environment containing the variable by the specified
-name. Resolves to parent frame by default.}
+\item{name}{An optional character containing the new name for the
+item. Otherwise the name of object is used as item's name.}
 }
 \value{
 Used for side effects.
@@ -39,10 +35,13 @@ parameter in such cases.
 repo_path <- file.path(tempdir(), "example_repo")
 repo <- repo_open(repo_path, TRUE)
 tempdata <- runif(10)
-repo$stash("tempdata")
+repo$stash(tempdata)
 repo$info("tempdata")
 
 ## wiping temporary repo
 unlink(repo_path, TRUE)
+}
+\seealso{
+repo_put, repo_lazydo
 }
 

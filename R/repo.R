@@ -47,7 +47,7 @@ repo_open <- function(root="~/.R_repo", force=F)
                        message("lazydo found precomputed resource.")
                    },
                    "LAZY_NOT_FOUND" = {
-                       ## message("Repo needs to build resource.")
+                       message("lazydo is building resource from code.")
                    },
                    "DATA_ALREADY_THERE" = {
                        stop(paste0("There is existing content for ", lpars, ". ",
@@ -967,8 +967,9 @@ repo_open <- function(root="~/.R_repo", force=F)
         },
 
 
-        stash = function(name, rename = name, env=parent.frame())
-            {
+        stash = function(object, rename = deparse(substitute(object)))
+        {
+            name <- deparse(substitute(object))
                 if(!stopOnEmpty(T)){
                     e <- getEntry(rename)
                     if(!is.null(e))
@@ -977,8 +978,7 @@ repo_open <- function(root="~/.R_repo", force=F)
                                        "try setting the rename parameter."))
                 }
             
-            obj <- get(name, envir=env)
-            get("this", thisEnv)$put(obj, rename, "Stashed object",
+            get("this", thisEnv)$put(object, rename, "Stashed object",
                                      c("stash", "hide"), replace=T)
         },
 

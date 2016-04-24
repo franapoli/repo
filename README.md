@@ -11,17 +11,19 @@ dev or master branch for a safer version. You may really want to backup *at
 least* your repo index file before trying this branch (your index file
 is in `repo$root()`).
 
-# News for the untested branch
-(main news in the NEWS file)
+# News
+(old news in the NEWS file)
 
 04/24/2016
 
++ passes `devtools::check()`
++ stash simplified (now `stash(x)` instead of `stash("x")`)
 + Fixed bug when replacing entries due to new scheme for naming files.
 
 03/20/3026
 
 + Fixed warnings in cpanel
-+ All check() now passed
++ All `check()` now passed
 + Merged latest fix from the dev branch
 + The NEWS file now used for main news
 

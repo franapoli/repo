@@ -28,4 +28,7 @@ repo$stashclear(TRUE)
 ## wiping temporary repo
 unlink(repo_path, TRUE)
 }
+\seealso{
+repo_rm, repo_stash
+}
 

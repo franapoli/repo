@@ -27,8 +27,12 @@ stashed.
 }
 \details{
 The expression results are stashed as usual. The name of
-    the resource is obtained by digesting the expression, so it
-    will look like an MD5 string in the repo.
+the resource is obtained by digesting the expression, so it will
+look like an MD5 string in the repo. Note that the expression, and
+not its result, will uniquely identify the item in the repo.
+
+The new item is automatically tagged with "stash", "hide" and
+"lazydo".
 }
 \examples{
 repo_path <- file.path(tempdir(), "example_repo")
@@ -45,13 +49,13 @@ expr <- expression(
     }
 )
 
-system.time(repo$lazydo(expr)) # first run
+system.time(v <- repo$lazydo(expr)) # first run
 ## Repo needs to build resource.
 ## [1] "Done."
 ##    user  system elapsed
 ##   0.006   0.000   1.007
 
-system.time(repo$lazydo(expr)) # second run
+system.time(v <- repo$lazydo(expr)) # second run
 ## Repo found precomputed resource.
 ##    user  system elapsed
 ##   0.000   0.004   0.001
@@ -66,5 +70,8 @@ repo$rm(resname) ## single cached item cleared
 
 ## wiping temporary repo
 unlink(repo_path, TRUE)
+}
+\seealso{
+repo_stash, repo_put
 }
 

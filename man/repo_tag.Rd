@@ -34,4 +34,7 @@ repo$print(show="t")
 ## wiping temporary repo
 unlink(repo_path, TRUE)
 }
+\seealso{
+repo_untag, repo_set
+}
 

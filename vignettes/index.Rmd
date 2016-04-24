@@ -102,7 +102,7 @@ repo$put(
         "with default parameters."
     ),
     tags = c("dataset", "iris", "repodemo"), 
-    src = src, 
+    src = src
 )
 ```
 
@@ -452,7 +452,7 @@ the precomputed variable from the repo.
 ```{r include=FALSE}
 dorun <- FALSE
 result <- "This took 10 seconds to compute"
-repo$stash("result")
+repo$stash(result)
 ```
 
 ```{r}
