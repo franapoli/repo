@@ -12,20 +12,19 @@ least* your repo index file before trying this branch (your index file
 is in `repo$root()`).
 
 # News
-(old news in the NEWS file)
+(Detailed log in the NEWS file)
 
-04/24/2016
+New stable release 1.10.1.0 includes:
++ `find` method to search any item field
++ "maybe you were looking for" feature in `get`
++ `lazydo` (execute expression with cache)
++ `pull` (download item content from URL)
++ multiple tags can be matched with OR, AND, NOT or custom functions
++ safer item replacement
++ relative paths (easier to move a repo or use remote repos)
++ preliminary Shiny interface
++ other minor improvements and bug fixes
 
-+ passes `devtools::check()`
-+ stash simplified (now `stash(x)` instead of `stash("x")`)
-+ Fixed bug when replacing entries due to new scheme for naming files.
-
-03/20/3026
-
-+ Fixed warnings in cpanel
-+ All `check()` now passed
-+ Merged latest fix from the dev branch
-+ The NEWS file now used for main news
 
 # Repo
 

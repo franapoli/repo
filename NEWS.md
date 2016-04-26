@@ -1,9 +1,23 @@
 # News
+04/24/2016
 
-04/01/2016
++ passes `devtools::check()`
++ stash simplified (now `stash(x)` instead of `stash("x")`)
++ Fixed bug when replacing entries due to new scheme for naming files.
+
+01/04/2016
 
 + Bugfixes in lazydo
 + Minor additions to docs
+
+
+03/20/3026
+
++ Fixed warnings in cpanel
++ All `check()` now passed
++ Merged latest fix from the dev branch
++ The NEWS file now used for main news
+
 
 03/19/2016
 
@@ -28,7 +42,7 @@
 + Sources are now auto-attached
 + Added safe-remove of data
 + Added auto-attach of sources
-+ Added notes filed
++ Added notes field
 
 10/21/2015
 
