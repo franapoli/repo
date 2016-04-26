@@ -3,17 +3,11 @@
 [1]: http://www.twitter.com/franapoli
 <!-- Grab your social icons from https://github.com/carlsednaoui/gitsocial -->
 
-# Dev branch
-
-This is the Repo development branch. It is merged from the untested
-branch as soon as all example code runs without errors. Stable
-releases are instead moved to the master branch.
-
 
 # News
 (Detailed log in the NEWS file)
 
-New stable release 1.10.1.0 includes:
+Stable release 1.10.1.0 includes:
 + `find` method to search any item field
 + "maybe you were looking for" feature in `get`
 + `lazydo` (execute expression with cache)
@@ -38,7 +32,7 @@ Repo was developed by Francesco Napolitano [![alt text][1.2]][1]
 ## Getting Started
 
 Please check out the getting started guide
-[here](https://rawgit.com/franapoli/repo/gh-pages-dev/index.html).
+[here](https://rawgit.com/franapoli/repo/gh-pages/index.html).
 
 
 ## Download and Installation
