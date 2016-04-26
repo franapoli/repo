@@ -1,10 +1,10 @@
 ---
-title: "Getting started with the *repo* R Data Manager"
+title: "Getting started with the *Repo* R Data Manager"
 date:
 author: "Francesco Napolitano"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Getting started with repo}
+  %\VignetteIndexEntry{Getting started with Repo}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -13,294 +13,223 @@ vignette: >
 library(knitr)
 knitr::opts_chunk$set(fig.width=7, fig.height=7, comment="")
 ```
+
+<small><i>Based on Repo build  `r packageVersion("repo")`</i></small>
+
 ## Introduction
 
-This is a getting-started guide to the *repo* R package, which
-implements an R objects repository manager. The motivations behind
-the development of *repo* concern both scientific considerations,
-as a tool to improve reproducibility in computational research, and
-practical, as a solution to everyday problems of people working in
-the same fields.
+This is a getting-started guide to the **Repo** R package, which
+implements an R objects repository manager.  It is a **data-centered
+data flow manager**.
 
-Data analysis is a also a data multiplication activity. Starting
-from an initial resource, derived ones are built, each of which can
-be used in turn to build more processed data. After working for a
-while on data analysis projects, simple repetitive tasks such as
-locating a resource built in the past (what was its name? in which
-directory was it stored? for which project? on which machine?) or
-remembering how it had been made (which model?  which parameters?
-which script?) can quickly become daunting.
-
-The *repo* package tries to help with such everyday issues. It
-builds one (or more) centralized local repository where R objects
-are stored together with corresponding annotations, tags,
-dependency notes, provenance traces. Once a repository has been
-populated, the user is presented with a structured collection of
-all the stored resources, which can be easily explored, navigated,
-modified, imported and exported.
+The Repo package builds one (or more) centralized local repository
+where R objects are stored together with corresponding annotations,
+tags, dependency notes, provenance traces, notes, source code. Once a
+repository has been populated, stored objects can be easily searched,
+navigated, edited, imported/exported. Repo can store and manage both
+R data objects and generic files with dedicated functions. Repo
+supports a Shiny interface for visual interaction with repositories.
 
 Main features include:
 
 * Store R objects in a central repository
-* Retrieve any stored object simply by its name
-* Store object description, tags, provenance trace
-* Search items by names or tags
-* Show details repository-wise or item-wise
-* Build and plot items dependency trees
+* Load into R session any stored object by name
+* Store object description, tags, provenance trace, source code
+* Search items by names, tags or text in the description
+* Simple and easy versioning
+* Summarize repository-wise or item-wise details
+* Build and plot item dependency trees
 * Attach regular files to repo items
 * Run system commands on stored attachments
-* Quickly store temporary data
-* Store multiple versions of the same resource
-* Concurrent access to the same repository
+* Quickly store cache/temp data
+* Run expression with automatic caching of results
+* Safe concurrent accesses to the same repository
 * Copy items between repositories
 * Export items back to regular R data files
-* Check repository integrity through MD5 checksums
+* Check data integrity
 
-What follows is a walk-through aimed at quickly introducing to most
-of the *repo* features.
+What follows is a walk-through aimed at quickly introducing to the main
+features of Repo.
 
 ## Preparation
 
-First of all, the following will enable repo:
-
+First of all, the following will enable Repo:
 
 ```{r}
 library(repo)
 ```
 
-The file name of a script is a good provenance trace for all the
-data produced by it. The R function *normalizePath* can be used to
-obtain the full path of the file. However, for this guide I won't
-include paths from my hard drive:
+The file name of a script is a good provenance trace for all the data
+produced by it. The R function `normalizePath` can be used to obtain
+the full path of the file. For this guide, however, it will be
+avoided:
 
 
 ```{r}
-src <- "repodemo.R"
+src <- "index.Rmd"
 ```
 
-The following command creates a new repository below a temporary
-path, which is ok for this demo. By default the repository would
-instead be created under "~/.R_repo". The same function opens the
-repository if already exists. To avoid confirmation requests during
-the generation of this document, they're turned off through the
-*force* parameter. The variable *repo* will be used as the main
-interface to the repository throughout this guide.
-
+The following command creates a new repository in a temporary path,
+which is ok for this demo. By default the repository is instead
+created under "~/.R_repo". The same function opens existing
+repositories. The variable `rp` will be used as the main interface
+to the repository throughout this guide.
 
 ```{r}
-repo <- repo_open(tempdir(), force=T)
+rp <- repo_open(tempdir(), force=T)
 ```
 
 ## Populating the repository
 
-In this section, some data will be stored inside the repository
-just created, namely: a normalized version of the Iris
-dataset; a dimensionality-reduced and a clustering of the same
-data; some visualizations.
-
-
-### Storing data in the repository
-
-The Iris dataset is readily found in the *datasets* R
-package. However, here a normalized version of it will be stored in
-the repo. Here's the data to store:
-
+Here is a normalized version of the *Iris* dataset to be stored in the
+repository:
 
 ```{r}
 myiris <- scale(as.matrix(iris[,1:4]))
 ```
 
-A call to *repo$put* will provide the following parameters to
-properly store the object in the repository:
-
-* **obj** The variable containing the object to store: *myiris*.
-
-* **name** An identifier for the variable. At the moment any string is
-accepted, but this may change in favor of sanitized names. Best
-practice is to use a short name without special characters.
-
-* **description** A verbose description of the variable contents.
-
-* **tags** A set of tags. Tags are used to subset the repo for many
-purposes. For example in order to be able to select only items
-produced by this script, a specific tag will be added accordingly
-(*repodemo*).
-
-* **src** Name of the file containing the source code that
-generated the object being *put*. This part of the object's
-"provenance trace".
-
-* **replace** A logical that tells *repo* whether to overwrite an
-existing entry by the same name. Setting it to *true* allows to run
-a script over without interruptions.
-
-Thus, the following call to the *put* method will store the
-contents of *myiris* in the repo. The data will be actually saved
-in the repo root in RDS format.
-
+The following call to the `put` method stores the contents of `myiris`
+in the repo. The data will be actually saved in the repo root in RDS
+format.
 
 ```{r}
-repo$put(
-    obj = myiris,    
-    name = "myiris",    
+rp$put(
+    obj = myiris,
+    name = "myiris", 
     description = paste(
         "A normalized version of the iris dataset coming with R.",
         "Normalization is made with the scale function",
         "with default parameters."
     ),
-    tags = c("dataset", "iris", "repodemo"),    
-    src = src,    
-    replace=T
+    tags = c("dataset", "iris", "repodemo"), 
+    src = src
 )
 ```
 
-In this example, the class annotation will be stored
-separately. Here's a more compact call to *put*:
+The call provides the data to be stored (`obj`), an identifier (`name`), a
+longer *description*, a list of *tags*, the name of the *source* file that
+generated the data.
 
+In this example, the Iris class annotation will be stored
+separately. Here's a more compact call to `put`:
 
 ```{r}
-repo$put(iris$Species, "irisLabels", "The Iris class lables.",
-         c("labels", "iris", "repodemo"), src, replace=T)
+rp$put(iris$Species, "irisLabels", "The Iris class lables.",
+         c("labels", "iris", "repodemo"), src)
 ```
 
 ### Attaching visualizations
 
-The Iris dataset is 4D and PCA can be used to produce a 2D
-visualization. The following code produces such visualization
+The following code produces a 2D visualization of the Iris data
 and shows it:
 
-
 ```{r}
-irispca <- princomp(myiris)        
+irispca <- princomp(myiris)
 iris2d <- irispca$scores[,c(1,2)]
 plot(iris2d, main="2D visualization of the Iris dataset",
-     col=repo$get("irisLabels"))
+     col=rp$get("irisLabels"))
 ```
 
-Note that *irisLabels* is taken on the fly from the repo. This
-prevents the creation of a variable in the current environment and
-can sometimes be convenient.
+Note that `irisLabels` is loaded on the fly from the repository.
 
-Wouldn't it be nice to store the figure itself in the repo and
-somehow link it to the iris data? This can be done exploiting the
-*attach* method, which can store any file in the repo as is,
-together with usual annotations (description, tags,
-etc.). Internally, *attach* calls *put*, so it accepts most of its
-parameters. However, two differences are worth noting:
+It would be nice to store the figure itself in the repo together with
+the Iris data. This is done using the `attach` method, which stores
+any file in the repo as is, plus annotations. Internally, `attach`
+calls `put`, so it accepts most of its parameters. Two differences are
+worth noting:
 
-* **filepath** Instead of an identifier, *attach* takes a file name
+* **filepath** Instead of an identifier, `attach` takes a file name
 (with path). The file name will be also the item identifier.
 
-* **to** This optional parameter tells repo which item the new one
+* **to** This optional parameter tells Repo which item the new one
 is attached to.
 
 
 ```{r}
-fpath <- file.path(repo$root(), "iris2D.pdf")
+fpath <- file.path(rp$root(), "iris2D.pdf")
 pdf(fpath)
 plot(iris2d, main="2D visualization of the Iris dataset",
-     col=repo$get("irisLabels"))
+     col=rp$get("irisLabels"))
 invisible(dev.off())
-repo$attach(fpath, "Iris 2D visualization obtained with PCA.",
-            c("visualization", "iris", "repodemo"), src, replace=T, to="myiris")
+rp$attach(fpath, "Iris 2D visualization obtained with PCA.",
+            c("visualization", "iris", "repodemo"), src, to="myiris")
 ```
 
-
-*attach* actually creates a copy of the attached file in the repo
-root, so the original one can be safely removed:
-
-
-```{r}
-invisible(file.remove(fpath))
-```
-
-Wanna see something even nicer? The attached PDF can be opened
-using an external PDF viewer directly from repo through the *sys*
-method. On a Linux system, this command will run the Evince
-document viewer and show *iris2D.pdf*:
-
+Note that the PDF temporarily created at `fpath` can be safely removed
+(a copy has been made). The attached PDF can be accessed using an
+external PDF viewer directly from within Repo through the `sys`
+commnad. On a Linux system, this command runs the Evince document
+viewer and shows `iris2D.pdf`:
 
 ```{r, eval=FALSE}
-repo$sys("iris2D.pdf", "evince")
+rp$sys("iris2D.pdf", "evince")
 ```
 
 Back to data analysis, the PCA eigenvalues showed below can give
 hints on the reliability of the 2D plot:
 
-
 ```{r}
 plot(irispca)
 ```
 
- So attaching the plot of the PCA eigenvalues to the plot of the 2D
-visualization could be a good idea. This is attaching to an
-attachment and is OK.
+Thus attaching this plot to the 2D Iris plot could be useful. This is
+attaching to an attachment and is OK.
 
 
 ```{r}
-fpath <- file.path(repo$root(), "irispca.pdf")
+fpath <- file.path(rp$root(), "irisPCA.pdf")
 pdf(fpath)
 plot(irispca)
 invisible(dev.off())
-repo$attach(fpath, "Variance explained by the PCs of the Iris dataset",
-            c("visualization", "iris", "repodemo"), src, replace=T, to="iris2D.pdf")
-invisible(file.remove(fpath))
+rp$attach(fpath, "Variance explained by the PCs of the Iris dataset",
+            c("visualization", "iris", "repodemo"), src, to="iris2D.pdf")
 ```
 
-### Storing results
+### Storing some results
 
 The following code makes a clustering of the Iris data and stores
-it in the repo. There is still one parameter to note here:
+it in the repository. There is one parameter to note:
 
-* **depends** This tells repo that, in order to compute the *kiris*
-variable containing the clustering, data previously stored will be
-necessary, namely *myiris*. This dependency annotation is not
-mandatory, however it helps to keep things sorted as the repo
-grows. Literature on Reproducible Research agrees on the importance
-of "provenance traces": setting this value is definitely encouraged
-practice.
+* **depends** Tells Repo that, in order to compute the `kiris`
+variable, data contained in `myiris` are necessary.
 
+This dependency annotation is not mandatory, however it helps to keep
+things sorted as the repository grows.
 
 ```{r}
 kiris <- kmeans(myiris, 5)$cluster
-repo$put(kiris, "iris_5clu", "Kmeans clustering of the Iris data, k=5.",
+rp$put(kiris, "iris_5clu", "Kmeans clustering of the Iris data, k=5.",
          c("metadata", "iris", "kmeans", "clustering", "repodemo"), src,
          depends="myiris", T)
 ```
 
 The following shows what the clustering looks like. The figure
-will be attached to the repo as well. Note the dependency.
-
+will be attached to the repository as well.
 
 ```{r}
 plot(iris2d, main="Iris dataset kmeans clustering", col=kiris)
 ```
 
 ```{r}
-fpath <- file.path(repo$root(), "iris2Dkm.pdf")
+fpath <- file.path(rp$root(), "iris2Dclu.pdf")
 pdf(fpath)
 plot(iris2d, main="Iris dataset kmeans clustering", col=kiris)
 invisible(dev.off())
-repo$attach(fpath, "Iris K-means clustering.",
-            c("visualization", "iris", "clustering", "kmeans", "repodemo"), src,
-            replace=T, to="iris_5clu")
-invisible(file.remove(fpath))
+rp$attach(fpath, "Iris K-means clustering.",
+	c("visualization", "iris", "clustering", "kmeans", "repodemo"),
+	src, to="iris_5clu")
 ```
 
-
-Finally, the last part of the analysis computes a contingency table
-of the classes versus clusters. Let's assume that this analysis is
-meant to be qualitatively, so the table is not really
-important. However it could come handy in the future. This is a
-possible use case for the special tag *hide*, which prevents an
-item from being shown by default. Attachments are automatically
-*hide*-tagged.
-
+Finally, a contingency table of the Iris classes versus clusters is
+computed below. Let's assume this is just a qualitative sanity check
+that will be rarely accessed, thus it could unnecessarily clog the
+repository. The special tag *hide* prevents an item from being shown
+unless explicitly requested. Attachments are hidden by default.
 
 
 ```{r}
-res <- table(repo$get("irisLabels"), kiris)
-repo$put(res, "iris_cluVsSpecies",
+res <- table(rp$get("irisLabels"), kiris)
+rp$put(res, "iris_cluVsSpecies",
          paste("Contingency table of the kmeans clustering versus the",
                "original labels of the Iris dataset."),
          c("result", "iris","validation", "clustering", "repodemo", "hide"),
@@ -309,190 +238,208 @@ repo$put(res, "iris_cluVsSpecies",
 
 ## Looking at the repository
 
-The *info* method provides details about repo items, but when
-called without arguments it shows some self-explaining information
-about the repo:
-
+The `info` command summarizes some information about a repository:
 
 
 ```{r}
-repo$info()
+rp$info()
 ```
 
-The repo library supports an S3 *print* method that shows the
-contents of the repo. All non-hidden items will be shown, together
-with some details, which by defaults are: name, dimensions, size.
-
+The Repo library supports an S3 `print` method that shows the contents
+of the repository. All non-hidden items will be shown, together with
+some details, which by defaults are: name, dimensions, size.
 
 
 ```{r}
-repo ## by default resolves to print(repo)
+rp ## resolves to print(rp)
 ```
 
-
-As expected, hidden items are not shown. The following makes all
+Hidden items are... hidden. The following makes all
 the items appear:
 
 
-
 ```{r}
-print(repo, all=T)
+print(rp, all=T)
 ```
 
-Items can also be listed selectively. With the following call, only
+Items can also be filtered. With the following call, only
 items tagged with "clustering" will be shown:
 
 
 ```{r}
-print(repo, tags="clustering", all=T)
+print(rp, tags="clustering", all=T)
 ```
 
 All attachments have the *attachment* tag, so they can be
 selectively visualized this way:
 
 
-
 ```{r}
-print(repo, tags="attachment", all=T)
+print(rp, tags="attachment", all=T)
 ```
 
-For the same reasons, one may want to show only hidden items:
-
-
-```{r}
-print(repo, tags="hide", all=T)
-```
-
-Finally, also the columns shown can be selected. This command shows
-only the tags:
+Hidden state also depends on a special tag:
 
 
 ```{r}
-repo$print(show="t", all=T)
+print(rp, tags="hide", all=T)
 ```
+
+print can show information selectively. This command shows tags and
+size on disk:
+
+
+```{r}
+rp$print(show="st")
+```
+
+The `find` command will try to match a search string against all item
+fields in the repository:
+
+```{r}
+rp$find("clu", all=T)
+```
+
+
+It is also possible to obtain a visual synthetic summary of the
+repository by using the `pies` command:
+
+```{r}
+rp$pies()
+```
+
+If the *Shiny* library is installed, the following command will show a
+Shiny interface to the repository:
+
+```{r, eval=F}
+rp$cpanel()
+```
+
+Finally, the `check` command runs an integrity check verifying that
+the stored data has not been modified/corrupted. The command will also
+check the presence of extraneous (not indexed) files. Since the `rp`
+repository was created in a temporary directory, a few extraneous
+files will pop up.
+
+```{r}
+rp$check()
+```
+
 
 ### Showing dependencies
 
-In the previous sections dependencies were set for some items. In
-addition, some items were stored as attachment to other
-items. Finally, all items were annotated as being produced by
-this script. In repo, all these relations are summarized in the
-*dependency graph*. The formal representation of the graph is a
-matrix, in which the entry (i,j) represent a relation from i to j
-of type 1, 2 or 3 (*dependency*, *attachment* or
+In Repo, the relations "generated by", "attached to" and "dependent
+on" are summarized in a *dependency graph*. The formal representation
+of the graph is a matrix, in which the entry (i,j) represent a
+relation from i to j of type 1, 2 or 3 (*dependency*, *attachment* or
 *generation*). Here's how it looks like:
 
 
 ```{r}
-depgraph <- repo$dependencies(plot=F)
+depgraph <- rp$dependencies(plot=F)
 rownames(depgraph) <- colnames(depgraph) <- basename(rownames(depgraph))
 library(knitr)
 kable(depgraph)
 ```
 
-Omitting the *plot=F* parameter, the *dependencies* method will
+Omitting the `plot=F` parameter, the *dependencies* method will
 plot the dependency graph. This plot requires the *igraph* library.
 
 
-
 ```{r}
-repo$dependencies()
+rp$dependencies()
 ```
 
-This is a small repo and all resources were created by the same
+This is a small repository and all resources were created by the same
 script, so the "generated" edges are not interesting. The three
 types of edges can be shown selectively, so here's how the graph
 looks like without the "generated" edges:
 
 
-
 ```{r}
-repo$dependencies(generated=F)
+rp$dependencies(generated=F)
 ```
 
 ## Accessing items in the repo
 
-Of course, the only purpose of storing things is to retrieve them
-later, and this is why the most used command in repo is *get*. It's
-meaning is very straightforward. The following command retrieves
-the variable *myiris* from the repo and loads it into the variable
-*x* in the current environment.
-
+The `get` command is used to retrieve items from a repository. In the
+following the variable `myiris` is loaded into the variable `x` in the
+current environment.
 
 
 ```{r}
-x <- repo$get("myiris")
+x <- rp$get("myiris")
 ```
 
-To get additional information about the entry, the *info* command
+To get additional information about the entry, the `info` command
 can be used this way:
 
 
 ```{r}
-repo$info("myiris")
+rp$info("myiris")
 ```
 
-## Item versions and temporary items
+## Item versions, temporary items, remote contents
 
-There are actually 4 different ways of adding an object to the
-repo:
+There are actually 4 different ways of adding an object to a
+repository:
 
-* Add a new object (*repo$put*)
-* Overwrite an existing object (*repo$put(replace=T)*)
-* Add a new version of an existing object (*repo$put(addversion = T)*)
-* Stash an object as temporary (*repo$stash*)
+* Add a new object (`rp$put`)
+* Overwrite an existing object (`rp$put(replace=T)`)
+* Add a new version of an existing object (`rp$put(replace="addversion")`)
+* Stash an object as temporary (`rp$stash`)
+* Download remote item contents (`rp$pull`)
 
-The first two were covered before, this section will deal with the
-other other two.
+This section will cover versioning, stashing and pulling.
 
 ### Versioning
 
-If you're into Machine Learning, you know that if you run K-means
-twice, you're likely going to get two different solutions. Suppose
-we want to store such an alternative solution as an additional
-version of the *iris_5clu* item. This can be done as follows:
+The K-means algorithm will likely provide different solutions over
+multiple runs. One may want to store an alternative clustering
+solution as an additional version of the `iris_5clu` item. This can be
+done as follows:
 
 
 ```{r}
 kiris2 <- kmeans(myiris, 5)$cluster
-repo$put(kiris, "iris_5clu",
+rp$put(kiris, "iris_5clu",
          "Kmeans clustering of the Iris data, k=5. Today's version!",
          c("metadata", "iris", "kmeans", "clustering", "repodemo"), src,
-         depends="myiris", addversion=T)
+         depends="myiris", replace="addversion")
 ```
 
-* **addversion** when TRUE, tells repo to add a new version of an
-existing object. The new object will replace the old one and the
-old one will be renamed adding the suffix "#N", with N being an
-incremental integer.
+* **addversion** when replace is set to "addversion", Repo will add a
+new version of an existing object. The new object will replace the old
+one and the old one will be renamed adding the suffix "#N", with N
+being an incremental integer.
 
-The new repo looks like the old one:
+The new repository looks like the old one:
 
 
 ```{r}
-repo
+rp
 ```
 
-Except that *iris_5clu* is actually the one just put (look at the
+Except that `iris_5clu` is actually the one just put (look at the
 description):
 
 
 ```{r}
-repo$info("iris_5clu")
+rp$info("iris_5clu")
 ```
 
 while the old one has been renamed and hidden:
 
 
 ```{r}
-repo$print(all=T)
+rp$print(all=T)
 ```
 
-However, it can be referred to as any other repo item:
+However, it can be referred to as any other item in the repository:
 
 
 ```{r}
-repo$info("iris_5clu#1")
+rp$info("iris_5clu#1")
 ```
 
 ### Stashing
@@ -506,62 +453,92 @@ Consider the case of caching intermediate results. Intermediate
 results are not going to be used directly, however they will save
 time in case the final results have to be generated again. In such
 cases one can just store the intermediate results without
-specifying annotations: in repo, this is called *stashing*.
+specifying annotations: in Repo, this is called *stashing*.
 
-Below is a fake computation that takes 10 secs and that one does
-not want to perform during, for example, report generation. One may
-set the *dorun* variable to FALSE (BTW that's my personal practice)
-so that the script will *get* the precomputed variable from the
-repo.
+Below is a fake computation taking 10 seconds. In the following, one
+may set the `dorun` variable to FALSE so that the script will `get`
+the precomputed variable from the repository.
 
 ```{r include=FALSE}
 dorun <- FALSE
 result <- "This took 10 seconds to compute"
-repo$stash("result")
+rp$stash(result)
 ```
 
 ```{r}
 if(dorun) {
     Sys.sleep(10)
     result <- "This took 10 seconds to compute"
-    repo$stash("result")
-} else result <- repo$get("result")
+    rp$stash(result)
+} else result <- rp$get("result")
 ```
 
-The *stash* function has a rather rough behavior: it will search
-the object *name* in the caller environment, create some generic
-descriptions and tags, *put* the object into the repo overwriting
+The `stash` function has a rather rough behavior: it will search
+the object `name` in the caller environment, create some generic
+descriptions and tags, `put` the object into the repo overwriting
 stashed items by the same name, and finally hide the newly created
 item.
 
 
 ```{r}
-repo$info("result")
+rp$info("result")
+```
+
+It is also possible to automate the process of stashing data for caching
+purposes by using the `lazydo` command. The `lazydo` command will run
+an expression and stash the results. When the same expression is run
+again, the results will be rather loaded from the the repository.
+
+```{r}
+expr <- expression({
+	Sys.sleep(10)
+	result <- "This took 10 seconds to compute"
+})
+	
+system.time(rp$lazydo(expr)) # first run
+system.time(rp$lazydo(expr)) # second run
+```
+
+### Pulling
+
+Existing items can feature an *URL* property. The `pull` function is
+meant to update item contents by downloading them from the
+Internet. This allows for the distribution of "stub" repositories
+containing all items information but not the actual data. The
+following code creates an item provided with a remote URL. A call to
+`pull` overwrite the stub local content with the remote content.
+
+```{r}
+rp$put("Local content", "item1",
+	"This points to big data you may want to download",
+	"tag", URL="http://www.francesconapolitano.it/repo/remote")
+print(rp$get("item1"))
+rp$pull("item1", replace=T)
+print(rp$get("item1"))
 ```
 
 ## Handlers
 
-It's a shame that the auto-completion feature by your favorite
-editor can not be used on repo item names. Except it can. The
-*handlers* method returns a list of functions by the same names of
-the items in the repo. Each of these functions can call repo
-methods (*get* by default) on the corresponding items. Easier by
-examples:
+It's a shame that the auto-completion feature by your favorite R
+working environment can not be used on repo item names. Except it
+can. The `handlers` method returns a list of functions by the same
+names of the items in the repo. Each of these functions can call Repo
+methods (`get` by default) on the corresponding items.
 
 
 ```{r}
-h <- repo$handlers()
+h <- rp$handlers()
 names(h)
 ```
 
-Handlers call *get* by default:
+Handlers call `get` by default:
 
 
 ```{r}
 print(h$iris_cluVsSpecies())
 ```
 
-The *tag* method (not yet described)  adds a tag to an item:
+The `tag` command (not yet described)  adds a tag to an item:
 
 
 ```{r}
@@ -573,7 +550,7 @@ One may want to open a repo directly with:
 
 
 ```{r}
-h <- repo_open(repo$root())$handlers()
+h <- repo_open(rp$root())$handlers()
 ```
 
 
@@ -591,15 +568,6 @@ If items are removed or added, handlers may need a refresh:
 h <- h$repo$handlers()
 ```
 
-## Clearing the repository
-
-The following R command will completely remove the repo root and all
-the objects stored in it (in fact this could be rather dangerous):
-
-```{r}
-unlink(repo$root(), recursive=TRUE)
-```
-
 
 ## Other features
 
@@ -611,8 +579,8 @@ help(repo)
 ```
 
 All repo methods are also defined as functions in the global
-environment. Any call like *repo$func(x)* can be executed as
-*repo_func(repo, x)*. In order to get help on the function "func",
+environment. Any call like `rp$func(x)` can be executed as
+`repo_func(rp, x)`. In order to get help on the function "func",
 try the following:
 
 
@@ -620,20 +588,7 @@ try the following:
 help(repo_func)
 ```
 
-Here's a summary of most repo functions:
 
-
-|Method     |Description                                                 |
-|:----------|:-----------------------------------------------------------|
-|rm         |remove an item                                              |
-|export     |save an item's object to a regular RDS file                 |
-|set        |edit an existing entry                                      |
-|tag        |add a tag to an existing entry                              |
-|untag      |remove a tag from an existing entry                         |
-|sys        |execute a system command on the file referred to by an item |
-|tags       |show the complete list of tags in the repo                  |
-|check      |check repository integrity                                  |
-|stashclear |remove all stashed items                                    |
-|root       |get the repo root path                                      |
-
-
+```{r, include=F}
+unlink(rp$root(), recursive=T)
+```
