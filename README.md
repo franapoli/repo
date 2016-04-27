@@ -3,7 +3,7 @@
 [1]: http://www.twitter.com/franapoli
 <!-- Grab your social icons from https://github.com/carlsednaoui/gitsocial -->
 
-# Repo
+## Repo
 
 Repo is a data-centered data flow manager. It allows to store R data
 files in a central local repository, together with tags, annotations,
@@ -13,7 +13,7 @@ easily located and loaded through the repo interface.
 Repo was developed by Francesco Napolitano [![alt text][1.2]][1]
 
 
-# Development branches
+## Development branches
 
 + [Master](https://github.com/franapoli/repo/tree/master): stable major
 releases, usually in sync with CRAN version.
