@@ -1,4 +1,8 @@
 # News
+04/27/2016
+
++ Bug fixes in lazydo and parameter check
+
 04/24/2016
 
 + passes `devtools::check()`
