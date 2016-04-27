@@ -1,4 +1,13 @@
 
+## NOTES:
+## rp$rm now hase force = F, it was without default
+## repo_rm did not include force, now added
+## confirmed and fixed bug with lazydo
+##
+## TODO:
+## + `repo` should become `rp` in examples (repoS3.R)
+## - check if lazydo puts crazy things in the `description` field
+
 globalVariables(c("DEBUG", "entries", "this"))
 
 library(digest) # digest
@@ -48,6 +57,12 @@ repo_open <- function(root="~/.R_repo", force=F)
                    },
                    "LAZY_NOT_FOUND" = {
                        message("lazydo is building resource from code.")
+                   },
+                   "LAZY_NOT_EXPR" = {
+                       stop("expr must be of class expression.")
+                   },
+                   "LAZY_NAME" = {
+                       message(paste0("Cached item name is: ", lpars))
                    },
                    "DATA_ALREADY_THERE" = {
                        stop(paste0("There is existing content for ", lpars, ". ",
@@ -196,8 +211,8 @@ repo_open <- function(root="~/.R_repo", force=F)
             entr <- entries
             names <- sapply(entr[e], get, x="name")
             if(askconfirm) {
-                cat(paste0("Matched entries: ",
-                               paste(names, collapse=", "), "\n"))
+                cat(paste0("Matched entries:\n",
+                               paste(names, collapse="\n"), "\n"))
                 n <- readline("Type \"yes\" to confirm: ")
             } else n <- "yes"
             if(n == "yes") {
@@ -742,7 +757,7 @@ repo_open <- function(root="~/.R_repo", force=F)
             }
         },
 
-        rm = function(name = NULL, tags = NULL, force)
+        rm = function(name = NULL, tags = NULL, force = F)
         {
           checkIndexUnchanged()                   
             
@@ -878,19 +893,25 @@ repo_open <- function(root="~/.R_repo", force=F)
 
       lazydo = function(expr, force=F, env=parent.frame())
       {
-          resname <- digest(substitute(expr))
+          if(!is.expression(expr))
+              handleErr("LAZY_NOT_EXPR")
+          
+          src <- as.character(expr)
+          resname <- digest(src)
+
           if(checkName(resname) || force)
           {
               handleErr("LAZY_NOT_FOUND")
               res <- eval(expr, envir=env)
-              get("this", thisEnv)$stash("res",resname)
+              get("this", thisEnv)$stash(res, resname)
               get("this", thisEnv)$set(resname,
-                                       description=as.character(expr),
+                                       description=quote(expr),
                                        addtags="lazydo")
+              handleErr("LAZY_NAME", resname)
               return(res)
           } else {
               handleErr("LAZY_FOUND")
-               return(get("this", thisEnv)$get(resname))
+              return(get("this", thisEnv)$get(resname))
            }
       },
 
