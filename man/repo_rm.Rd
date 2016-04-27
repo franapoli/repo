@@ -4,7 +4,7 @@
 \alias{repo_rm}
 \title{Remove item from the repo (and the disk).}
 \usage{
-repo_rm(repo, name = NULL, tags = NULL)
+repo_rm(repo, name = NULL, tags = NULL, force = F)
 }
 \arguments{
 \item{repo}{An object of class repo.}
@@ -13,6 +13,8 @@ repo_rm(repo, name = NULL, tags = NULL)
 
 \item{tags}{A list of tags: all items matching the list will be
 removed.}
+
+\item{force}{Don't ask for confirmation.}
 }
 \value{
 Used for side effects.

@@ -361,6 +361,7 @@ repo_info <- function(repo, name = NULL, tags = NULL)
 #' @param name An item's name.
 #' @param tags A list of tags: all items matching the list will be
 #' removed.
+#' @param force Don't ask for confirmation.
 #' @return Used for side effects.
 #' @examples
 #' repo_path <- file.path(tempdir(), "example_repo")
@@ -373,8 +374,8 @@ repo_info <- function(repo, name = NULL, tags = NULL)
 #'
 #' ## wiping temporary repo
 #' unlink(repo_path, TRUE)
-repo_rm <- function(repo, name = NULL, tags = NULL)
-    repo$rm(name, tags)
+repo_rm <- function(repo, name = NULL, tags = NULL, force = F)
+    repo$rm(name, tags, force)
 
 #' Retrieve an item from the repo.
 #' 
