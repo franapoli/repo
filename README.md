@@ -3,28 +3,6 @@
 [1]: http://www.twitter.com/franapoli
 <!-- Grab your social icons from https://github.com/carlsednaoui/gitsocial -->
 
-# Dev branch
-
-This is the Repo development branch. It is merged from the untested
-branch as soon as all example code runs without errors. Stable
-releases are instead moved to the master branch.
-
-
-# News
-(Detailed log in the NEWS file)
-
-New stable release 1.10.1.0 includes:
-+ `find` method to search any item field
-+ "maybe you were looking for" feature in `get`
-+ `lazydo` (execute expression with cache)
-+ `pull` (download item content from URL)
-+ multiple tags can be matched with OR, AND, NOT or custom functions
-+ safer item replacement
-+ relative paths (easier to move a repo or use remote repos)
-+ preliminary Shiny interface
-+ other minor improvements and bug fixes
-
-
 # Repo
 
 Repo is a data-centered data flow manager. It allows to store R data
@@ -35,35 +13,50 @@ easily located and loaded through the repo interface.
 Repo was developed by Francesco Napolitano [![alt text][1.2]][1]
 
 
+# Development branches
+
++ [Master](https://github.com/franapoli/repo/tree/master): stable major
+releases, usually in sync with CRAN version.
+
++ [Dev](https://github.com/franapoli/repo/tree/dev): stable minor 
+releases.
+
++ [Untested](https://github.com/franapoli/repo/tree/untested):
+unstable, in progress versions.
+
+Latest news are found in the NEWS.md file of the "Untested" branch.
+
 ## Getting Started
 
-Please check out the getting started guide
-[here](https://rawgit.com/franapoli/repo/gh-pages-dev/index.html).
+An introductory vignette is available:
+
++ [Built from master
+branch](https://rawgit.com/franapoli/repo/gh-pages/index.html).
+
++ [Built from dev
+branch](https://rawgit.com/franapoli/repo/gh-pages-dev/index.html).
 
 
 ## Download and Installation
 
-### Latest release on CRAN
-
-Repo is now on CRAN, just use:
+Repo is on CRAN and can be installed with:
 
     install.packages("repo")
     
 to install the latest stable release.
 
-### Latest development on GitHub
-
-Latest development version is available on Github at:
+However, CRAN versions are not updated very often. Latest stable
+release can be downloaded from Github at:
 
     https://github.com/franapoli/repo
 
 Repo can be installed from the downloaded sources as follows:
 
-    install.packages("path-to-downloaded-source", type="source", repos=NULL)
+    install.packages("path-to-downloaded-source", repos=NULL)
 
 devtools users can download and install at once the latest development
 version from github as follows:
 
-    install_github("franapoli/repo", ref="dev")
+    install_github("franapoli/repo", ref="master")
 
 
