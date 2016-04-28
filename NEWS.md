@@ -1,4 +1,13 @@
+
 # News
+
+04/28/16
+
++ now src must be an item (meant to be an attachment containing source
+code). Documentation updated accordingly.
++ minor updates to vignette
+
+
 04/27/2016
 
 + Bug fixes in lazydo and parameter check

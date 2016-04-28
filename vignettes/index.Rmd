@@ -1,5 +1,5 @@
 ---
-title: "Getting started with the *Repo* R Data Manager"
+title: "The *Repo* R Data Manager"
 date:
 author: "Francesco Napolitano"
 output: rmarkdown::html_vignette
@@ -13,8 +13,6 @@ vignette: >
 library(knitr)
 knitr::opts_chunk$set(fig.width=7, fig.height=7, comment="")
 ```
-
-<small><i>Based on Repo build  `r packageVersion("repo")`</i></small>
 
 ## Introduction
 
@@ -30,26 +28,12 @@ navigated, edited, imported/exported. Repo can store and manage both
 R data objects and generic files with dedicated functions. Repo
 supports a Shiny interface for visual interaction with repositories.
 
-Main features include:
-
-* Store R objects in a central repository
-* Load into R session any stored object by name
-* Store object description, tags, provenance trace, source code
-* Search items by names, tags or text in the description
-* Simple and easy versioning
-* Summarize repository-wise or item-wise details
-* Build and plot item dependency trees
-* Attach regular files to repo items
-* Run system commands on stored attachments
-* Quickly store cache/temp data
-* Run expression with automatic caching of results
-* Safe concurrent accesses to the same repository
-* Copy items between repositories
-* Export items back to regular R data files
-* Check data integrity
-
 What follows is a walk-through aimed at quickly introducing to the main
 features of Repo.
+
+Repo latest version can be found at: https://github.com/franapoli/repo
+
+Repo is also on CRAN at: https://cran.r-project.org/web/packages/repo/index.html
 
 ## Preparation
 
@@ -501,8 +485,8 @@ again, the results will be rather loaded from the the repository.
 
 ```{r}
 expr <- expression({
-	Sys.sleep(10)
-	result <- "This took 10 seconds to compute"
+	Sys.sleep(3)
+	result <- "This took 3 seconds to compute"
 })
 	
 system.time(rp$lazydo(expr)) # first run
@@ -602,3 +586,6 @@ help(repo_func)
 ```{r, include=F}
 unlink(rp$root(), recursive=T)
 ```
+
+<hr/><small><i>Based on Repo build  `r packageVersion("repo")`</i></small>
+
