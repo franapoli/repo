@@ -678,9 +678,9 @@ repo_stashclear <- function(repo, force=F)
 #' @param description A character description of the item.
 #' @param tags A list of tags to sort the item. Tags are useful for
 #'     selecting sets of items and run bulk actions.
-#' @param src Name of the file containing the source that generates
-#'     obj. The source will be attached to the item. If a source by
-#'     that name already exists, a new version will be created.
+#' @param src Name of an existing item to be recorded as the
+#' "generator" of the new item. Usually it is an attachment item
+#' containing the source that generated the new item.
 #' @param depends List of character: items that depend on this item.
 #' @param replace One of: V, F, "addversion". Default is F. If V,
 #'     overwrite an existing item by the same name. If F stops with an
@@ -690,6 +690,7 @@ repo_stashclear <- function(repo, force=F)
 #'     attachment (see attach).
 #' @param to Optionally specifies which item this item is attached to.
 #' @return Used for side effects.
+#' @seealso get, set, attach, info
 #' @examples
 #' ## Repository creation (or opening, if exists)
 #' repo_path <- file.path(tempdir(), "example_repo")

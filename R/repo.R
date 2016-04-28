@@ -39,9 +39,6 @@ repo_open <- function(root="~/.R_repo", force=F)
                    "TAG_RESERVED" = {
                        warning(paste0("Reserved TAG used: ", lpars))
                    },
-                   "SRC_NOT_FOUND" = {
-                       stop(paste0("Source not found: ", lpars))
-                   },
                    "EMPTY_REPO" = {
                        stop("Repo is empty.")
                    },
@@ -67,6 +64,9 @@ repo_open <- function(root="~/.R_repo", force=F)
                    "DATA_ALREADY_THERE" = {
                        stop(paste0("There is existing content for ", lpars, ". ",
                                    "Use replace=T to overwrite."))
+                   },
+                   "ATTACHMENT_FILE_NOT_FOUND" = {
+                       stop(paste0("Attachment file not found"))
                    }
                    )
 
@@ -342,10 +342,10 @@ repo_open <- function(root="~/.R_repo", force=F)
               stop("One of depends, attached or generated must be true.")
             
             nodes <- unique(unlist(sapply(entries, get, x="name")))
-            if(generated) {
-              srcs <- unique(unlist(sapply(entries, get, x="source")))
-              nodes <- c(nodes, srcs)
-            }
+            ## if(generated) {
+            ##   srcs <- unique(unlist(sapply(entries, get, x="source")))
+            ##   nodes <- c(nodes, srcs)
+            ## }
             n <- length(nodes)
             depgraph <- matrix(0,n,n)
             for(i in 1:length(entries))
@@ -1040,20 +1040,15 @@ repo_open <- function(root="~/.R_repo", force=F)
             
             if(missing(obj) | missing(name) | missing(description) | missing(tags))
                 stop("You must provide all of: obj, name, description, tags.")
-
-
-            if(is.null(src)) {
-                src <- getwd()
-            } else {
-                fcheck <- sapply(src, file.exists)
-                if(!all(fcheck))
-                    handleErr("SRC_NOT_FOUND", src)
-            }
-
+            
             
             if(!is.null(to))
                 asattach <- T
 
+            if(asattach)
+                if(!file.exists(obj))
+                    handleErr("ATTACHMENT_FILE_NOT_FOUND")
+            
             if(name == "repo")
                 handleErr("ID_RESERVED")
 
@@ -1070,6 +1065,9 @@ repo_open <- function(root="~/.R_repo", force=F)
                 tags <- unique(c(tags, "attachment"))
             }
 
+            if(!is.null(src)) 
+                stopOnNotFound(src)
+            
             if(!is.null(to))
                 stopOnNotFound(to)
 

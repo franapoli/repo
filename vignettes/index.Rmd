@@ -59,16 +59,6 @@ First of all, the following will enable Repo:
 library(repo)
 ```
 
-The file name of a script is a good provenance trace for all the data
-produced by it. The R function `normalizePath` can be used to obtain
-the full path of the file. For this guide, however, it will be
-avoided:
-
-
-```{r}
-src <- "index.Rmd"
-```
-
 The following command creates a new repository in a temporary path,
 which is ok for this demo. By default the repository is instead
 created under "~/.R_repo". The same function opens existing
@@ -78,6 +68,17 @@ to the repository throughout this guide.
 ```{r}
 rp <- repo_open(tempdir(), force=T)
 ```
+
+This document is produced by a script named `index.Rmd`. The script
+itself can be added to the repository and newly created resources will
+be annotated as being produced by it. The following code (which will
+be clear later) stores the script.
+
+
+```{r}
+rp$attach("index.Rmd", "Source code for Repo vignette", c("source","Rmd"))
+```
+
 
 ## Populating the repository
 
@@ -89,8 +90,8 @@ myiris <- scale(as.matrix(iris[,1:4]))
 ```
 
 The following call to the `put` method stores the contents of `myiris`
-in the repo. The data will be actually saved in the repo root in RDS
-format.
+in the repository. The data will be actually saved in the repo root in
+RDS format.
 
 ```{r}
 rp$put(
@@ -102,20 +103,20 @@ rp$put(
         "with default parameters."
     ),
     tags = c("dataset", "iris", "repodemo"), 
-    src = src
+    src = "index.Rmd"
 )
 ```
 
-The call provides the data to be stored (`obj`), an identifier (`name`), a
-longer *description*, a list of *tags*, the name of the *source* file that
-generated the data.
+The call provides the data to be stored (`obj`), an identifier
+(`name`), a longer `description`, a list of `tags`, the stored item
+containing the source code that generates the new item (`src`).
 
 In this example, the Iris class annotation will be stored
 separately. Here's a more compact call to `put`:
 
 ```{r}
 rp$put(iris$Species, "irisLabels", "The Iris class lables.",
-         c("labels", "iris", "repodemo"), src)
+         c("labels", "iris", "repodemo"), "index.Rmd")
 ```
 
 ### Attaching visualizations
@@ -152,17 +153,25 @@ plot(iris2d, main="2D visualization of the Iris dataset",
      col=rp$get("irisLabels"))
 invisible(dev.off())
 rp$attach(fpath, "Iris 2D visualization obtained with PCA.",
-            c("visualization", "iris", "repodemo"), src, to="myiris")
+            c("visualization", "iris", "repodemo"),
+              "index.Rmd", to="myiris")
 ```
 
 Note that the PDF temporarily created at `fpath` can be safely removed
 (a copy has been made). The attached PDF can be accessed using an
 external PDF viewer directly from within Repo through the `sys`
-commnad. On a Linux system, this command runs the Evince document
+command. On a Linux system, this command runs the Evince document
 viewer and shows `iris2D.pdf`:
 
 ```{r, eval=FALSE}
 rp$sys("iris2D.pdf", "evince")
+```
+
+As another example, the source code previously attached can be
+visualized as follows:
+
+```{r, eval=FALSE}
+rp$sys("index.Rmd", "evince")
 ```
 
 Back to data analysis, the PCA eigenvalues showed below can give
@@ -182,7 +191,8 @@ pdf(fpath)
 plot(irispca)
 invisible(dev.off())
 rp$attach(fpath, "Variance explained by the PCs of the Iris dataset",
-            c("visualization", "iris", "repodemo"), src, to="iris2D.pdf")
+            c("visualization", "iris", "repodemo"),
+              "index.Rmd", to="iris2D.pdf")
 ```
 
 ### Storing some results
@@ -199,8 +209,8 @@ things sorted as the repository grows.
 ```{r}
 kiris <- kmeans(myiris, 5)$cluster
 rp$put(kiris, "iris_5clu", "Kmeans clustering of the Iris data, k=5.",
-         c("metadata", "iris", "kmeans", "clustering", "repodemo"), src,
-         depends="myiris", T)
+         c("metadata", "iris", "kmeans", "clustering", "repodemo"),
+           "index.Rmd", depends="myiris", T)
 ```
 
 The following shows what the clustering looks like. The figure
@@ -217,7 +227,7 @@ plot(iris2d, main="Iris dataset kmeans clustering", col=kiris)
 invisible(dev.off())
 rp$attach(fpath, "Iris K-means clustering.",
 	c("visualization", "iris", "clustering", "kmeans", "repodemo"),
-	src, to="iris_5clu")
+	"index.Rmd", to="iris_5clu")
 ```
 
 Finally, a contingency table of the Iris classes versus clusters is
@@ -233,7 +243,7 @@ rp$put(res, "iris_cluVsSpecies",
          paste("Contingency table of the kmeans clustering versus the",
                "original labels of the Iris dataset."),
          c("result", "iris","validation", "clustering", "repodemo", "hide"),
-         src, c("myiris", "irisLabels", "iris_5clu"), T)
+         "index.Rmd", c("myiris", "irisLabels", "iris_5clu"), T)
 ```
 
 ## Looking at the repository
@@ -404,8 +414,8 @@ done as follows:
 kiris2 <- kmeans(myiris, 5)$cluster
 rp$put(kiris, "iris_5clu",
          "Kmeans clustering of the Iris data, k=5. Today's version!",
-         c("metadata", "iris", "kmeans", "clustering", "repodemo"), src,
-         depends="myiris", replace="addversion")
+         c("metadata", "iris", "kmeans", "clustering", "repodemo"),
+           "index.Rmd", depends="myiris", replace="addversion")
 ```
 
 * **addversion** when replace is set to "addversion", Repo will add a
