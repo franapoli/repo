@@ -19,9 +19,9 @@ repo_put(repo, obj, name, description, tags, src = NULL, depends = NULL,
 \item{tags}{A list of tags to sort the item. Tags are useful for
 selecting sets of items and run bulk actions.}
 
-\item{src}{Name of the file containing the source that generates
-obj. The source will be attached to the item. If a source by
-that name already exists, a new version will be created.}
+\item{src}{Name of an existing item to be recorded as the
+"generator" of the new item. Usually it is an attachment item
+containing the source that generated the new item.}
 
 \item{depends}{List of character: items that depend on this item.}
 
@@ -96,5 +96,8 @@ repo$info("item1#1")
 
 ## wiping temporary repo
 unlink(repo_path, TRUE)
+}
+\seealso{
+get, set, attach, info
 }
 
