@@ -72,10 +72,6 @@ NULL
 #' rp_path <- file.path(tempdir(), "example_repo")
 #' rp <- repo_open(rp_path, TRUE)
 #' 
-#' ## Putting the source code of this document in the repo
-#' src <- "repo-Ex.R"
-#' rp$attach(src, "example source code", "source")
-#'
 #' ## Producing some irrelevant data
 #' data1 <- 1:10
 #' data2 <- data1 * 2
@@ -83,11 +79,11 @@ NULL
 #'
 #' ## Putting the data in the database, specifying dependencies
 #' rp$put(data1, "item1", "First item",
-#'     "repo_dependencies", src=src)
+#'     "repo_dependencies")
 #' rp$put(data2, "item2", "Item dependent on item1", 
-#'     "repo_dependencies", src=src, depends="item1")
+#'     "repo_dependencies", depends="item1")
 #' rp$put(data3, "item3", "Item dependent on item1 and item2",
-#'     "repo_dependencies", src=src, depends=c("item1", "item2"))
+#'     "repo_dependencies", depends=c("item1", "item2"))
 #'
 #' ## Creating a temporary plot and attaching it
 #' fpath <- file.path(rp$root(), "temp.pdf")
@@ -95,7 +91,7 @@ NULL
 #' plot(data1)
 #' dev.off()
 #' rp$attach(fpath, "visualization of item1", "plot",
-#'    src, to="item1")
+#'    to="item1")
 #'
 #' ## Obtaining the dependency matrix
 #' depmat <- rp$dependencies(plot=FALSE)
@@ -724,10 +720,6 @@ repo_stashclear <- function(rp, force=F)
 #' rp_path <- file.path(tempdir(), "example_repo")
 #' rp <- repo_open(rp_path, TRUE)
 #'
-#' ## Putting the source code of this document in the repo
-#' src <- "repo-Ex.R"
-#' rp$attach(src, "example source code", "source")
-#'
 #' ## Producing some irrelevant data
 #' data1 <- 1:10
 #' data2 <- data1 * 2
@@ -739,19 +731,18 @@ repo_stashclear <- function(rp, force=F)
 #'     name = "item1",
 #'     description = "First item",
 #'     tags = c("repo_put", "a_random_tag"),
-#'     src = src,
 #'     )
 #' rp$put(data2, "item2", "Item dependent on item1",
-#'     "repo_dependencies", src, "item1")
+#'     "repo_dependencies", depends="item1")
 #' rp$put(data3, "item3", "Item dependent on item1 and item2",
-#'     "repo_dependencies", src, c("item1", "item2"))
+#'     "repo_dependencies", depends=c("item1", "item2"))
 #'
 #' print(rp)
 #'
 #' ## Creating another version of item1
 #' data1.2 <- data1 + runif(10)
 #' rp$put(data1.2, name = "item1", "First item with additional noise",
-#'     tags = c("repo_put", "a_random_tag"), src, replace="addversion")
+#'     tags = c("repo_put", "a_random_tag"), replace="addversion")
 #' print(rp, all=TRUE)
 #' rp$info("item1#1")
 #'

@@ -1,3 +1,5 @@
 exportPattern("^[[:alpha:]]+")
 S3method(print, repo)
 import(digest, tools)
+importFrom("utils", "download.file")
+importFrom("graphics", "pie")

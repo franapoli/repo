@@ -57,10 +57,6 @@ The item \code{name} can be any string, however it should
 rp_path <- file.path(tempdir(), "example_repo")
 rp <- repo_open(rp_path, TRUE)
 
-## Putting the source code of this document in the repo
-src <- "repo-Ex.R"
-rp$attach(src, "example source code", "source")
-
 ## Producing some irrelevant data
 data1 <- 1:10
 data2 <- data1 * 2
@@ -72,19 +68,18 @@ rp$put(
     name = "item1",
     description = "First item",
     tags = c("repo_put", "a_random_tag"),
-    src = src,
     )
 rp$put(data2, "item2", "Item dependent on item1",
-    "repo_dependencies", src, "item1")
+    "repo_dependencies", depends="item1")
 rp$put(data3, "item3", "Item dependent on item1 and item2",
-    "repo_dependencies", src, c("item1", "item2"))
+    "repo_dependencies", depends=c("item1", "item2"))
 
 print(rp)
 
 ## Creating another version of item1
 data1.2 <- data1 + runif(10)
 rp$put(data1.2, name = "item1", "First item with additional noise",
-    tags = c("repo_put", "a_random_tag"), src, replace="addversion")
+    tags = c("repo_put", "a_random_tag"), replace="addversion")
 print(rp, all=TRUE)
 rp$info("item1#1")
 
