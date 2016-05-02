@@ -4,10 +4,10 @@
 \alias{repo_lazydo}
 \title{Run expression with cache.}
 \usage{
-repo_lazydo(repo, expr, force = F, env = parent.frame())
+repo_lazydo(rp, expr, force = F, env = parent.frame())
 }
 \arguments{
-\item{repo}{An object of class repo.}
+\item{rp}{An object of class repo.}
 
 \item{expr}{An object of class exrepssion (the code to run).}
 
@@ -35,8 +35,8 @@ The new item is automatically tagged with "stash", "hide" and
 "lazydo".
 }
 \examples{
-repo_path <- file.path(tempdir(), "example_repo")
-repo <- repo_open(repo_path, TRUE)
+rp_path <- file.path(tempdir(), "example_repo")
+rp <- repo_open(rp_path, TRUE)
 expr <- expression(
     {
         v <- vector("numeric", 10)
@@ -49,13 +49,13 @@ expr <- expression(
     }
 )
 
-system.time(v <- repo$lazydo(expr)) # first run
+system.time(v <- rp$lazydo(expr)) # first run
 ## Repo needs to build resource.
 ## [1] "Done."
 ##    user  system elapsed 
 ##   0.006   0.000   1.007
 
-system.time(v <- repo$lazydo(expr)) # second run
+system.time(v <- rp$lazydo(expr)) # second run
 ## Repo found precomputed resource.
 ##    user  system elapsed 
 ##   0.000   0.004   0.001
@@ -64,12 +64,12 @@ system.time(v <- repo$lazydo(expr)) # second run
 library(digest)
 resname <- digest(expr)
 ## Or as the name of the last item added:
-resname <- tail(repo$entries(),1)[[1]]$name
+resname <- tail(rp$entries(),1)[[1]]$name
 
-repo$rm(resname) ## single cached item cleared
+rp$rm(resname) ## single cached item cleared
 
 ## wiping temporary repo
-unlink(repo_path, TRUE)
+unlink(rp_path, TRUE)
 }
 \seealso{
 repo_stash, repo_put

@@ -2,37 +2,39 @@
 % Please edit documentation in R/repoS3.R
 \name{repo_handlers}
 \alias{repo_handlers}
-\title{Provides simplified access to repo items.}
+\title{Provides simplified access to repository items.}
 \usage{
-repo_handlers(repo)
+repo_handlers(rp)
 }
 \arguments{
-\item{repo}{An object of class repo.}
+\item{rp}{An object of class repo.}
 }
 \value{
 A list of functions.
 }
 \description{
 Creates a list of functions, each one associated with a repository
-item, that can be used to access items more directly.
+item, that can be used to access items directly.
 }
 \details{
 Repository handlers are functions associated with
-items. As opposed to item names, they can take advantage of IDE
-autocompletion features and do not require quotation marks. An
-handler to the \code{repo} object itself is provided in the list.
+    items. As opposed to item names, they can take advantage of IDE
+    auto-completion features and do not require quotation marks. A
+    handler to the \code{repo} object itself is provided in the
+    list.
 }
 \examples{
 
-repo_path <- file.path(tempdir(), "example_repo")
-repo <- repo_open(repo_path, TRUE)
+## Repository creation
+rp_path <- file.path(tempdir(), "example_repo")
+rp <- repo_open(rp_path, TRUE)
 
 ## Putting some irrelevant data
-repo$put(1, "item1", "Sample item 1", "repo_handlers", replace=TRUE)
-repo$put(2, "item2", "Sample item 2", "repo_handlers", replace=TRUE)
+rp$put(1, "item1", "Sample item 1", "repo_handlers")
+rp$put(2, "item2", "Sample item 2", "repo_handlers")
 
 ## Getting item handlers
-h <- repo$handlers()
+h <- rp$handlers()
 ## handlers have the same names as the items in the repo (and they include
 ## an handler to the repo itself).
 names(h)
@@ -44,11 +46,11 @@ i1 <- h$item1()
 h$item1("info")
 
 ## After putting new data, the handlers must be refreshed.
-repo$put(3, "item3", "Sample item 3", "repo_handlers", replace=TRUE)
-h <- repo$handlers()
+rp$put(3, "item3", "Sample item 3", "repo_handlers")
+h <- rp$handlers()
 names(h)
 
 ## wiping temporary repo
-unlink(repo_path, TRUE)
+unlink(rp_path, TRUE)
 }
 

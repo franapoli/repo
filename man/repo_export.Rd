@@ -4,10 +4,10 @@
 \alias{repo_export}
 \title{Export \code{repo} items to RDS file.}
 \usage{
-repo_export(repo, name, where = ".", tags = NULL)
+repo_export(rp, name, where = ".", tags = NULL)
 }
 \arguments{
-\item{repo}{An object of class repo.}
+\item{rp}{An object of class repo.}
 
 \item{name}{Name (or list of names) of the item/s to export.}
 
@@ -23,12 +23,12 @@ TRUE on success, FALSE otherwise.
 Export \code{repo} items to RDS file.
 }
 \examples{
-repo_path <- file.path(tempdir(), "example_repo")
-repo <- repo_open(repo_path, TRUE)
-repo$put(1, "item1", "Sample item 1", "export", replace=TRUE)
-repo$export("item1", tempdir()) # creates item1.RDS in a tempdir
+rp_path <- file.path(tempdir(), "example_repo")
+rp <- repo_open(rp_path, TRUE)
+rp$put(1, "item1", "Sample item 1", "export")
+rp$export("item1", tempdir()) # creates item1.RDS in a tempdir
 
 ## wiping temporary repo
-unlink(repo_path, TRUE)
+unlink(rp_path, TRUE)
 }
 

@@ -4,10 +4,10 @@
 \alias{repo_pull}
 \title{Download item remote content}
 \usage{
-repo_pull(repo, name, replace = F)
+repo_pull(rp, name, replace = F)
 }
 \arguments{
-\item{repo}{An object of class repo.}
+\item{rp}{An object of class repo.}
 
 \item{name}{Name of the existing item that will be updated.}
 
@@ -27,18 +27,18 @@ Repo index files can be used as pointers to remote
     downloading it.
 }
 \examples{
-## Repository creation (or opening, if exists)
-repo_path <- file.path(tempdir(), "example_repo")
-repo <- repo_open(repo_path, TRUE)
+## Repository creation
+rp_path <- file.path(tempdir(), "example_repo")
+rp <- repo_open(rp_path, TRUE)
 
 ## The following item will have remote source
-repo$put("Local content", "item1", "Sample item 1", "tag",
+rp$put("Local content", "item1", "Sample item 1", "tag",
          URL="http://www.francesconapolitano.it/repo/remote")
-print(repo$get("item1"))
-repo$pull("item1", replace=T)
-print(repo$get("item1"))
+print(rp$get("item1"))
+rp$pull("item1")
+print(rp$get("item1"))
 
 ## wiping temporary repo
-unlink(repo_path, TRUE)
+unlink(rp_path, TRUE)
 }
 

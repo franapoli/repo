@@ -4,10 +4,10 @@
 \alias{repo_stash}
 \title{Quickly store temporary data}
 \usage{
-repo_stash(repo, object, name = deparse(substitute(object)))
+repo_stash(rp, object, name = deparse(substitute(object)))
 }
 \arguments{
-\item{repo}{An object of class repo.}
+\item{rp}{An object of class repo.}
 
 \item{object}{The object to store in the repo.}
 
@@ -32,14 +32,14 @@ raised. A different name can be specified through the rename
 parameter in such cases.
 }
 \examples{
-repo_path <- file.path(tempdir(), "example_repo")
-repo <- repo_open(repo_path, TRUE)
+rp_path <- file.path(tempdir(), "example_repo")
+rp <- repo_open(rp_path, TRUE)
 tempdata <- runif(10)
-repo$stash(tempdata)
-repo$info("tempdata")
+rp$stash(tempdata)
+rp$info("tempdata")
 
 ## wiping temporary repo
-unlink(repo_path, TRUE)
+unlink(rp_path, TRUE)
 }
 \seealso{
 repo_put, repo_lazydo

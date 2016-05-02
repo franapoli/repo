@@ -4,10 +4,10 @@
 \alias{repo_tags}
 \title{List all tags}
 \usage{
-repo_tags(repo)
+repo_tags(rp)
 }
 \arguments{
-\item{repo}{An object of class repo.}
+\item{rp}{An object of class repo.}
 }
 \value{
 Character vector of unique tags defined in the repo.
@@ -17,20 +17,20 @@ Shows list of all unique tags associated with any item in the
 repository.
 }
 \examples{
-repo_path <- file.path(tempdir(), "example_repo")
-repo <- repo_open(repo_path, TRUE)
+rp_path <- file.path(tempdir(), "example_repo")
+rp <- repo_open(rp_path, TRUE)
 
 ## Putting two items with a few tags
-repo$put(1, "item1", "Sample item 1",
-    c("repo_tags", "tag1"), replace=TRUE)
-repo$put(2, "item2", "Sample item 2",
-    c("repo_tags", "tag2"), replace=TRUE)
+rp$put(1, "item1", "Sample item 1",
+    c("repo_tags", "tag1"))
+rp$put(2, "item2", "Sample item 2",
+    c("repo_tags", "tag2"))
 
 ## Looking up tags
-repo$tags()
+rp$tags()
 
 ## wiping temporary repo
-unlink(repo_path, TRUE)
+unlink(rp_path, TRUE)
 }
 \seealso{
 repo_put

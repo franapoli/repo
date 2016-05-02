@@ -4,10 +4,10 @@
 \alias{repo_stashclear}
 \title{Remove all stashed data}
 \usage{
-repo_stashclear(repo, force = F)
+repo_stashclear(rp, force = F)
 }
 \arguments{
-\item{repo}{An object of class repo.}
+\item{rp}{An object of class repo.}
 
 \item{force}{If TRUE, no confirmation is asked.}
 }
@@ -18,15 +18,15 @@ Used for side effects.
 Remove all stashed data
 }
 \examples{
-repo_path <- file.path(tempdir(), "example_repo")
-repo <- repo_open(repo_path, TRUE)
+rp_path <- file.path(tempdir(), "example_repo")
+rp <- repo_open(rp_path, TRUE)
 tempdata <- runif(10)
-repo$stash("tempdata")
-repo$print(all=TRUE)
-repo$stashclear(TRUE)
+rp$stash("tempdata")
+rp$print(all=TRUE)
+rp$stashclear(TRUE)
 
 ## wiping temporary repo
-unlink(repo_path, TRUE)
+unlink(rp_path, TRUE)
 }
 \seealso{
 repo_rm, repo_stash

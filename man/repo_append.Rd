@@ -4,10 +4,10 @@
 \alias{repo_append}
 \title{Append text to an existing item content.}
 \usage{
-repo_append(repo, id, txtorfunc)
+repo_append(rp, id, txtorfunc)
 }
 \arguments{
-\item{repo}{An object of class repo.}
+\item{rp}{An object of class repo.}
 
 \item{id}{The name of an item whose object is of class character.}
 

@@ -4,10 +4,10 @@
 \alias{repo_find}
 \title{Match items by matching any field}
 \usage{
-repo_find(x, find = NULL, all = F, show = "ds")
+repo_find(rp, find = NULL, all = F, show = "ds")
 }
 \arguments{
-\item{x}{An object of class repo.}
+\item{rp}{An object of class repo.}
 
 \item{find}{Character to match any filed (see Details).}
 
@@ -28,20 +28,18 @@ matched against any item field, including string-converted size
 (like "10x3").
 }
 \examples{
-repo_path <- file.path(tempdir(), "example_repo")
+rp_path <- file.path(tempdir(), "example_repo")
 
-repo <- repo_open(repo_path, TRUE)
-repo$put(1, "item1", "Sample item 1", c("tag1", "tag2"), replace=TRUE)
-repo$put(2, "item2", "Sample item 2", c("tag1", "hide"), replace=TRUE)
-repo$put(3, "item3", "Sample item 3", c("tag2", "tag3"), replace=TRUE)
-repo$print()
-repo$find("tEm2")
-repo$find("ag2", show="t")
+rp <- repo_open(rp_path, TRUE)
+rp$put(1, "item1", "Sample item 1", c("tag1", "tag2"))
+rp$put(2, "item2", "Sample item 2", c("tag1", "hide"))
+rp$put(3, "item3", "Sample item 3", c("tag2", "tag3"))
+rp$print()
+rp$find("tEm2")
+rp$find("ag2", show="t")
 
 ## wiping the temp repo
-unlink(repo_path, TRUE)
+unlink(rp_path, TRUE)
 
-## wiping temporary repo
-unlink(repo_path, TRUE)
 }
 

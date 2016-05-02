@@ -1,13 +1,4 @@
 
-## NOTES:
-## rp$rm now hase force = F, it was without default
-## repo_rm did not include force, now added
-## confirmed and fixed bug with lazydo
-##
-## TODO:
-## + `repo` should become `rp` in examples (repoS3.R)
-## - check if lazydo puts crazy things in the `description` field
-
 globalVariables(c("DEBUG", "entries", "this"))
 
 library(digest) # digest
@@ -790,14 +781,16 @@ repo_open <- function(root="~/.R_repo", force=F)
                 
                     outf <- file(outfile,"at")
                     writeLines(paste0(digest(entries),
-                                    " EDIT NEXT LINES ONLY. FIELDS MUST BE TAB-SEPARATED.",
+                                    " EDIT NEXT LINES ONLY. FIELDS MUST BE TAB-SEPARATED. ",
                                     "TAGS MUST BE COMMA-SEPARATED."), outfile)
                     for(i in 1:length(entries)){
+                        src <- entries[[i]]$source
+                        if(is.null(src)) src <- "NULL"
                         line <- paste0(c(
                             entries[[i]]$name,
                             entries[[i]]$description,
                             paste0(entries[[i]]$tags, collapse=", "),
-                            entries[[i]]$source,
+                            src,
                             entries[[i]]$attachedto,
                             entries[[i]]$depednds),
                                        collapse="\t"
@@ -827,10 +820,13 @@ repo_open <- function(root="~/.R_repo", force=F)
                     rset <- get("this", thisEnv)$set
 
                     for(i in 1:length(indata)) {
+                        src <- indata[[i]][[4]]
+                        if(src=="NULL")
+                            src <- NULL
                         entries[[i]]$name <- indata[[i]][[1]]
                         entries[[i]]$description <- indata[[i]][[2]]
                         entries[[i]]$tags <- strsplit(gsub(" ", "", entries[[i]]$tags), ",")
-                        entries[[i]]$source <- indata[[i]][[4]]
+                        entries[[i]]$source <- src
                     }
 
                     assign("entries", entries, thisEnv)                
@@ -1071,6 +1067,8 @@ repo_open <- function(root="~/.R_repo", force=F)
             if(!is.null(to))
                 stopOnNotFound(to)
 
+            ## if(is.null(src))
+            ##     src <- NA
 
             storedfrom <- src
             
@@ -1209,17 +1207,3 @@ repo_open <- function(root="~/.R_repo", force=F)
     return(me)
 }
 
-
-#' repo_path <- file.path(tempdir(), "example_repo")
-#' repo <- repo_open(repo_path, TRUE)
-#' data1 <- 1:10
-#' data2 <- data1 * 2
-#' data3 <- data1 / 2
-#'
-#' repo$put(data1, "item1", "First item", c("tag1", "tag2"), replace=TRUE)
-#' repo$put(data2, "item2", "Item dependent on item1",
-#'     c("tag2", "tag3"), depends="item1", replace=TRUE)
-#' repo$put(data3, "item3", "Item dependent on item1 and item2",
-#'     c("tag3", "tag4"), depends=c("item1", "item2"), replace=TRUE)
-#'
-#' unlink(repo$root(), TRUE)

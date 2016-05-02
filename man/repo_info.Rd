@@ -4,10 +4,10 @@
 \alias{repo_info}
 \title{Provides detailed information about an item.}
 \usage{
-repo_info(repo, name = NULL, tags = NULL)
+repo_info(rp, name = NULL, tags = NULL)
 }
 \arguments{
-\item{repo}{An object of class repo.}
+\item{rp}{An object of class repo.}
 
 \item{name}{Item name (or list of names). If both name and tags are NULL, information
 about the whole repo will be provided.}
@@ -21,12 +21,12 @@ Used for side effects.
 Provides detailed information about an item.
 }
 \examples{
-repo_path <- file.path(tempdir(), "example_repo")
-repo <- repo_open(repo_path, TRUE)
-repo$put(1, "item1", "Sample item 1", "info", replace=TRUE)
-repo$info("item1")
+rp_path <- file.path(tempdir(), "example_repo")
+rp <- repo_open(rp_path, TRUE)
+rp$put(1, "item1", "Sample item 1", "info")
+rp$info("item1")
 
 ## wiping temporary repo
-unlink(repo_path, TRUE)
+unlink(rp_path, TRUE)
 }
 

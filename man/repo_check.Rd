@@ -2,33 +2,37 @@
 % Please edit documentation in R/repoS3.R
 \name{repo_check}
 \alias{repo_check}
-\title{Check repo's integrity.}
+\title{Check repository integrity.}
 \usage{
-repo_check(repo)
+repo_check(rp)
 }
 \arguments{
-\item{repo}{An object of class repo.}
+\item{rp}{An object of class repo.}
 }
 \value{
 Used for side effects.
 }
 \description{
-Checks that all indexed files are present in the repository root
-and that are not corrupt.
+Checks that all indexed data are present in the repository root,
+that files are not corrupt and that no unindexed files are present.
 }
 \details{
 Every time the object associated to an item is stored, an
-MD5 checksum is saved to the repository index. \code{check} will
-use those to verify that the object did not change since the last
-\code{put} or \code{set} on the item.
+    MD5 checksum is saved to the repository index. \code{check}
+    will use those to verify that the object was not changed by
+    anything other than Repo itself.
 }
 \examples{
-repo_path <- file.path(tempdir(), "example_repo")
-repo <- repo_open(repo_path, TRUE)
-repo$put(0, "item1", "A sample item", "repo_check", replace=TRUE)
-repo$check()
+## Repository creation
+rp_path <- file.path(tempdir(), "example_repo")
+rp <- repo_open(rp_path, TRUE)
+
+rp_path <- file.path(tempdir(), "example_repo")
+rp <- repo_open(rp_path, TRUE)
+rp$put(0, "item1", "A sample item", "repo_check")
+rp$check()
 
 ## wiping temporary repo
-unlink(repo_path, TRUE)
+unlink(rp_path, TRUE)
 }
 

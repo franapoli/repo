@@ -4,10 +4,10 @@
 \alias{repo_root}
 \title{Show path to repo root}
 \usage{
-repo_root(repo)
+repo_root(rp)
 }
 \arguments{
-\item{repo}{An object of class repo.}
+\item{rp}{An object of class repo.}
 }
 \value{
 character cotaining the path to the root of the repo.
@@ -16,11 +16,11 @@ character cotaining the path to the root of the repo.
 Show path to repo root
 }
 \examples{
-repo_path <- file.path(tempdir(), "example_repo")
-repo <- repo_open(repo_path, TRUE)
-print(repo$root())
+rp_path <- file.path(tempdir(), "example_repo")
+rp <- repo_open(rp_path, TRUE)
+print(rp$root())
 
 ## wiping temporary repo
-unlink(repo_path, TRUE)
+unlink(rp_path, TRUE)
 }
 

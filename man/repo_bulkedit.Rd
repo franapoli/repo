@@ -4,10 +4,10 @@
 \alias{repo_bulkedit}
 \title{Edit all items info using a text file.}
 \usage{
-repo_bulkedit(repo, outfile = NULL, infile = NULL)
+repo_bulkedit(rp, outfile = NULL, infile = NULL)
 }
 \arguments{
-\item{repo}{An object of class repo.}
+\item{rp}{An object of class repo.}
 
 \item{outfile}{Name of a file to put entries data to.}
 
@@ -20,20 +20,27 @@ Used for side effects.
 Edit all items info using a text file.
 }
 \details{
-Exactly one of `outfile` or `infile` must be supplied. All repo entries data are copied to a tab-separated file when using the `outfile` parameter. All repo entries are updated reading from `infile` when the `infile` parameter is used. Within the TAGS field, tags must be comma-separated. The system writes a checksum to the `outfile` that precludes using it as `infile` if repo has changed in the meantime.
+Exactly one of \code{outfile} or \code{infile} must be
+    supplied. All repository entry fields are copied to a
+    tab-separated file when using the \code{outfile} parameter. All
+    repo entries are updated reading from \code{infile} when the
+    \code{infile} parameter is used. Within the TAGS field, tags
+    must be comma-separated. The system writes a checksum to the
+    \code{outfile} that prevents from using it as \code{infile} if
+    repo has changed in the meantime.
 }
 \examples{
-repo_path <- file.path(tempdir(), "example_repo")
-repo <- repo_open(repo_path, TRUE)
-repo$put(1, "item1", "Sample item 1", c("tag1", "tag2"), replace=TRUE)
+rp_path <- file.path(tempdir(), "example_repo")
+rp <- repo_open(rp_path, TRUE)
+rp$put(1, "item1", "Sample item 1", c("tag1", "tag2"))
 
 items_data_file <- tempfile()
-repo$bulkedit(items_data_file)
+rp$bulkedit(items_data_file)
 ## Manually edit items_data_file, then update items:
-repo$bulkedit(infile=items_data_file)
+rp$bulkedit(infile=items_data_file)
 
 ## wiping temporary repo
-unlink(repo_path, TRUE)
+unlink(rp_path, TRUE)
 }
 \seealso{
 repo_set
