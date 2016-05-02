@@ -17,13 +17,13 @@ directory and stores the repository index in it. If a repository
 exists, the index is loaded and a \code{repo} object is built.
 }
 \examples{
-## Creates a new repo in a temporary dir without asking for
+## Creates a new repository in a temporary directory without asking for
 ## confirmation.
-repo_path <- file.path(tempdir(), "example_repo")
-repo <- repo_open(repo_path, TRUE)
-repo$put(0, "zero", "a random item", "a_tag")
-repo$info()
+rp_path <- file.path(tempdir(), "example_repo")
+rp <- repo_open(rp_path, TRUE)
+rp$put(0, "zero", "a random item", "a_tag")
+rp$info()
 ## wiping temporary repo
-unlink(repo_path, TRUE)
+unlink(rp_path, TRUE)
 }
 

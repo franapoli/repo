@@ -4,10 +4,10 @@
 \alias{repo_get}
 \title{Retrieve an item from the repo.}
 \usage{
-repo_get(repo, name)
+repo_get(rp, name)
 }
 \arguments{
-\item{repo}{An object of class repo.}
+\item{rp}{An object of class repo.}
 
 \item{name}{An item's name.}
 }
@@ -18,12 +18,12 @@ The previously stored object.
 Retrieve an item from the repo.
 }
 \examples{
-repo_path <- file.path(tempdir(), "example_repo")
-repo <- repo_open(repo_path, TRUE)
-repo$put(1, "item1", "Sample item 1", "get", replace=TRUE)
-print(repo$get("item1"))
+rp_path <- file.path(tempdir(), "example_repo")
+rp <- repo_open(rp_path, TRUE)
+rp$put(1, "item1", "Sample item 1", "get")
+print(rp$get("item1"))
 
 ## wiping temporary repo
-unlink(repo_path, TRUE)
+unlink(rp_path, TRUE)
 }
 

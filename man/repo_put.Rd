@@ -4,11 +4,11 @@
 \alias{repo_put}
 \title{Create a new item in the repo.}
 \usage{
-repo_put(repo, obj, name, description, tags, src = NULL, depends = NULL,
+repo_put(rp, obj, name, description, tags, src = NULL, depends = NULL,
   replace = F, asattach = F, to = NULL)
 }
 \arguments{
-\item{repo}{An object of class repo.}
+\item{rp}{An object of class repo.}
 
 \item{obj}{An R object to store in the repo.}
 
@@ -19,9 +19,9 @@ repo_put(repo, obj, name, description, tags, src = NULL, depends = NULL,
 \item{tags}{A list of tags to sort the item. Tags are useful for
 selecting sets of items and run bulk actions.}
 
-\item{src}{Name of the file containing the source that generates
-obj. The source will be attached to the item. If a source by
-that name already exists, a new version will be created.}
+\item{src}{Name of an existing item to be recorded as the
+"generator" of the new item. Usually it is an attachment item
+containing the source that generated the new item.}
 
 \item{depends}{List of character: items that depend on this item.}
 
@@ -53,19 +53,13 @@ The item \code{name} can be any string, however it should
     item over-writable by other "stash" items by default).
 }
 \examples{
-## Repository creation (or opening, if exists)
-repo_path <- file.path(tempdir(), "example_repo")
-repo <- repo_open(repo_path, TRUE)
+## Repository creation
+rp_path <- file.path(tempdir(), "example_repo")
+rp <- repo_open(rp_path, TRUE)
 
-## As provenance string we will use the fully  name
-## of the file containing this script. Use "normalizePath"
-## for fully qualified name (causes problems if used in
-## the example).
-
-## Creating a fake source file hypothetically containing
-## this source code. It will be attached into the repo.
-src <- tempfile()
-writeLines("# Fake source file", src)
+## Putting the source code of this document in the repo
+src <- "repo-Ex.R"
+rp$attach(src, "example source code", "source")
 
 ## Producing some irrelevant data
 data1 <- 1:10
@@ -73,28 +67,31 @@ data2 <- data1 * 2
 data3 <- data1 / 2
 
 ## Putting the data in the database, specifying dependencies
-repo$put(
+rp$put(
     obj = data1,
     name = "item1",
     description = "First item",
     tags = c("repo_put", "a_random_tag"),
     src = src,
     )
-repo$put(data2, "item2", "Item dependent on item1",
-    "repo_dependencies", src, "item1", replace=TRUE)
-repo$put(data3, "item3", "Item dependent on item1 and item2",
-    "repo_dependencies", src, c("item1", "item2"), replace=TRUE)
+rp$put(data2, "item2", "Item dependent on item1",
+    "repo_dependencies", src, "item1")
+rp$put(data3, "item3", "Item dependent on item1 and item2",
+    "repo_dependencies", src, c("item1", "item2"))
 
-print(repo)
+print(rp)
 
 ## Creating another version of item1
 data1.2 <- data1 + runif(10)
-repo$put(data1.2, name = "item1", "First item with additional noise",
+rp$put(data1.2, name = "item1", "First item with additional noise",
     tags = c("repo_put", "a_random_tag"), src, replace="addversion")
-print(repo, all=TRUE)
-repo$info("item1#1")
+print(rp, all=TRUE)
+rp$info("item1#1")
 
 ## wiping temporary repo
-unlink(repo_path, TRUE)
+unlink(rp_path, TRUE)
+}
+\seealso{
+get, set, attach, info
 }
 

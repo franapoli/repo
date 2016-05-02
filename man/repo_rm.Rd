@@ -4,10 +4,10 @@
 \alias{repo_rm}
 \title{Remove item from the repo (and the disk).}
 \usage{
-repo_rm(repo, name = NULL, tags = NULL, force = F)
+repo_rm(rp, name = NULL, tags = NULL, force = F)
 }
 \arguments{
-\item{repo}{An object of class repo.}
+\item{rp}{An object of class repo.}
 
 \item{name}{An item's name.}
 
@@ -23,15 +23,15 @@ Used for side effects.
 Remove item from the repo (and the disk).
 }
 \examples{
-repo_path <- file.path(tempdir(), "example_repo")
-repo <- repo_open(repo_path, TRUE)
-repo$put(1, "item1", "Sample item 1", "info", replace=TRUE)
-repo$put(2, "item2", "Sample item 2", "info", replace=TRUE)
-print(repo)
-repo$rm("item1")
-print(repo)
+rp_path <- file.path(tempdir(), "example_repo")
+rp <- repo_open(rp_path, TRUE)
+rp$put(1, "item1", "Sample item 1", "info")
+rp$put(2, "item2", "Sample item 2", "info")
+print(rp)
+rp$rm("item1")
+print(rp)
 
 ## wiping temporary repo
-unlink(repo_path, TRUE)
+unlink(rp_path, TRUE)
 }
 

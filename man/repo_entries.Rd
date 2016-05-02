@@ -4,10 +4,10 @@
 \alias{repo_entries}
 \title{Low-level list of item entries.}
 \usage{
-repo_entries(repo)
+repo_entries(rp)
 }
 \arguments{
-\item{repo}{An object of class repo.}
+\item{rp}{An object of class repo.}
 }
 \value{
 A detailed list of item entries.
@@ -16,14 +16,14 @@ A detailed list of item entries.
 Low-level list of item entries.
 }
 \examples{
-repo_path <- file.path(tempdir(), "example_repo")
-repo <- repo_open(repo_path, TRUE)
-repo$put(1, "item1", "Sample item 1", "entries", replace=TRUE)
-repo$put(2, "item2", "Sample item 2", "entries", replace=TRUE)
-repo$put(3, "item3", "Sample item 3", "entries", replace=TRUE)
-print(repo$entries())
+rp_path <- file.path(tempdir(), "example_repo")
+rp <- repo_open(rp_path, TRUE)
+rp$put(1, "item1", "Sample item 1", "entries")
+rp$put(2, "item2", "Sample item 2", "entries")
+rp$put(3, "item3", "Sample item 3", "entries")
+print(rp$entries())
 
 ## wiping temporary repo
-unlink(repo_path, TRUE)
+unlink(rp_path, TRUE)
 }
 

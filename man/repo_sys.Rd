@@ -2,17 +2,17 @@
 % Please edit documentation in R/repoS3.R
 \name{repo_sys}
 \alias{repo_sys}
-\title{Run system call on item}
+\title{Run system call on an item}
 \usage{
-repo_sys(repo, name, command)
+repo_sys(rp, name, command)
 }
 \arguments{
-\item{repo}{An object of class repo.}
+\item{rp}{An object of class repo.}
 
 \item{name}{Name of a repo item. The path to the file that contains
 the item will be passed to the system program.}
 
-\item{command}{Shell command}
+\item{command}{System command}
 }
 \value{
 Used for side effects.
@@ -22,24 +22,27 @@ Runs a system command passing as parameter the file name containing
 the object associated with an item.
 }
 \examples{
-repo_path <- file.path(tempdir(), "example_repo")
-repo <- repo_open(repo_path, TRUE)
-\dontrun{
+## Repository creation
+rp_path <- file.path(tempdir(), "example_repo")
+rp <- repo_open(rp_path, TRUE)
+
 ## Creating a PDF file with a figure.
-pdffile <- file.path(tempdir(), "afigure.pdf")
+pdffile <- file.path(rp_path, "afigure.pdf")
 pdf(pdffile)
-## Drawing a random plot in the figure
-plot(runif(100), runif(100))
+plot(runif(30), runif(30))
 dev.off()
+
 ## Attaching the PDF file to the repo
-repo$attach(pdffile, "A plot of random numbers", "repo_sys", replace=TRUE)
+rp$attach(pdffile, "A plot of random numbers", "repo_sys")
 ## don't need the original PDF file anymore
 file.remove(pdffile)
+
 ## Opening the stored PDF with Evince document viewer
-repo$sys("afigure.pdf", "evince")
+\dontrun{
+rp$sys("afigure.pdf", "evince")
 }
 
 ## wiping temporary repo
-unlink(repo_path, TRUE)
+unlink(rp_path, TRUE)
 }
 

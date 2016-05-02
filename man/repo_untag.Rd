@@ -4,10 +4,10 @@
 \alias{repo_untag}
 \title{Remove tags from an item.}
 \usage{
-repo_untag(repo, name = NULL, rmtags, tags = NULL)
+repo_untag(rp, name = NULL, rmtags, tags = NULL)
 }
 \arguments{
-\item{repo}{An object of class repo.}
+\item{rp}{An object of class repo.}
 
 \item{name}{An item name.}
 
@@ -24,15 +24,15 @@ Used for side effects.
 Remove tags from an item.
 }
 \examples{
-repo_path <- file.path(tempdir(), "example_repo")
-repo <- repo_open(repo_path, TRUE)
-repo$put(1, "item1", "Sample item 1", c("tag1", "tag2"), replace=TRUE)
-repo$print(show="t")
-repo$untag("item1", "tag2")
-repo$print(show="t")
+rp_path <- file.path(tempdir(), "example_repo")
+rp <- repo_open(rp_path, TRUE)
+rp$put(1, "item1", "Sample item 1", c("tag1", "tag2"))
+rp$print(show="t")
+rp$untag("item1", "tag2")
+rp$print(show="t")
 
 ## wiping temporary repo
-unlink(repo_path, TRUE)
+unlink(rp_path, TRUE)
 }
 \seealso{
 repo_tag, repo_set

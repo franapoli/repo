@@ -4,12 +4,12 @@
 \name{repo-package}
 \alias{repo}
 \alias{repo-package}
-\title{repo: The R objects resource manager}
+\title{Repo: The Data-centered Data Flow Manager}
 \description{
-repo: The R objects resource manager
+Repo: The Data-centered Data Flow Manager
 }
 \details{
-The repo package is meant to help with the management of R data
+The Repo package is meant to help with the management of R data
 files. It builds one (or more) centralized repository where R
 objects are stored together with corresponding annotations, tags,
 dependency notes, provenance traces. It also provides navigation

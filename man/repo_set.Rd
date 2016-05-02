@@ -4,11 +4,11 @@
 \alias{repo_set}
 \title{Edit an existing item.}
 \usage{
-repo_set(repo, name, obj = NULL, newname = NULL, description = NULL,
+repo_set(rp, name, obj = NULL, newname = NULL, description = NULL,
   tags = NULL, src = NULL, depends = NULL, addtags = NULL)
 }
 \arguments{
-\item{repo}{An object of class repo.}
+\item{rp}{An object of class repo.}
 
 \item{name}{An item name.}
 
@@ -34,16 +34,16 @@ Used for side effects.
 Edit an existing item.
 }
 \examples{
-repo_path <- file.path(tempdir(), "example_repo")
-repo <- repo_open(repo_path, TRUE)
-repo$put(1, "item1", "Sample item 1", c("tag1", "tag2"), replace=TRUE)
-repo$set("item1", obj=2)
-print(repo$get("item1"))
-repo$set("item1", description="Modified description", tags="new_tag_set")
-repo$info("item1")
+rp_path <- file.path(tempdir(), "example_repo")
+rp <- repo_open(rp_path, TRUE)
+rp$put(1, "item1", "Sample item 1", c("tag1", "tag2"))
+rp$set("item1", obj=2)
+print(rp$get("item1"))
+rp$set("item1", description="Modified description", tags="new_tag_set")
+rp$info("item1")
 
 ## wiping temporary repo
-unlink(repo_path, TRUE)
+unlink(rp_path, TRUE)
 }
 \seealso{
 repo_put

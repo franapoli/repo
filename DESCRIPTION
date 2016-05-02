@@ -1,15 +1,15 @@
 Package: repo
 Type: Package
 Title: A Data-Centered Data Flow Manager
-Version: 2.0.0.1
+Version: 2.0.1.2
 Date: 2015-07-30
 Author: Francesco Napolitano <franapoli@gmail.com>
 Maintainer: Francesco Napolitano <franapoli@gmail.com>
-Description: Repo is a data manager meant to avoid manual storage/retrieval
-    of data to/from the file system. It builds one (or more) centralized
-    repository where R objects are stored with annotations, tags, dependency notes,
-    provenance traces. It also provides navigation tools to easily locate, load and
-    edit previously stored resources.
+Description: A data manager meant to avoid manual storage/retrieval of
+    data to/from the file system. It builds one (or more) centralized
+    repository where R objects are stored with annotations, tags,
+    dependency notes, provenance traces. It also provides navigation
+    tools to easily locate, load and edit previously stored resources.
 License: GPL-3
 Imports:
     digest,

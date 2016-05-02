@@ -2,12 +2,12 @@
 % Please edit documentation in R/repoS3.R
 \name{repo_copy}
 \alias{repo_copy}
-\title{Copy items to another repo}
+\title{Copy items to another repository}
 \usage{
-repo_copy(repo, destrepo, name, tags = NULL)
+repo_copy(rp, destrepo, name, tags = NULL)
 }
 \arguments{
-\item{repo}{An object of class repo (will copy from it)}
+\item{rp}{An object of class repo (will copy from it)}
 
 \item{destrepo}{An object of class repo (will copy to it)}
 
@@ -19,19 +19,21 @@ repo_copy(repo, destrepo, name, tags = NULL)
 Used for side effects.
 }
 \description{
-Copies an object file from one repo to another and creates a new entry
+Copies an object file from one repository to another and creates a new entry
 in the index of the destination repository. Supports tags and multiple names.
 }
 \examples{
-repo_path <- file.path(tempdir(), "example_repo1")
-repo1 <- repo_open(repo_path, TRUE)
-repo1$put(0, "item1", "A sample item", "tag1", replace=TRUE)
-repo_path2 <- file.path(tempdir(), "example_repo2")
-repo2 <- repo_open(repo_path2, TRUE)
-repo1$copy(repo2, "item1")
+## Repository creation
+rp_path1 <- file.path(tempdir(), "example_repo1")
+
+rp1 <- repo_open(rp_path1, TRUE)
+rp1$put(0, "item1", "A sample item", "tag1")
+rp_path2 <- file.path(tempdir(), "example_repo2")
+rp2 <- repo_open(rp_path2, TRUE)
+rp1$copy(rp2, "item1")
 
 ## wiping temporary repo
-unlink(repo_path, TRUE)
-unlink(repo_path2, TRUE)
+unlink(rp_path1, TRUE)
+unlink(rp_path2, TRUE)
 }
 

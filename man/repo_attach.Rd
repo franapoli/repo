@@ -4,11 +4,11 @@
 \alias{repo_attach}
 \title{Create a new item from an existing file.}
 \usage{
-repo_attach(repo, filepath, description, tags, src = NULL, replace = F,
+repo_attach(rp, filepath, description, tags, src = NULL, replace = F,
   to = NULL)
 }
 \arguments{
-\item{repo}{An object of class repo.}
+\item{rp}{An object of class repo.}
 
 \item{filepath}{The path to the file to be stored in the repo.}
 
@@ -34,8 +34,8 @@ Used for side effects.
 Create a new item from an existing file.
 }
 \examples{
-repo_path <- file.path(tempdir(), "example_repo")
-repo <- repo_open(repo_path, TRUE)
+rp_path <- file.path(tempdir(), "example_repo")
+rp <- repo_open(rp_path, TRUE)
 
 \dontrun{
 ## Creating a PDF file with a figure.
@@ -44,14 +44,14 @@ pdf("afigure.pdf")
 plot(runif(100), runif(100))
 dev.off()
 ## Attaching the PDF file to the repo
-repo$attach("afigure.pdf", "A plot of random numbers", "repo_sys", replace=TRUE)
+rp$attach("afigure.pdf", "A plot of random numbers", "repo_sys")
 ## don't need the PDF file anymore
 file.remove("afigure.pdf")
 ## Opening the stored PDF with Evince document viewer
-repo$sys("afigure.pdf", "evince")
+rp$sys("afigure.pdf", "evince")
 }
 
 ## wiping temporary repo
-unlink(repo_path, TRUE)
+unlink(rp_path, TRUE)
 }
 
