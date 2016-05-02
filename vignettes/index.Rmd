@@ -33,7 +33,7 @@ features of Repo.
 
 Repo latest version can be found at: https://github.com/franapoli/repo
 
-Repo is also on CRAN at: https://cran.r-project.org/web/packages/repo/index.html
+Repo is also on CRAN at: https://cran.r-project.org/package=repo
 
 ## Preparation
 
