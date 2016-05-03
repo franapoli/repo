@@ -1,6 +1,11 @@
 
 # News
 
+05/03/16
+
++ 2.0.2 is now the latest stable on CRAN
+
+
 05/02/16
 
 + 2.0.2 contains a fix to repo$pull for OS X
