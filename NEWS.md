@@ -3,6 +3,8 @@
 
 05/02/16
 
++ 2.0.2 contains a fix to repo$pull for OS X
+
 + Documentation updated
 
 + NOTE: previous change implies that not all items have a "source"

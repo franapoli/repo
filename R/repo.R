@@ -1011,7 +1011,7 @@ repo_open <- function(root="~/.R_repo", force=F)
             if(file.exists(e$dump) && !replace)
                 handleErr("DATA_ALREADY_THERE", name)
             tf <- tempfile()
-            download.file(e$URL, tf, method="wget")
+            download.file(e$URL, tf)
 
             if(isAttachment(name)) {
                 get("this", thisEnv)$set(name, obj=tf)
