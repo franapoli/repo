@@ -3,6 +3,10 @@
 
 05/03/16
 
++ new `attr` function in
+
++ `attach` now accepts `URL` parameter
+
 + 2.0.2 is now the latest stable on CRAN
 
 

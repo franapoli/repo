@@ -835,6 +835,23 @@ repo_open <- function(root="~/.R_repo", force=F)
                 }
             },
 
+      attr = function(name, attrib)
+      {
+          okattr <- c("path")
+          if(!(attrib %in% okattr))
+              stop(paste("attrib must be one of:",
+                         paste(okattr, collapse=", ")))
+          if(checkName(name)) {
+              handleErr("ID_NOT_FOUND", name)
+              return(invisible())
+          }
+          entry <- getEntry(name)
+          switch(attrib, 
+              "path" = {res <- file.path(root, entry$dump)}
+          )
+          return(res)
+      },
+
         get = function(name)
         {          
             if(checkName(name)){                
@@ -977,10 +994,11 @@ repo_open <- function(root="~/.R_repo", force=F)
 
 
         
-        attach = function(filepath, description, tags, src=NULL, replace=F, to=NULL)
+        attach = function(filepath, description, tags, src=NULL, replace=F, to=NULL, URL=NULL)
         {
             get("this", thisEnv)$put(filepath, basename(filepath),
-                                     description, tags, src, replace=replace, asattach=T, to=to)
+                                     description, tags, src, replace=replace,
+                                     asattach=T, to=to, URL=URL)
         },
 
 
