@@ -1,6 +1,19 @@
 
 # News
 
+05/05/16
+
++ `pies` and `dependencies` now support additional parameters (...) to
+pass to `graphics:pie` and `igraph:plot` respectively.
+
++ `pies` now merges together all items with size < 5% of the total.
+
++ `dependencies` now supports tags to filter nodes to be showed.
+
++ Added missing documentation for `pies`.
+
++ Fixed documentation for `attach`.
+
 05/03/16
 
 + new `attr` function in

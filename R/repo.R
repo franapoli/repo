@@ -326,22 +326,26 @@ repo_open <- function(root="~/.R_repo", force=F)
             return(list(path=fpath, size=file.info(fpath)$size))
         }
 
-    depgraph <- function(depends=T, attached=T, generated=T)
-        {
+    depgraph <- function(tags = NULL, tagfun, depends=T, attached=T, generated=T)
+        {            
             stopOnEmpty()
+            
             if(!any(c(depends, attached, generated)))
               stop("One of depends, attached or generated must be true.")
+
+            if(!is.null(tags))
+                sube <- findEntries(tags, tagfun) else sube <- 1:length(entries)
             
-            nodes <- unique(unlist(sapply(entries, get, x="name")))
+            nodes <- unique(unlist(sapply(entries[sube], get, x="name")))
             ## if(generated) {
             ##   srcs <- unique(unlist(sapply(entries, get, x="source")))
             ##   nodes <- c(nodes, srcs)
             ## }
             n <- length(nodes)
             depgraph <- matrix(0,n,n)
-            for(i in 1:length(entries))
+            for(i in 1:n)
                 {
-                  e <- entries[[i]]
+                  e <- entries[sube][[i]]
                   if(depends) {
                     w <- match(e$depends, nodes)
                     depgraph[i, w] <- 1
@@ -487,16 +491,16 @@ repo_open <- function(root="~/.R_repo", force=F)
 
     
     me <- list(
-        dependencies = function(depends=T, attached=T, generated=T, plot=T)
+        dependencies = function(tags=NULL, tagfun="OR", depends=T, attached=T, generated=T, plot=T, ...)
         {
-          deps <- depgraph(depends, attached, generated)
+          deps <- depgraph(tags, tagfun, depends, attached, generated)
           if(plot) {
               if (requireNamespace("igraph", quietly = TRUE)) {
                   deps2 <- deps
                   rownames(deps2) <- colnames(deps2) <- basename(rownames(deps))
                   g <- igraph::graph.adjacency(deps2, weighted=c("type"))
                   igraph::plot.igraph(g, edge.label=c("depends", "attached", "generated")
-                               [igraph::get.edge.attribute(g,"type")])
+                               [igraph::get.edge.attribute(g,"type")], ...)
               } else {
                   stop("The suggested package igraph is not installed.")
               }              
@@ -541,15 +545,16 @@ repo_open <- function(root="~/.R_repo", force=F)
                 invisible()
             },
 
-        pies = function() {
+        pies = function(...) {
             sizes = sapply(entries, get, x="size")
             names(sizes) <- sapply(entries, get, x="name")
-            if(length(sizes)>10) {
-                sizes <- sort(sizes, decreasing=T)
-                sizes <- c(sizes[1:9], sum(sizes[10:length(sizes)]))
-                names(sizes)[10] <- "Other"
+            sizeperc <- sizes/sum(sizes)
+            toosmall <- sizeperc < .05
+            if(any(toosmall)) {
+                sizes <- c(sizes[!toosmall], sum(sizes[toosmall]))
+                names(sizes)[length(sizes)] <- "Others"
             }
-            pie(sizes)
+            pie(sizes, ...)
         },
 
         copy = function(destrepo, name, tags=NULL)

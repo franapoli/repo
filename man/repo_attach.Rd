@@ -5,7 +5,7 @@
 \title{Create a new item from an existing file.}
 \usage{
 repo_attach(rp, filepath, description, tags, src = NULL, replace = F,
-  to = NULL)
+  to = NULL, URL = NULL)
 }
 \arguments{
 \item{rp}{An object of class repo.}
@@ -26,6 +26,8 @@ dependency link.}
 \item{replace}{If the item exists, overwrite the specified fields.}
 
 \item{to}{An existing item name to attach the file to.}
+
+\item{URL}{A URL where the item contents con be downloaded from.}
 }
 \value{
 Used for side effects.
