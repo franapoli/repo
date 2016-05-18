@@ -1,6 +1,10 @@
 
 # News
 
+05/18/16
+
++ added internal `testthat` unit testing
+
 05/05/16
 
 + `pies` and `dependencies` now support additional parameters (...) to
