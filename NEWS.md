@@ -1,6 +1,11 @@
 
 # News
 
+05/18/16
+
++ `copy` now accepts `confirm` and `replace`
+
+
 05/05/16
 
 + `pies` and `dependencies` now support additional parameters (...) to

@@ -179,6 +179,10 @@ repo_check <- function(rp) rp$check()
 #' @param destrepo An object of class repo (will copy to it)
 #' @param name The name (or list of names) of the item/s to copy
 #' @param tags If not NULL, copy all items matching tags.
+#' @param replace What to do if item exists in destination repo (see
+#'     put)
+#' @param confirm If F, don't ask for confirmation when multiple items
+#'     are involved.
 #' @return Used for side effects.
 #' @examples
 #' ## Repository creation
@@ -194,8 +198,8 @@ repo_check <- function(rp) rp$check()
 #' unlink(rp_path1, TRUE)
 #' unlink(rp_path2, TRUE)
 
-repo_copy <- function(rp, destrepo, name, tags=NULL)
-    rp$copy(destrepo, name, tags)
+repo_copy <- function(rp, destrepo, name, tags=NULL, replace=F, confirm=T)
+    rp$copy(destrepo, name, tags, replace, confirm)
 
 
 #' Provides simplified access to repository items.

@@ -363,13 +363,6 @@ repo_open <- function(root="~/.R_repo", force=F)
             return(depgraph)
         }
 
-    checkFoundEntry <- function(e)
-        {
-            if(is.null(e))
-                cat("Entry not found.\n")
-            if(e==-1)
-                cat("Repo is empty.\n")
-        }
 
     findEntryIndex <- function(name)
         {
@@ -557,20 +550,26 @@ repo_open <- function(root="~/.R_repo", force=F)
             pie(sizes, ...)
         },
 
-        copy = function(destrepo, name, tags=NULL)
+        copy = function(destrepo, name, tags=NULL, replace=F, confirm=T)
         {            
             if(!("repo" %in% class(destrepo)))
                 stop("destrepo must be an object of class repo.")
             if(!xor(missing(name), is.null(tags)))
                 stop("You must specify either names or tags.")
 
-            if(length(name) > 1 | !is.null(tags))
-                runWithTags("copy", tags, name, T, destrepo) else {
-                    e <- findEntryIndex(name)
-                    checkFoundEntry(e)
-                    entr <- entries[[e]]
-                    obj <- get("this", thisEnv)$get(name)
-                    destrepo$put(obj, name, entr$description, entr$tags, entr$source, entr$depends)
+            if(length(name) > 1 | !is.null(tags)) {
+                runWithTags("copy", tags, name, confirm, destrepo)
+            } else {
+                if(checkName(name)) {
+                    handleErr("ID_NOT_FOUND", name)
+                    return(invisible())
+                }
+
+                e <- findEntryIndex(name)
+                entr <- entries[[e]]
+                obj <- get("this", thisEnv)$get(name)
+                destrepo$put(obj, name, entr$description, entr$tags,
+                             entr$source, entr$depends, replace=replace)
                 }
         },
 
