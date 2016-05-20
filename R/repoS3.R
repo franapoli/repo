@@ -178,11 +178,14 @@ repo_check <- function(rp) rp$check()
 #' @param rp An object of class repo (will copy from it)
 #' @param destrepo An object of class repo (will copy to it)
 #' @param name The name (or list of names) of the item/s to copy
-#' @param tags If not NULL, copy all items matching tags.
+#' @param tags If not NULL, copy all items matching tags. NULL by
+#' default.
 #' @param replace What to do if item exists in destination repo (see
-#'     put)
+#'     put). F by default.
 #' @param confirm If F, don't ask for confirmation when multiple items
-#'     are involved.
+#'     are involved. F by default.
+#' @param forgetRelations Do not copy relations with other
+#' items. F by default.
 #' @return Used for side effects.
 #' @examples
 #' ## Repository creation
@@ -198,8 +201,9 @@ repo_check <- function(rp) rp$check()
 #' unlink(rp_path1, TRUE)
 #' unlink(rp_path2, TRUE)
 
-repo_copy <- function(rp, destrepo, name, tags=NULL, replace=F, confirm=T)
-    rp$copy(destrepo, name, tags, replace, confirm)
+repo_copy <- function(rp, destrepo, name, tags=NULL,
+                      replace=F, confirm=T, forgetRelations=F)
+    rp$copy(destrepo, name, tags, replace, confirm, forgetRelations)
 
 
 #' Provides simplified access to repository items.
@@ -440,7 +444,8 @@ repo_rm <- function(rp, name = NULL, tags = NULL, force = F)
 #' 
 #' @param rp An object of class repo.
 #' @param name An item's name.
-#' @return The previously stored object.
+#' @return The previously stored object, or its file path for
+#' attachments.
 #' @examples
 #' rp_path <- file.path(tempdir(), "example_repo")
 #' rp <- repo_open(rp_path, TRUE)

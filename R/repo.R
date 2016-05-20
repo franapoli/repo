@@ -105,7 +105,7 @@ repo_open <- function(root="~/.R_repo", force=F)
         return(newdata)
     }
     
-    checkTags <- function(tags, name=NULL)
+    checkTags <- function(tags, name=NULL, replace=F)
     {
 
         dups <- which(duplicated(tolower(tags)))
@@ -116,7 +116,7 @@ repo_open <- function(root="~/.R_repo", force=F)
         if(!is.null(name)) {
             e <- getEntry(name)
             comm <- intersect(tolower(e$tags), tolower(tags))
-            if(length(comm)>0)
+            if(length(comm)>0 && !replace)
                 warning(paste0("The following tags are already present (not case sensitive): ",
                             paste0(comm, collapse=", ")))
         }
@@ -550,7 +550,7 @@ repo_open <- function(root="~/.R_repo", force=F)
             pie(sizes, ...)
         },
 
-        copy = function(destrepo, name, tags=NULL, replace=F, confirm=T)
+        copy = function(destrepo, name, tags=NULL, replace=F, confirm=T, forgetRelations=F)
         {            
             if(!("repo" %in% class(destrepo)))
                 stop("destrepo must be an object of class repo.")
@@ -568,8 +568,17 @@ repo_open <- function(root="~/.R_repo", force=F)
                 e <- findEntryIndex(name)
                 entr <- entries[[e]]
                 obj <- get("this", thisEnv)$get(name)
+
+                if(forgetRelations) {
+                    entr$depends = NULL
+                    entr$attachedto = NULL
+                    entr$source = NULL
+                }
+                                
                 destrepo$put(obj, name, entr$description, entr$tags,
-                             entr$source, entr$depends, replace=replace)
+                             entr$source, entr$depends, replace=replace,
+                             URL=entr$URL, asattach=isAttachment(name),
+                             to=entr$attachedto)
                 }
         },
 
@@ -883,13 +892,12 @@ repo_open <- function(root="~/.R_repo", force=F)
                 storeIndex()
                 }
 
-            if(isAttachment(name))
-              stop("Get is not valid for attachments.")
-
             f <- getFile(name)
             if(!file.exists(f) && !is.null(entry$URL))
                 handleErr("MISS_OBJ_HAS_URL")
-            data <- readRDS(f)
+
+            if(isAttachment(name))
+              data <- f else data <- readRDS(f)
             
             return(data)
         },
@@ -1146,7 +1154,7 @@ repo_open <- function(root="~/.R_repo", force=F)
             }
             )
 
-            if(asattach)
+            if(asattach && !("hide" %in% repoE$tags))
                 get("this", thisEnv)$tag(name, "hide")
         },
 
@@ -1229,3 +1237,16 @@ repo_open <- function(root="~/.R_repo", force=F)
     return(me)
 }
 
+if(F)
+    {
+        library(repo)
+        fld <- tempdir()
+        rp <- repo_open(fld, T)
+        rp2 <- repo_open(file.path(fld, "2"), T)
+        pdf(file.path(fld, "temp.pdf"))
+        plot(runif(10))
+        dev.off()
+        rp$attach(file.path(fld, "temp.pdf"), "descr", "tag",replace=T)
+        rp$get("temp.pdf")
+        rp$copy(rp2, "temp.pdf", replace=T)        
+    }
