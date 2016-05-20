@@ -4,6 +4,7 @@
 05/18/16
 
 + `copy` now accepts `confirm` and `replace`
++ added internal `testthat` unit testing
 
 
 05/05/16
