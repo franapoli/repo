@@ -42,6 +42,21 @@ NULL
 #' unlink(rp_path, TRUE)
 NULL
 
+#' Finds all items related to a set of item
+#'
+#' Relations are defined as in the dependency graph.
+#'
+#' @param rp An object of class \code{repo}.
+#' @param names A \code{character} vector of item names.
+#' @param type Can be one of "all", "to", "from". "to" recursively
+#'     finds items that \code{names} is attached to. "from" recursively
+#'     finds items that \code{names} depends on or is generated
+#'     by. "all" finds both (connected components including \code{names}.
+#' @return A \code{character} vector of item names.
+#' @seealso dependencies
+repo_related <- function(rp, names, type="all", excludeseed=F)
+    rp$affect(names, type, excludeseed)
+
 
 #' Build and/or plots a dependency graph
 #'
@@ -184,8 +199,6 @@ repo_check <- function(rp) rp$check()
 #'     put). F by default.
 #' @param confirm If F, don't ask for confirmation when multiple items
 #'     are involved. F by default.
-#' @param forgetRelations Do not copy relations with other
-#' items. F by default.
 #' @return Used for side effects.
 #' @examples
 #' ## Repository creation
@@ -202,8 +215,8 @@ repo_check <- function(rp) rp$check()
 #' unlink(rp_path2, TRUE)
 
 repo_copy <- function(rp, destrepo, name, tags=NULL,
-                      replace=F, confirm=T, forgetRelations=F)
-    rp$copy(destrepo, name, tags, replace, confirm, forgetRelations)
+                      replace=F, confirm=T)
+    rp$copy(destrepo, name, tags, replace, confirm)
 
 
 #' Provides simplified access to repository items.
@@ -766,17 +779,25 @@ repo_stashclear <- function(rp, force=F)
 #' @param description A character description of the item.
 #' @param tags A list of tags to sort the item. Tags are useful for
 #'     selecting sets of items and run bulk actions.
-#' @param src Name of an existing item to be recorded as the
-#' "generator" of the new item. Usually it is an attachment item
-#' containing the source that generated the new item.
-#' @param depends List of character: items that depend on this item.
-#' @param replace One of: V, F, "addversion". Default is F. If V,
-#'     overwrite an existing item by the same name. If F stops with an
-#'     error. If "addversion" the new item is stored as a new version
-#'     and the old item is renamed by appending a "#N" suffix.
+#' @param src Name of an existing item to be annotated as the
+#'     "generator" of the new item. Usually it is an attachment item
+#'     containing the source code that generated the new item. Default
+#'     is NULL.
+#' @param depends Character vector: items that depend on this
+#'     item. Default is NULL.
+#' @param replace One of: V, F, "addversion" to define behaviour when
+#'     an item by the same name exists. If V, overwrite it. If F stop
+#'     with an error. If "addversion" the new item is stored as a new
+#'     version and the old item is renamed by appending a "#N"
+#'     suffix. Default is F.
 #' @param asattach Specifies that the item is to be trated as an
-#'     attachment (see attach).
-#' @param to Optionally specifies which item this item is attached to.
+#'     attachment (see attach). Default is F.
+#' @param to Vector of character. Specifies which item this item is
+#'     attached to. Default is NULL.
+#' @param URL Remote URL where the \code{pull} function expets to
+#'     download actual item data from. Dafault is NULL.
+#' @param checkRelations Check if items referenced by this item
+#'     exist. Default is T.
 #' @return Used for side effects.
 #' @seealso get, set, attach, info
 #' @examples
@@ -813,9 +834,11 @@ repo_stashclear <- function(rp, force=F)
 #' ## wiping temporary repo
 #' unlink(rp_path, TRUE)
 repo_put <- function(rp, obj, name, description, tags, src=NULL,
-                     depends = NULL, replace=F, asattach=F, to=NULL)
-    rp$put(obj, name, description, tags, src,
-             depends, replace, asattach, to)
+                     depends = NULL, replace = F, asattach = F,
+                     to = NULL, addversion = F, URL = NULL,
+                     checkRelations = T)
+    rp$put(obj, name, description, tags, src, depends, replace,
+           asattach, to, addversion, URL, checkRelations)
 
 #' Download item remote content
 #'

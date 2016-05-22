@@ -63,6 +63,32 @@ repo_open <- function(root="~/.R_repo", force=F)
 
         }
 
+
+    getRelatives <- function(names, ascendants=T, firstset=names)
+    {
+        makenull <- function(res) {
+            if(length(res)==0)
+                return(NULL)
+            return(res)
+        }
+        
+        m <- obj <- get("this", thisEnv)$dependencies(plot=F)
+        allnames <- sapply(entries, get, x="name")
+        if(ascendants)
+            col <- m[, allnames %in% names, drop=F] else col <- t(m[allnames %in% names,,drop=F])
+
+        col <- apply(col!=0, 1, any)
+        
+        if(all(col==0)) {
+            return(makenull(setdiff(names, firstset)))
+        } else {
+            asc <- names(which(col!=0))
+            if(all(asc %in% names))
+                return(makenull(setdiff(names, firstset)))
+            return(makenull(setdiff(getRelatives(c(names, asc), ascendants, firstset), firstset)))
+        }
+    }
+
     
     getFile <- function(name)
         {
@@ -485,6 +511,29 @@ repo_open <- function(root="~/.R_repo", force=F)
 
     
     me <- list(
+        related = function(names, type="all", excludeseed=F)
+        {            
+            switch(type,
+                   "all" = {
+                       oldset <- NULL
+                       newset <- names
+                       while(! all(newset %in% oldset)) {
+                           oldset <- newset
+                           newset <- unique(c(oldset, getRelatives(oldset, T),
+                                              getRelatives(oldset, F)))
+                       }
+                       set <- setdiff(newset, names)
+                   },
+
+                   "to" = set <- getRelatives(names, T),
+                   "from" = set <- getRelatives(names, F)
+                   )
+
+            if(excludeseed)
+                return(set, names)
+            return(c(names, set))
+        },
+        
         dependencies = function(tags=NULL, tagfun="OR", depends=T, attached=T, generated=T, plot=T, ...)
         {
           deps <- depgraph(tags, tagfun, depends, attached, generated)
@@ -551,8 +600,9 @@ repo_open <- function(root="~/.R_repo", force=F)
             pie(sizes, ...)
         },
 
-        copy = function(destrepo, name, tags=NULL, replace=F, confirm=T, forgetRelations=F)
-            {
+
+        copy = function(destrepo, name, tags=NULL, replace=F, confirm=T)
+        {            
             if(!("repo" %in% class(destrepo)))
                 stop("destrepo must be an object of class repo.")
             if(!xor(missing(name), is.null(tags)))
@@ -560,8 +610,7 @@ repo_open <- function(root="~/.R_repo", force=F)
 
             if(length(name) > 1 | !is.null(tags)) {
                 runWithTags("copy", tags, name, replace=replace,
-                            askconfirm=confirm, forgetRelations=forgetRelations,
-                            destrepo=destrepo)
+                            askconfirm=confirm, destrepo=destrepo)
             } else {
                 if(checkName(name)) {
                     handleErr("ID_NOT_FOUND", name)
@@ -572,16 +621,10 @@ repo_open <- function(root="~/.R_repo", force=F)
                 entr <- entries[[e]]
                 obj <- get("this", thisEnv)$get(name)
 
-                if(forgetRelations) {
-                    entr$depends = NULL
-                    entr$attachedto = NULL
-                    entr$source = NULL
-                }
-                                
                 destrepo$put(obj, name, entr$description, entr$tags,
                              entr$source, entr$depends, replace=replace,
                              URL=entr$URL, asattach=isAttachment(name),
-                             to=entr$attachedto)
+                             to=entr$attachedto, checkRelations=F)
                 }
         },
 
@@ -966,8 +1009,9 @@ repo_open <- function(root="~/.R_repo", force=F)
             checkIndexUnchanged()                    
             
             if(missing(name) | (missing(newname) & missing(obj) & missing(description) &
-                                 missing(tags) & missing(addtags)  & missing(src) & missing(URL)))
-                stop("You must provide name and one of: obj, description, tags or addtags, src.")
+                                missing(tags) & missing(addtags) & missing(src) &
+                                missing(depends) & missing(URL)))
+                stop("You must provide name and one of: obj, description, tags or addtags, src, depends, URL")
             if(!missing(tags) & !missing(addtags))
                 stop("You can not specify both tags and addtags.")
             
@@ -990,6 +1034,9 @@ repo_open <- function(root="~/.R_repo", force=F)
             }
             if(!is.null(src))
                 entr$src <- src
+
+            if(!is.null(depends))
+                entr$depends <- depends
 
             if(!missing(URL))
                 entr$URL <- URL
@@ -1052,8 +1099,8 @@ repo_open <- function(root="~/.R_repo", force=F)
         },
         
       put = function(obj, name, description, tags, src=NULL,                       
-                     depends=NULL, replace=F, notes=NULL, asattach=F,
-                     to=NULL, addversion=F, URL=NULL)
+                     depends=NULL, replace=F, asattach=F,
+                     to=NULL, addversion=F, URL=NULL, checkRelations=T)
         {
             checkIndexUnchanged()
 
@@ -1094,17 +1141,15 @@ repo_open <- function(root="~/.R_repo", force=F)
                 tags <- unique(c(tags, "attachment"))
             }
 
-            if(!is.null(src)) 
+            if(!is.null(depends) && checkRelations) 
+                stopOnNotFound(depends)
+
+            if(!is.null(src) && checkRelations) 
                 stopOnNotFound(src)
             
-            if(!is.null(to))
+            if(!is.null(to) && checkRelations)
                 stopOnNotFound(to)
 
-            ## if(is.null(src))
-            ##     src <- NA
-
-            storedfrom <- src
-            
             repoE <- list(name = name,
                           description = description,
                           tags = tags,
@@ -1240,16 +1285,27 @@ repo_open <- function(root="~/.R_repo", force=F)
     return(me)
 }
 
+
 if(F)
     {
         library(repo)
         fld <- tempdir()
         rp <- repo_open(fld, T)
-        rp2 <- repo_open(file.path(fld, "2"), T)
+        rp$put(1, "1", "1", "1")
+        rp$put(2, "2", "2", "2", src=1)
+        rp$put(3, "3", "3", "3", src=1, depends=c(1,2))
+        rp$put(4, "4", "4", "4", depends=3)
+        rp$put(5, "5", "5", "5")
+        rp$put(6, "6", "6", "6", depends=5)
         pdf(file.path(fld, "temp.pdf"))
         plot(runif(10))
         dev.off()
-        rp$attach(file.path(fld, "temp.pdf"), "descr", "tag",replace=T)
+        rp$attach(file.path(fld, "temp.pdf"), "descr", "tag",replace=T, to=2)
+        rp$set("6",depends=c("4","5"))
+        
+        rp2 <- repo_open(file.path(fld, "2"), T)
         rp$get("temp.pdf")
-        rp$copy(rp2, "temp.pdf", replace=T)        
+        rp$copy(rp2, "temp.pdf", replace=T)
+
+
     }

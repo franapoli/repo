@@ -2,13 +2,19 @@
 # News
 
 
-05/20/16
+05/21/16
 
 + `get` can now be used on attachments, returns file path
 
 + `attach` now works with attachments
 
-+ `attach` supports `forgetRelations` parameter.
++ `attach` supports `checkRelations`. This way, when set to F, the
+`copy` method can copy a set of items in any order.
+
++ Fixed a few bugs with `copy` when copying multiple items.
+
++ Added `related` function, to be used with `summary` or `export` to
+extract a set of items including dependencies.
 
 
 05/18/16
