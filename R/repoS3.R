@@ -401,6 +401,8 @@ print.repo <- function(x, tags=NULL, tagfun="OR", find=NULL, all=F, show="ds", .
 #' @param where Destination directory
 #' @param tags List of tags: all items tagged with all the tags in the
 #' list will be exported.
+#' @param askconfirm If T ask confirmation when exporting multiple
+#' items.
 #' @return TRUE on success, FALSE otherwise.
 #' @examples
 #' rp_path <- file.path(tempdir(), "example_repo")
@@ -410,8 +412,8 @@ print.repo <- function(x, tags=NULL, tagfun="OR", find=NULL, all=F, show="ds", .
 #'
 #' ## wiping temporary repo
 #' unlink(rp_path, TRUE)
-repo_export <- function(rp, name, where=".", tags=NULL)
-    rp$export(name, where, tags)
+repo_export <- function(rp, name, where=".", tags=NULL, askconfirm=T)
+    rp$export(name, where, tags, askconfirm)
 
 #' Provides detailed information about an item.
 #' 

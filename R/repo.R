@@ -63,6 +63,11 @@ repo_open <- function(root="~/.R_repo", force=F)
 
         }
 
+    itemfname <- function(name)
+        {
+            if(isAttachment(name))
+                return(name) else return(paste0(name, ".RDS"))
+        }
 
     getRelatives <- function(names, ascendants=T, firstset=names)
     {
@@ -301,7 +306,7 @@ repo_open <- function(root="~/.R_repo", force=F)
             if(length(entries)<1)
                 return(T)
             names <- sapply(entries, get, x="name")
-            return(!(name %in% names))
+            return(!all((name %in% names)))
         }
 
     rmData <- function(name, phase)
@@ -740,15 +745,15 @@ repo_open <- function(root="~/.R_repo", force=F)
             invisible(m)
         },
 
-        export = function(name, where=".", tags=NULL)
+        export = function(name, where=".", tags=NULL, askconfirm=T)
         {
             if(!xor(missing(name), is.null(tags)))
                 stop("You must specify either names or tags.")
 
             if(!is.null(tags) | length(name)>1){
-                runWithTags("export", tags, name, T, where)
+                runWithTags("export", tags, name, askconfirm, where=where)
             } else {
-                ipath = do.call(file.path, buildpath(name))
+                ipath <- file.path(root, getEntry(name)[["dump"]])
                 if(isAttachment(name))
                     fname <- name else fname <- paste0(name, ".RDS")
                 file.copy(ipath, file.path(where, fname))
@@ -896,7 +901,7 @@ repo_open <- function(root="~/.R_repo", force=F)
 
       attr = function(name, attrib)
       {
-          okattr <- c("path")
+          okattr <- c("path", "URL")
           if(!(attrib %in% okattr))
               stop(paste("attrib must be one of:",
                          paste(okattr, collapse=", ")))
@@ -906,7 +911,8 @@ repo_open <- function(root="~/.R_repo", force=F)
           }
           entry <- getEntry(name)
           switch(attrib, 
-              "path" = {res <- file.path(root, entry$dump)}
+                 "path" = {res <- file.path(root, entry$dump)},
+                 "URL" = {res <- entry$URL}
           )
           return(res)
       },
@@ -1004,16 +1010,19 @@ repo_open <- function(root="~/.R_repo", force=F)
         },
         
         set = function(name, obj=NULL, newname=NULL, description=NULL,
-            tags=NULL, src=NULL, depends=NULL, addtags=NULL, URL=NULL)
+            tags=NULL, src=NULL, depends=NULL, addtags=NULL, URL=NULL,
+                       buildURL=NULL)
         {
             checkIndexUnchanged()                    
             
             if(missing(name) | (missing(newname) & missing(obj) & missing(description) &
                                 missing(tags) & missing(addtags) & missing(src) &
-                                missing(depends) & missing(URL)))
+                                missing(depends) & missing(URL) & missing(buildURL)))
                 stop("You must provide name and one of: obj, description, tags or addtags, src, depends, URL")
             if(!missing(tags) & !missing(addtags))
                 stop("You can not specify both tags and addtags.")
+            if(!missing(URL) & !missing(buildURL))
+                stop("You can not specify both URL and buildURL.")
             
             if(checkName(name))
                 handleErr("ID_NOT_FOUND", name)
@@ -1041,6 +1050,14 @@ repo_open <- function(root="~/.R_repo", force=F)
             if(!missing(URL))
                 entr$URL <- URL
 
+            if(!missing(buildURL)) {
+                lastl <- substr(buildURL, nchar(buildURL), nchar(buildURL))
+                if(lastl=="/")
+                    entr$URL <- paste0(buildURL, itemfname(name)) else {
+                        entr$URL <- paste0(buildURL, "/", itemfname(name))
+                    }
+               }
+            
             if(!is.null(obj)) {
                 newinfo <- setData(entr$name, obj, isAttachment(entr$name))
                 entr$dump <- newinfo[["dump"]]
