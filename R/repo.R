@@ -185,6 +185,7 @@ repo_open <- function(root="~/.R_repo", force=F)
             return(entries[[e]])
         }
 
+    
     runWithTags <- function(f, tags, names, askconfirm, tagfun="OR", ...) {
         if(!is.null(tags))
             e <- findEntries(tags, tagfun) else {
@@ -551,14 +552,16 @@ repo_open <- function(root="~/.R_repo", force=F)
         },
 
         copy = function(destrepo, name, tags=NULL, replace=F, confirm=T, forgetRelations=F)
-        {            
+            {
             if(!("repo" %in% class(destrepo)))
                 stop("destrepo must be an object of class repo.")
             if(!xor(missing(name), is.null(tags)))
                 stop("You must specify either names or tags.")
 
             if(length(name) > 1 | !is.null(tags)) {
-                runWithTags("copy", tags, name, confirm, destrepo)
+                runWithTags("copy", tags, name, replace=replace,
+                            askconfirm=confirm, forgetRelations=forgetRelations,
+                            destrepo=destrepo)
             } else {
                 if(checkName(name)) {
                     handleErr("ID_NOT_FOUND", name)
