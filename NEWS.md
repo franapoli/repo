@@ -1,6 +1,10 @@
 
 # News
 
+06/01/16
+
++ added `buildURL` parameter to `set`
+
 
 05/21/16
 

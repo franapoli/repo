@@ -1053,8 +1053,8 @@ repo_open <- function(root="~/.R_repo", force=F)
             if(!missing(buildURL)) {
                 lastl <- substr(buildURL, nchar(buildURL), nchar(buildURL))
                 if(lastl=="/")
-                    entr$URL <- paste0(buildURL, itemfname(name)) else {
-                        entr$URL <- paste0(buildURL, "/", itemfname(name))
+                    entr$URL <- paste0(buildURL, entr$dump) else {
+                        entr$URL <- paste0(buildURL, "/", entr$dump)
                     }
                }
             
