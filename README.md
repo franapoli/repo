@@ -3,6 +3,8 @@
 [1]: http://www.twitter.com/franapoli
 <!-- Grab your social icons from https://github.com/carlsednaoui/gitsocial -->
 
+[![](http://cranlogs.r-pkg.org/badges/repo)](http://cran.rstudio.com/web/packages/repo/index.html)
+
 ## Repo
 
 Repo is a data-centered data flow manager. It allows to store R data
