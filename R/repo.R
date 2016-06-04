@@ -1,14 +1,35 @@
+##
+## Source code for Repo
+##
+## Francesco Napolitano, franapoli@gmail.com
+##
+## lines with ## ** have TODOs
 
 globalVariables(c("DEBUG", "entries", "this"))
 
-library(digest) # digest
-library(tools) # md5sum
+
+library(digest) # digest is used in lazydo and bulkedit
+library(tools) # md5sum for checking stored data
 
 
+## repo uses "Local Environment Approach"
+## (http://www.cyclismo.org/tutorial/R/s3Classes.html#s3classesmethodslocal)
+## All repo objects are defined within the repo_open function. They
+## include a list of "methods" that the user can call, and a number of
+## functions only used within repo.
 repo_open <- function(root="~/.R_repo", force=F)
 {
     DEBUG <- F
 
+    
+############################################
+########## PRIVATE METHODS #################
+############################################
+
+    ## **
+    ## This function is meant the centralize messages. in order to
+    ## better manage string constants. A few messages are still
+    ## around, centralization is ongoing.
     handleErr <- function(err, ...)
         {
             pars <- list(...)
@@ -63,12 +84,10 @@ repo_open <- function(root="~/.R_repo", force=F)
 
         }
 
-    itemfname <- function(name)
-        {
-            if(isAttachment(name))
-                return(name) else return(paste0(name, ".RDS"))
-        }
 
+    ## Finds the connected component in the dependancy graph
+    ## containing a given set of items. Useful to extract indipendent
+    ## pieces of a repository.
     getRelatives <- function(names, ascendants=T, firstset=names)
     {
         makenull <- function(res) {
@@ -94,7 +113,9 @@ repo_open <- function(root="~/.R_repo", force=F)
         }
     }
 
-    
+    ## Given an item name, builds the file path where actual object is
+    ## stored. For legacy reasons handles both absolute and relative
+    ## to repository root paths.
     getFile <- function(name)
         {
             entry <- getEntry(name)
@@ -106,6 +127,7 @@ repo_open <- function(root="~/.R_repo", force=F)
             return(fpath)
         }
 
+    ## Stores actual data for an existing item to a file.
     setData <- function(name, obj, asattach)
     {
         w <- findEntryIndex(name)
@@ -135,7 +157,10 @@ repo_open <- function(root="~/.R_repo", force=F)
 
         return(newdata)
     }
-    
+
+    ## **
+    ## Checks wether a set of provided tags are OK. A few tags are
+    ## reserved, but this needs to be handled better.
     checkTags <- function(tags, name=NULL, replace=F)
     {
 
@@ -157,7 +182,10 @@ repo_open <- function(root="~/.R_repo", force=F)
 
         return(unique(tags))
     }
+
     
+    ## Checks if an item has multiple version (other items by the same
+    ## name + "#1", "#2", ... and return them
     checkVersions <- function(name)
         {
             names <- sapply(entries, get, x="name")
@@ -175,6 +203,7 @@ repo_open <- function(root="~/.R_repo", force=F)
         }
 
 
+    ## Makes a path relative to the repository root
     relativePath <- function(path)
     {
         sep <- .Platform$file.sep
@@ -182,7 +211,9 @@ repo_open <- function(root="~/.R_repo", force=F)
         relpath <- gsub(paste0(root, sep), "", path ,fixed=T)
         return(relpath)
     }
+
     
+    ## this makes sure the repository is not empty
     stopOnEmpty <- function(doreturn=F) {
         if(length(entries)<1) {
             if(doreturn)
@@ -190,7 +221,9 @@ repo_open <- function(root="~/.R_repo", force=F)
         }
         return(0)
     }
-
+    
+    
+    ## ** Only used by get for deprecated formats, need to be cleaned
     setEntry <- function(name, newEntry)
     {
         stopOnNotFound(name)
@@ -198,7 +231,8 @@ repo_open <- function(root="~/.R_repo", force=F)
         entries[[e]] <- newEntry
         assign("entries", entries, thisEnv)
     }
-    
+
+    ## makes sure that an item exists
     stopOnNotFound <- function(names=NULL, tags=NULL)
         {
             stopOnEmpty()
@@ -208,6 +242,7 @@ repo_open <- function(root="~/.R_repo", force=F)
                 handleErr("ID_NOT_FOUND", names[is.na(w)])
         }
     
+    ## returns an item's entry
     getEntry <- function(name) {
             e <- findEntryIndex(name)
             if(is.null(e))
@@ -217,6 +252,10 @@ repo_open <- function(root="~/.R_repo", force=F)
         }
 
     
+    ## ** messages need externalization
+    ##
+    ## this is used by all function that support running on multiple
+    ## names or tags
     runWithTags <- function(f, tags, names, askconfirm, tagfun="OR", ...) {
         if(!is.null(tags))
             e <- findEntries(tags, tagfun) else {
@@ -249,7 +288,8 @@ repo_open <- function(root="~/.R_repo", force=F)
                 }
         }
 
-    
+
+    ## makes units of measures human readable for print
     hmnRead <- function(bytes) {
 
         values <- c(
@@ -266,7 +306,17 @@ repo_open <- function(root="~/.R_repo", force=F)
         final <- format(round(m,2), scientific=F)
         return(paste0(final, " ", names(m)))
         }
+
     
+    ## ** messages to be externalized
+    ## ** multiple writes are not 100% safe
+    ##
+    ## checks that the repository index has not changed since last
+    ## write. This is necessary when the same repository is open in
+    ## multiple instances. For example, one may try to read something
+    ## that has been removed. Race conditions are not yet completely
+    ## avoided, anyway they are extrimely rare and only involve meta
+    ## data (not data).
     checkIndexUnchanged <- function() {
         if(DEBUG) {
             message(paste0("checkIndexUnchanged: cur MD5 is ", md5sum(repofile)))
@@ -280,7 +330,9 @@ repo_open <- function(root="~/.R_repo", force=F)
                              "(which may include deletions). You may want to run \"check\" ",
                              "on this session first.")))
     }
-    
+
+
+    ## store all meta data
     storeIndex <- function() {
         saveRDS(entries, repofile)
         if(DEBUG) {
@@ -291,6 +343,9 @@ repo_open <- function(root="~/.R_repo", force=F)
         assign("indexMD5", md5sum(repofile), thisEnv)
         }
 
+
+    ## **
+    ## this is now only used by storeData, neads cleaning
     buildpath <- function(resname)
         {
             resname <- paste0(sample(c(0:9,letters), 32, T),collapse="")
@@ -301,6 +356,7 @@ repo_open <- function(root="~/.R_repo", force=F)
                         resname))
         }
 
+    ## check if an item name already exists
     checkName <- function(name)
         {
             if(length(entries)<1)
@@ -309,6 +365,10 @@ repo_open <- function(root="~/.R_repo", force=F)
             return(!all((name %in% names)))
         }
 
+    ## Delete itme's file. For safety it's done in 3 phases. 1)
+    ## Existing file is renamed, 2) new file is created, 3) old file
+    ## is removed. If anything goes wrong before 3, old file is
+    ## restored.
     rmData <- function(name, phase)
     {
         fpath <- getFile(name)
@@ -334,6 +394,7 @@ repo_open <- function(root="~/.R_repo", force=F)
         return(invisible(NULL))
     }
 
+    ## stores data in RDS format or copies it if it's an attachment
     storeData <- function(name, obj, attach=F)
         {
             opath <- buildpath(name)
@@ -358,6 +419,7 @@ repo_open <- function(root="~/.R_repo", force=F)
             return(list(path=fpath, size=file.info(fpath)$size))
         }
 
+    ## builds the item's dependency graph
     depgraph <- function(tags = NULL, tagfun, depends=T, attached=T, generated=T)
         {            
             stopOnEmpty()
@@ -396,6 +458,8 @@ repo_open <- function(root="~/.R_repo", force=F)
         }
 
 
+    ## ** like getEntry, but returns just the index. There's an
+    ## inconsistency between "find" and "get"
     findEntryIndex <- function(name)
         {
             if(is.null(entries) | length(entries)<1) {
@@ -409,6 +473,8 @@ repo_open <- function(root="~/.R_repo", force=F)
             return(w)
         }
 
+    ## finds a set of entries using tags and logic operators or string
+    ## matching
     findEntries <- function(tags=NULL, tagfun="OR", find=NULL)
         {
             if(!is.null(tags)) {
@@ -434,12 +500,14 @@ repo_open <- function(root="~/.R_repo", force=F)
             return(which(w))
         }
 
+    ## tells wether an item is an attachment
     isAttachment <- function(name)
         {
             w <- findEntryIndex(name)
             return("attachment" %in% entries[[w]]$tags)
         }
 
+    ## returns the list of items attached to an item
     attachments <- function(name)
         {
             r <- match(name,  sapply(entries, get, x="attachedto"))
@@ -448,6 +516,7 @@ repo_open <- function(root="~/.R_repo", force=F)
             return(r)
         }
 
+    ## returns the list of items dependant on an item
     dependants <- function(name)
         {
             r <- sapply(sapply(entries, get, x="depends"), match, x=name)
@@ -456,13 +525,19 @@ repo_open <- function(root="~/.R_repo", force=F)
                 return(NULL)            
             return(w)
         }
-    
+
+    ## ** shortens a path using the home (~) notation. Only used by
+    ## "info", so could be redesigned.
     compressPath <- function(path)
         {
             hp <- path.expand("~")
             return(gsub(paste0("^",hp), "~", path))
         }
 
+
+    ## ** creates a table with all items metadata to be shown by
+    ## print. Currently filters are applied in the end, which slows
+    ## down the process. The flags column is currently not used.
     entriesToMat <- function(w)
         {
             entr <- entries[w]
@@ -497,25 +572,25 @@ repo_open <- function(root="~/.R_repo", force=F)
             return(a)
         }
 
-    
-    cutString <- function(text, len, dotsafter=T)
-        {
-            if(nchar(text) == len)
-                return(text)
-            if(nchar(text) < len)
-                return(format(text, width = len))
-            if(dotsafter) {
-                text <- substr(text, 1, len-3)
-                return(paste0(text ,"..."))
-            } else {
-                text <- substr(text, nchar(text)-(len-4), nchar(text))
-                return(paste0("...", text))
-            }
-            
-        }
+
+        
+############################################
+########## PUBLIC METHODS ##################
+############################################
 
     
+    ## This list contains the functions that will be returned to the
+    ## user as interface to the repo object. Each of these functions
+    ## is also defined as a regular function in the global
+    ## environment. The function 'foo' for example is also defined as
+    ## 'repo_foo', taking the repository object as first
+    ## parameter. The reason for the definition of the repo_* function
+    ## was mainly in the use of roxygen, which doesn't work
+    ## here. repo_* functions are defined and documented in the
+    ## repoS3.R file. Refer to that file for the user documentation of
+    ## the following functions.
     me <- list(
+        
         related = function(names, type="all", excludeseed=F)
         {            
             switch(type,
@@ -1264,8 +1339,7 @@ repo_open <- function(root="~/.R_repo", force=F)
 
 
     root <- normalizePath(root, mustWork=F)
-    REPOFNAME <- "R_repo.RDS"
-    repofile <- file.path(root, REPOFNAME)
+    repofile <- file.path(root, "R_repo.RDS")
     thisEnv <- environment()
     class(me) <- append(class(me),"repo")
     assign('this', me, envir=thisEnv)
@@ -1303,26 +1377,26 @@ repo_open <- function(root="~/.R_repo", force=F)
 }
 
 
-if(F)
-    {
-        library(repo)
-        fld <- tempdir()
-        rp <- repo_open(fld, T)
-        rp$put(1, "1", "1", "1")
-        rp$put(2, "2", "2", "2", src=1)
-        rp$put(3, "3", "3", "3", src=1, depends=c(1,2))
-        rp$put(4, "4", "4", "4", depends=3)
-        rp$put(5, "5", "5", "5")
-        rp$put(6, "6", "6", "6", depends=5)
-        pdf(file.path(fld, "temp.pdf"))
-        plot(runif(10))
-        dev.off()
-        rp$attach(file.path(fld, "temp.pdf"), "descr", "tag",replace=T, to=2)
-        rp$set("6",depends=c("4","5"))
+## if(F)
+##     {
+##         library(repo)
+##         fld <- tempdir()
+##         rp <- repo_open(fld, T)
+##         rp$put(1, "1", "1", "1")
+##         rp$put(2, "2", "2", "2", src=1)
+##         rp$put(3, "3", "3", "3", src=1, depends=c(1,2))
+##         rp$put(4, "4", "4", "4", depends=3)
+##         rp$put(5, "5", "5", "5")
+##         rp$put(6, "6", "6", "6", depends=5)
+##         pdf(file.path(fld, "temp.pdf"))
+##         plot(runif(10))
+##         dev.off()
+##         rp$attach(file.path(fld, "temp.pdf"), "descr", "tag",replace=T, to=2)
+##         rp$set("6",depends=c("4","5"))
         
-        rp2 <- repo_open(file.path(fld, "2"), T)
-        rp$get("temp.pdf")
-        rp$copy(rp2, "temp.pdf", replace=T)
+##         rp2 <- repo_open(file.path(fld, "2"), T)
+##         rp$get("temp.pdf")
+##         rp$copy(rp2, "temp.pdf", replace=T)
 
 
-    }
+##     }
