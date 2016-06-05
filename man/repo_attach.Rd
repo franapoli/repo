@@ -17,11 +17,8 @@ repo_attach(rp, filepath, description, tags, src = NULL, replace = F,
 \item{tags}{A list of tags to sort the item. Tags are useful for
 selecting sets of items and run bulk actions.}
 
-\item{src}{The item's provenance as a list of character. Usually
-the name of the script producing the stored object, a website where
-the object was downloaded, and so on. If one of the provenance
-strings matches the name of a repo's item, this will create a
-dependency link.}
+\item{src}{The name of the item that produced the stored
+object. Usually a previously attached source code file.}
 
 \item{replace}{If the item exists, overwrite the specified fields.}
 

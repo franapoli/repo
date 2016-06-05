@@ -52,6 +52,8 @@ NULL
 #'     finds items that \code{names} is attached to. "from" recursively
 #'     finds items that \code{names} depends on or is generated
 #'     by. "all" finds both (connected components including \code{names}.
+#' @param excludeseed logical. If set to FALSE \code{names} will be
+#' not included in the output list.
 #' @return A \code{character} vector of item names.
 #' @seealso dependencies
 repo_related <- function(rp, names, type="all", excludeseed=F)
@@ -800,6 +802,8 @@ repo_stashclear <- function(rp, force=F)
 #'     download actual item data from. Dafault is NULL.
 #' @param checkRelations Check if items referenced by this item
 #'     exist. Default is T.
+#' @param addversion Deprecated, use the \code{replace} parameter
+#' instead.
 #' @return Used for side effects.
 #' @seealso get, set, attach, info
 #' @examples

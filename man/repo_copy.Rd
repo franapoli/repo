@@ -4,7 +4,7 @@
 \alias{repo_copy}
 \title{Copy items to another repository}
 \usage{
-repo_copy(rp, destrepo, name, tags = NULL)
+repo_copy(rp, destrepo, name, tags = NULL, replace = F, confirm = T)
 }
 \arguments{
 \item{rp}{An object of class repo (will copy from it)}
@@ -13,7 +13,14 @@ repo_copy(rp, destrepo, name, tags = NULL)
 
 \item{name}{The name (or list of names) of the item/s to copy}
 
-\item{tags}{If not NULL, copy all items matching tags.}
+\item{tags}{If not NULL, copy all items matching tags. NULL by
+default.}
+
+\item{replace}{What to do if item exists in destination repo (see
+put). F by default.}
+
+\item{confirm}{If F, don't ask for confirmation when multiple items
+are involved. F by default.}
 }
 \value{
 Used for side effects.

@@ -3,43 +3,28 @@
 
 06/01/16
 
-+ added `buildURL` parameter to `set`
-
-
-05/21/16
++ added `buildURL` parameter to `set`. It will add an URL to all
+items, such that it can be used is the repository is uploaded to a
+website.
 
 + `get` can now be used on attachments, returns file path
 
-+ `attach` now works with attachments
++ Fixed bugs in `attach` not working with attachments
 
-+ `attach` supports `checkRelations`. This way, when set to F, the
-`copy` method can copy a set of items in any order.
++ Fixed a few bugs with `copy` when copying multiple items. Now also
+accepts `confirm` and `replace`
 
-+ Fixed a few bugs with `copy` when copying multiple items.
-
-+ Added `related` function, to be used with `summary` or `export` to
-extract a set of items including dependencies.
-
-
-05/18/16
-
-+ `copy` now accepts `confirm` and `replace`
++ Added `related` function to extract items directly or indirectly
+related to an input item.
 
 + added internal `testthat` unit testing
 
-
-05/05/16
-
-+ `pies` and `dependencies` now support additional parameters (...) to
-pass to `graphics:pie` and `igraph:plot` respectively.
-
-+ `pies` now merges together all items with size < 5% of the total.
-
-+ `dependencies` now supports tags to filter nodes to be showed.
-
-+ Added missing documentation for `pies`.
-
-+ Fixed documentation for `attach`.
++ A few changes to `pies` and `dependencies`. They now support
+additional parameters (...) to pass to `graphics:pie` and
+`igraph:plot` respectively. `pies` now merges together all items with
+size < 5% of the total. `dependencies` now supports tags to filter
+nodes to be showed. Also missing documentation for `pies` has ben
+added.
 
 
 05/03/16

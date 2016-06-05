@@ -5,7 +5,8 @@
 \title{Create a new item in the repo.}
 \usage{
 repo_put(rp, obj, name, description, tags, src = NULL, depends = NULL,
-  replace = F, asattach = F, to = NULL)
+  replace = F, asattach = F, to = NULL, addversion = F, URL = NULL,
+  checkRelations = T)
 }
 \arguments{
 \item{rp}{An object of class repo.}
@@ -19,21 +20,34 @@ repo_put(rp, obj, name, description, tags, src = NULL, depends = NULL,
 \item{tags}{A list of tags to sort the item. Tags are useful for
 selecting sets of items and run bulk actions.}
 
-\item{src}{Name of an existing item to be recorded as the
+\item{src}{Name of an existing item to be annotated as the
 "generator" of the new item. Usually it is an attachment item
-containing the source that generated the new item.}
+containing the source code that generated the new item. Default
+is NULL.}
 
-\item{depends}{List of character: items that depend on this item.}
+\item{depends}{Character vector: items that depend on this
+item. Default is NULL.}
 
-\item{replace}{One of: V, F, "addversion". Default is F. If V,
-overwrite an existing item by the same name. If F stops with an
-error. If "addversion" the new item is stored as a new version
-and the old item is renamed by appending a "#N" suffix.}
+\item{replace}{One of: V, F, "addversion" to define behaviour when
+an item by the same name exists. If V, overwrite it. If F stop
+with an error. If "addversion" the new item is stored as a new
+version and the old item is renamed by appending a "#N"
+suffix. Default is F.}
 
 \item{asattach}{Specifies that the item is to be trated as an
-attachment (see attach).}
+attachment (see attach). Default is F.}
 
-\item{to}{Optionally specifies which item this item is attached to.}
+\item{to}{Vector of character. Specifies which item this item is
+attached to. Default is NULL.}
+
+\item{addversion}{Deprecated, use the \code{replace} parameter
+instead.}
+
+\item{URL}{Remote URL where the \code{pull} function expets to
+download actual item data from. Dafault is NULL.}
+
+\item{checkRelations}{Check if items referenced by this item
+exist. Default is T.}
 }
 \value{
 Used for side effects.

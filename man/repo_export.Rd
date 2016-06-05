@@ -4,7 +4,7 @@
 \alias{repo_export}
 \title{Export \code{repo} items to RDS file.}
 \usage{
-repo_export(rp, name, where = ".", tags = NULL)
+repo_export(rp, name, where = ".", tags = NULL, askconfirm = T)
 }
 \arguments{
 \item{rp}{An object of class repo.}
@@ -15,6 +15,9 @@ repo_export(rp, name, where = ".", tags = NULL)
 
 \item{tags}{List of tags: all items tagged with all the tags in the
 list will be exported.}
+
+\item{askconfirm}{If T ask confirmation when exporting multiple
+items.}
 }
 \value{
 TRUE on success, FALSE otherwise.
