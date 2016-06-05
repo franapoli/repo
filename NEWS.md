@@ -1,7 +1,7 @@
 
 # News
 
-06/01/16
+06/01/16, v2.0.4.5
 
 + added `buildURL` parameter to `set`. It will add an URL to all
 items, such that it can be used is the repository is uploaded to a
