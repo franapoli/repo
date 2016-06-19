@@ -45,13 +45,11 @@ Repo is on CRAN and can be installed from within R as follows:
     > install.packages("repo")
     
 However, CRAN versions are not updated very often. Latest stable
-release can be downloaded from Github at:
+release can be downloaded from Github at
+[https://github.com/franapoli/repo](https://www.github.com/franapoli/repo/).
+Repo can then be installed from the downloaded sources as follows:
 
-    [https://github.com/franapoli/repo](https://github.com/franapoli/repo)
-
-Then Repo can be installed from the downloaded sources as follows:
-
-    $ install.packages("path-to-downloaded-source", repos=NULL)
+    > install.packages("path-to-downloaded-source", repos=NULL)
 
 `devtools` users can download and install at once the latest development
 version from github as follows:
