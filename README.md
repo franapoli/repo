@@ -56,6 +56,6 @@ Then Repo can be installed from the downloaded sources as follows:
 `devtools` users can download and install at once the latest development
 version from github as follows:
 
-    install_github("franapoli/repo", ref="master")
+    > install_github("franapoli/repo", ref="dev")
 
 
