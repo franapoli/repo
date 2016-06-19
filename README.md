@@ -47,7 +47,7 @@ Repo is on CRAN and can be installed from within R as follows:
 However, CRAN versions are not updated very often. Latest stable
 release can be downloaded from Github at:
 
-    $ https://github.com/franapoli/repo
+    [https://github.com/franapoli/repo](https://github.com/franapoli/repo)
 
 Then Repo can be installed from the downloaded sources as follows:
 
