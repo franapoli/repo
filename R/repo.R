@@ -84,6 +84,17 @@ repo_open <- function(root="~/.R_repo", force=F)
 
         }
 
+    getChunk <- function(name)        
+    {
+        entry <- getEntry(name)
+        nwln <- "[\r\n|\r|\n]"
+
+        parstring <- paste0(".*?",
+                            "(## repo chunk test \\{[:space:]*", nwln, ")",
+                            "(.*?)", nwln,
+                            "## repo chunk \\}[:space:]*", nwln)
+        sub(parstring, "\\1", x)
+    }
 
     ## Finds the connected component in the dependancy graph
     ## containing a given set of items. Useful to extract indipendent
