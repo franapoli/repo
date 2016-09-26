@@ -987,7 +987,7 @@ repo_open <- function(root="~/.R_repo", force=F)
 
       attr = function(name, attrib)
       {
-          okattr <- c("path", "URL")
+          okattr <- c("path", "URL", "srcfile")
           if(!(attrib %in% okattr))
               stop(paste("attrib must be one of:",
                          paste(okattr, collapse=", ")))
@@ -998,7 +998,8 @@ repo_open <- function(root="~/.R_repo", force=F)
           entry <- getEntry(name)
           switch(attrib, 
                  "path" = {res <- file.path(root, entry$dump)},
-                 "URL" = {res <- entry$URL}
+                 "URL" = {res <- entry$URL},
+                 "srcfile" = {res <- get("this", thisEnv)$get(entry$source)}
           )
           return(res)
       },
@@ -1201,7 +1202,7 @@ repo_open <- function(root="~/.R_repo", force=F)
             } else get("this", thisEnv)$set(name, obj=readRDS(tf))            
         },
         
-      put = function(obj, name, description, tags, src=NULL,                       
+      put = function(obj, name, description, tags, src=NULL, chunk=name,
                      depends=NULL, replace=F, asattach=F,
                      to=NULL, addversion=F, URL=NULL, checkRelations=T)
         {
@@ -1263,6 +1264,7 @@ repo_open <- function(root="~/.R_repo", force=F)
                           size = NULL,
                           checksum = NULL,
                           source = src,
+                          chunk = chunk,
                           depends = depends,
                           attachedto = to,
                           URL = URL)            
@@ -1375,7 +1377,7 @@ repo_open <- function(root="~/.R_repo", force=F)
                     if(tolower(n) == "yes") {
                         dir.create(root)
                         message("Repo root created.")
-                    } else message("Nothing done.")
+                    } else { message("Nothing done."); return(invisible()) }
                 }
 
             storeIndex()
