@@ -87,13 +87,48 @@ repo_open <- function(root="~/.R_repo", force=F)
     getChunk <- function(name)        
     {
         entry <- getEntry(name)
-        nwln <- "[\r\n|\r|\n]"
+        if(is.null(entry$source))
+            return(NULL)
+        cname <- entry$chunk
 
-        parstring <- paste0(".*?",
-                            "(## repo chunk test \\{[:space:]*", nwln, ")",
-                            "(.*?)", nwln,
-                            "## repo chunk \\}[:space:]*", nwln)
-        sub(parstring, "\\1", x)
+        srcfile <- get("this", thisEnv)$attr(name, "srcfile")
+        txt <- readLines(srcfile)
+        s0 <- "[[:space:]]*"
+        s1 <- "[[:space:]]+"
+        chtag <- "rpchunk"
+        chname <- "([[:alnum:]]+)"
+        chopen <- "\\{"
+        chclose <- "\\}"
+        startstr <- paste0("^", s0, "#+", s0, chtag, s1, chname, s0, chopen,  s0, "$")
+        endstr   <- paste0("^", s0, "#+", s0, chtag, s1, chname, s0, chclose, s0, "$")
+
+        oks <- which(sapply(txt, grepl, pattern=startstr, perl=T))
+        tagss <- sapply(txt[oks], sub, pattern=startstr, replacement="\\1", perl=T)
+        if(!(cname %in% tagss))
+            return(NULL)
+        names(oks) <- tagss
+        if(any(duplicated(tagss)))
+            stop(paste("Chunk names are not unique: ",
+                       unique(tagss[duplicapted(tagss)])))
+
+        oke <- which(sapply(txt, grepl, pattern=endstr, perl=T))
+        tagse <- sapply(txt[oke], sub, pattern=endstr, replacement="\\1", perl=T)
+        names(oke) <- tagse
+
+        chunks <- vector("character", length(tagss))
+        for(i in which(tagss == cname)) ## written to find all chunks
+        {
+            tag <- tagss[i]
+            if(!(tag %in% tagse))
+                stop(paste(tag, "has no matching end"))
+            if(sum(tagse==tag)>1)
+                stop(paste(tag, "has more than 1 matching end"))
+            if(oke[tag]<oks[tag])
+                stop(paste(tag, "has end line before start line"))
+            chunks[i] <- paste(txt[(oks[tag]+1):(oke[tag]-1)], collapse="\n")
+        }
+        return(chunks[[which(tagss==cname)]])
+        
     }
 
     ## Finds the connected component in the dependancy graph
@@ -1004,6 +1039,21 @@ repo_open <- function(root="~/.R_repo", force=F)
           return(res)
       },
 
+      chunk = function(name)
+      {
+          ch <- getChunk(name)
+          cat(ch, "\n", sep="")
+      },
+
+      build = function(name)
+      {
+          ch <- getChunk(name)
+          data <- eval(parse(text=ch))
+          ##get("this", thisEnv)$set(name, data, replace=replace)
+          return(data)
+      },
+      
+
         get = function(name)
         {          
             if(checkName(name)){                
@@ -1043,7 +1093,9 @@ repo_open <- function(root="~/.R_repo", force=F)
                 
         entries = function()
         {
-            return(get("entries",thisEnv))
+            ent <- get("entries",thisEnv)
+            names(ent) <- sapply(ent, get, x="name")
+            return(ent)
         },
 
         tag = function(name = NULL, newtags, tags = NULL)
