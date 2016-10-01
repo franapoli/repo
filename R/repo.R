@@ -79,9 +79,11 @@ repo_open <- function(root="~/.R_repo", force=F)
                    },
                    "ATTACHMENT_FILE_NOT_FOUND" = {
                        stop(paste0("Attachment file not found"))
+                   },
+                   "INFO_BUILDING_DEPS" = {
+                       message(paste("Building dependency:", lpars))
                    }
                    )
-
         }
 
     getChunk <- function(name)        
@@ -222,7 +224,7 @@ repo_open <- function(root="~/.R_repo", force=F)
                 warning(paste0("The following tags are already present (not case sensitive): ",
                             paste0(comm, collapse=", ")))
         }
-        reservedTags <- c("stash", "attachment")
+        reservedTags <- c("stash", "attachment", "#project")
         if(any(tolower(tags) %in% reservedTags))
             handleErr("TAG_RESERVED", tags[tolower(tags) %in% reservedTags])                 
 
@@ -284,7 +286,7 @@ repo_open <- function(root="~/.R_repo", force=F)
             stopOnEmpty()
             allnames <- sapply(entries, get, x="name")
             w <- match(names, allnames)
-            if(all(is.na(w)))
+            if(any(is.na(w)))
                 handleErr("ID_NOT_FOUND", names[is.na(w)])
         }
     
@@ -572,6 +574,17 @@ repo_open <- function(root="~/.R_repo", force=F)
             return(w)
         }
 
+    ## returns the list of items belonging to a project item
+    prjmembers <- function(name)
+        {
+            r <- sapply(sapply(entries,`[[`,"prj"), match, x=name)
+            w <- which(!is.na(r))
+            if(length(w)<1)
+                return(NULL)            
+            return(w)
+        }
+    
+    
     ## ** shortens a path using the home (~) notation. Only used by
     ## "info", so could be redesigned.
     compressPath <- function(path)
@@ -903,33 +916,47 @@ repo_open <- function(root="~/.R_repo", force=F)
             if(!is.null(tags) | length(name)>1){
                 runWithTags("info", tags, name, askconfirm=F)
             } else {            
-                                        #e <- get("findEntryIndex",thisEnv)(name)
+                
                 e <- findEntryIndex(name)
                 if(is.null(e))
                     stop("Identifier not found.")
 
-                labels <- c("ID:", "Description:", "Tags:",
-                            "Dimensions:", "Timestamp:",
-                            "Size on disk:", "Provenance:",
-                            "Attached to:", "Stored in:", 
-                            "MD5 checksum:", "URL:")
-                maxlen <- max(sapply(labels, nchar))
+                if("#project" %in% entries[[e]]$tags)
+                {
+                    sess <- get("this",thisEnv)$get(name)
+                    cat("Project item:", name, "\n")
+                    cat("Description:", entries[[e]]$description, "\n")
+                    cat("Members:", paste(sapply(entries[prjmembers(name)], get, x="name"),
+                                           collapse=", "), "\n")
+                    cat("R version:", sess$R.version$version.string, "\n")
+                    cat("Platform:", sess$platform, "\n")
+                    cat("Packages:",
+                        paste(attr(sess$otherPkgs, "names"), collapse=", "), "\n")
+                } else {
 
-                if(is.null(entries[[e]]$attachedto))
-                    att <- "-" else att <- paste(entries[[e]]$attachedto, collapse=", ")
-                if(is.null(entries[[e]]$URL))
-                    url <- "-" else url <- entries[[e]]$URL
+                    labels <- c("ID:", "Description:", "Tags:",
+                                "Dimensions:", "Timestamp:",
+                                "Size on disk:", "Provenance:",
+                                "Attached to:", "Stored in:", 
+                                "MD5 checksum:", "URL:")
+                    maxlen <- max(sapply(labels, nchar))
 
-                vals <- c(entries[[e]]$name, entries[[e]]$description,
-                          paste0(entries[[e]]$tags, collapse=", "),
-                          paste(entries[[e]]$dims, collapse="x"),
-                          as.character(entries[[e]]$timestamp),
-                          hmnRead(entries[[e]]$size),
-                          paste(entries[[e]]$source, collapse=", "),
-                          att, entries[[e]]$dump, entries[[e]]
-                          $checksum, url)
-                cat(paste0(format(labels, width=maxlen+1), vals, "\n"), sep="")
-                cat("\n")
+                    if(is.null(entries[[e]]$attachedto))
+                        att <- "-" else att <- paste(entries[[e]]$attachedto, collapse=", ")
+                    if(is.null(entries[[e]]$URL))
+                        url <- "-" else url <- entries[[e]]$URL
+
+                    vals <- c(entries[[e]]$name, entries[[e]]$description,
+                              paste0(entries[[e]]$tags, collapse=", "),
+                              paste(entries[[e]]$dims, collapse="x"),
+                              as.character(entries[[e]]$timestamp),
+                              hmnRead(entries[[e]]$size),
+                              paste(entries[[e]]$source, collapse=", "),
+                              att, entries[[e]]$dump, entries[[e]]
+                              $checksum, url)
+                    cat(paste0(format(labels, width=maxlen+1), vals, "\n"), sep="")
+                    cat("\n")
+                }
             }
         },
 
@@ -1045,12 +1072,30 @@ repo_open <- function(root="~/.R_repo", force=F)
           cat(ch, "\n", sep="")
       },
 
-      build = function(name)
+      has = function(name)
+      {
+          return(!is.null(getEntry(name)))
+      },
+      
+      
+      build = function(name, recursive=T, env=parent.frame(), built=list())
       {
           ch <- getChunk(name)
-          data <- eval(parse(text=ch))
-          ##get("this", thisEnv)$set(name, data, replace=replace)
-          return(data)
+          
+          deps <- getEntry(name)$depends
+          if(length(deps)>0) {
+              for(i in 1:length(deps)) {
+                  if(!(deps[i] %in% built)) {
+                      handleErr("INFO_BUILDING_DEPS", deps[i])
+                      built <- c(built, deps[i])
+                      get("this", thisEnv)$build(deps[i], T, env, built)
+                  }
+              }
+          }
+
+          data <- eval(parse(text=ch), env)
+
+          return(invisible())
       },
       
 
@@ -1253,162 +1298,207 @@ repo_open <- function(root="~/.R_repo", force=F)
                 get("this", thisEnv)$set(name, obj=tf)
             } else get("this", thisEnv)$set(name, obj=readRDS(tf))            
         },
+
+    ## project = function(name)
+    ## {
+    ##     stopOnNotFound(name)
+    ##     all <- sapply(entries, get, x="name")
+    ##     prj <- lapply(entries, get, x="prj")
+    ##     items <- list()
+    ##     for(i in 1:length(prj))
+    ##         if(name %in% prj)
+    ##             items <- c(items, all[i])
+    ##     return(items)
         
-      put = function(obj, name, description, tags, src=NULL, chunk=name,
-                     depends=NULL, replace=F, asattach=F,
-                     to=NULL, addversion=F, URL=NULL, checkRelations=T)
-        {
-            checkIndexUnchanged()
-
-            if(addversion)
-                stop("addversion is deprecated, use replace=\"addversion\"")
-            
-            if(replace == "addversion") {
-                ## This code is to cope with new interface after
-                ## removing addversion parameter
-                addversion = T 
-                replace = F
-            }
-            
-            if(missing(obj) | missing(name) | missing(description) | missing(tags))
-                stop("You must provide all of: obj, name, description, tags.")
-            
-            
-            if(!is.null(to))
-                asattach <- T
-
-            if(asattach)
-                if(!file.exists(obj))
-                    handleErr("ATTACHMENT_FILE_NOT_FOUND")
-            
-            if(name == "repo")
-                handleErr("ID_RESERVED")
-
-            notexist <- checkName(name)
-            if(!notexist & !replace & !addversion)
-                handleErr("ID_EXISTING", name)
-            
-            if(!asattach) {
-                if(!is.null(dim(obj)))
-                    dims <- dim(obj) else
-                dims <- length(obj)
-            } else {
-                dims <- NULL
-                tags <- unique(c(tags, "attachment"))
-            }
-
-            if(!is.null(depends) && checkRelations) 
-                stopOnNotFound(depends)
-
-            if(!is.null(src) && checkRelations) 
-                stopOnNotFound(src)
-            
-            if(!is.null(to) && checkRelations)
-                stopOnNotFound(to)
-
-            repoE <- list(name = name,
-                          description = description,
-                          tags = tags,
-                          class = class(obj),
-                          dims = dims,
-                          timestamp = Sys.time(),
-                          dump = NULL,
-                          size = NULL,
-                          checksum = NULL,
-                          source = src,
-                          chunk = chunk,
-                          depends = depends,
-                          attachedto = to,
-                          URL = URL)            
-            
-            if(!notexist & addversion) {
-                newname <- checkVersions(name)$new
-                get("this", thisEnv)$set(name, newname=newname)
-                get("this", thisEnv)$tag(newname, "hide")
-            }            
-
-            entr <- get("entries", thisEnv)
-
-            if(!notexist & replace) {
-                ei <- findEntryIndex(name)
-                rmData(name, "temp")
-                oldEntr <- entr[[ei]]
-            } else ei <- length(entries)+1
-            
-            tryCatch({
-                fdata <- get("storeData", thisEnv)(name, obj, asattach)
-            }, error = function(e) {
-                print(e)
-                if(!notexist & replace) 
-                    rmData(name, "undo")
-                stop("Error writing data.")
-            }, finally = {
-                repoE["size"] <- fdata[["size"]]
-                repoE["checksum"] <- md5sum(path.expand(fdata[["path"]]))
-                repoE["dump"] <- relativePath(fdata[["path"]])
-
-                ## rmData must be called before overwriting the old
-                ## entry (particularly the dump field)
-                if(!notexist & replace)
-                    rmData(name, "finalize")
-
-                entr[[ei]] <- repoE
-                assign("entries", entr, thisEnv)
-                get("storeIndex", thisEnv)()
-                
-            }
-            )
-
-            if(asattach && !("hide" %in% repoE$tags))
-                get("this", thisEnv)$tag(name, "hide")
-        },
-
-      
-      cpanel=function()
-      {
-          repo_cpanel(get("this", thisEnv)$root())
-      },
+    ## },
+    project = function(name, description, replace=T)
+    {
+        get("this", thisEnv)$put(sessionInfo(), name, description, c("hide", "#project"), replace=replace)
+    },
         
-        test=function()
-        {
-            print(ls(envir=thisEnv))
-        },
+    put = function(obj, name, description, tags, prj=NULL, src=NULL,
+                   chunk=name, depends=NULL, replace=F, asattach=F,
+                   to=NULL, addversion=F, URL=NULL, checkRelations=T)
+    {
+        checkIndexUnchanged()
 
-        append = function(id, txtorfunc)
-        {
-          checkIndexUnchanged()
-                                
-          notexist <- checkName(id)
-          if(notexist)
-              stop("Identifier not found.")
+        ## Global settings override
+        opt <- get("options", thisEnv)[["replace"]]
+        if(!is.null(opt))
+            replace <- opt
+        opt <- get("options", thisEnv)[["src"]]
+        if(!is.null(opt))
+            src <- opt
+        opt <- get("options", thisEnv)[["prj"]]
+        if(!is.null(opt))
+            prj <- opt
 
-          if(class(txtorfunc)=="function")
-              txtorfunc <- paste0("\n",
-                                  paste(deparse(txtorfunc), collapse="\n"),
-                                  "\n")
-
-          if(class(txtorfunc)!="character")
-              stop("txtorfunc must be an object of class function or character")
-          
-          #e <- findEntryIndex(id)
-          curobj <- this$get(id)
-          this$set(id, obj=paste0(curobj, txtorfunc))
-        },        
         
-        root = function()
-        {
-            return(get("root",thisEnv))
+        if(addversion)
+            stop("addversion is deprecated, use replace=\"addversion\"")
+        
+        if(replace == "addversion") {
+            ## This code is to cope with new interface after
+            ## removing addversion parameter
+            addversion = T 
+            replace = F
+        }
+        
+        
+        if(missing(obj) | missing(name) | missing(description) | missing(tags))
+            stop("You must provide all of: obj, name, description, tags.")
+        
+        
+        if(!is.null(to))
+            asattach <- T
+
+        if(asattach)
+            if(!file.exists(obj))
+                handleErr("ATTACHMENT_FILE_NOT_FOUND")
+        
+        if(name == "repo")
+            handleErr("ID_RESERVED")
+
+        notexist <- checkName(name)
+        if(!notexist & !replace & !addversion)
+            handleErr("ID_EXISTING", name)
+        
+        if(!asattach) {
+            if(!is.null(dim(obj)))
+                dims <- dim(obj) else
+                                     dims <- length(obj)
+        } else {
+            dims <- NULL
+            tags <- unique(c(tags, "attachment"))
         }
 
+        if(!is.null(depends) && checkRelations) 
+            stopOnNotFound(depends)
+
+        if(!is.null(src) && checkRelations) 
+            stopOnNotFound(src)
+        
+        if(!is.null(to) && checkRelations)
+            stopOnNotFound(to)
+
+        if(!is.null(prj) && checkRelations)
+            stopOnNotFound(prj)
+        
+        repoE <- list(name = name,
+                      description = description,
+                      tags = tags,
+                      prj = prj,
+                      class = class(obj),
+                      dims = dims,
+                      timestamp = Sys.time(),
+                      dump = NULL,
+                      size = NULL,
+                      checksum = NULL,
+                      source = src,
+                      chunk = chunk,
+                      depends = depends,
+                      attachedto = to,
+                      URL = URL)            
+        
+        if(!notexist & addversion) {
+            newname <- checkVersions(name)$new
+            get("this", thisEnv)$set(name, newname=newname)
+            get("this", thisEnv)$tag(newname, "hide")
+        }            
+
+        entr <- get("entries", thisEnv)
+
+        if(!notexist & replace) {
+            ei <- findEntryIndex(name)
+            rmData(name, "temp")
+            oldEntr <- entr[[ei]]
+        } else ei <- length(entries)+1
+        
+        tryCatch({
+            fdata <- get("storeData", thisEnv)(name, obj, asattach)
+        }, error = function(e) {
+            print(e)
+            if(!notexist & replace) 
+                rmData(name, "undo")
+            stop("Error writing data.")
+        }, finally = {
+            repoE["size"] <- fdata[["size"]]
+            repoE["checksum"] <- md5sum(path.expand(fdata[["path"]]))
+            repoE["dump"] <- relativePath(fdata[["path"]])
+
+            ## rmData must be called before overwriting the old
+            ## entry (particularly the dump field)
+            if(!notexist & replace)
+                rmData(name, "finalize")
+
+            entr[[ei]] <- repoE
+            assign("entries", entr, thisEnv)
+            get("storeIndex", thisEnv)()
+            
+        }
         )
 
+        if(asattach && !("hide" %in% repoE$tags))
+            get("this", thisEnv)$tag(name, "hide")
+    },
 
+    
+    cpanel=function()
+    {
+        repo_cpanel(get("this", thisEnv)$root())
+    },
+    
+    test=function()
+    {
+        print(ls(envir=thisEnv))
+    },
+
+    append = function(id, txtorfunc)
+    {
+        checkIndexUnchanged()
+        
+        notexist <- checkName(id)
+        if(notexist)
+            stop("Identifier not found.")
+
+        if(class(txtorfunc)=="function")
+            txtorfunc <- paste0("\n",
+                                paste(deparse(txtorfunc), collapse="\n"),
+                                "\n")
+
+        if(class(txtorfunc)!="character")
+            stop("txtorfunc must be an object of class function or character")
+        
+                                        #e <- findEntryIndex(id)
+        curobj <- this$get(id)
+        this$set(id, obj=paste0(curobj, txtorfunc))
+    },        
+    
+    root = function()
+    {
+        return(get("root",thisEnv))
+    },
+
+    options = function(...)
+    {
+        ls <- list(...)
+        curopt <- get("options", thisEnv)
+        if(length(ls)==0)
+            return(curopt)
+        for(i in 1:length(ls))
+            curopt[[names(ls)[i]]] <- ls[[i]]
+        assign('options', curopt, envir=thisEnv)
+    }
+    )
+
+    
     root <- normalizePath(root, mustWork=F)
     repofile <- file.path(root, "R_repo.RDS")
     thisEnv <- environment()
     class(me) <- append(class(me),"repo")
     assign('this', me, envir=thisEnv)
     assign('entries', list(), envir=thisEnv)
+    assign('options', list(), envir=thisEnv)
     
     if(file.exists(repofile))
         {
