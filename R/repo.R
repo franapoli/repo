@@ -86,6 +86,11 @@ repo_open <- function(root="~/.R_repo", force=F)
                    )
         }
 
+    updatePrjInfo <- function(name)
+    {
+        get("this", thisEnv)$set(name, sessionInfo())
+    }
+    
     getChunk <- function(name)        
     {
         entry <- getEntry(name)
@@ -95,10 +100,10 @@ repo_open <- function(root="~/.R_repo", force=F)
 
         srcfile <- get("this", thisEnv)$attr(name, "srcfile")
         txt <- readLines(srcfile)
-        s0 <- "[[:space:]]*"
-        s1 <- "[[:space:]]+"
-        chtag <- "rpchunk"
-        chname <- "([[:alnum:]]+)"
+        s0 <- "[[:blank:]]*"
+        s1 <- "[[:blank:]]+"
+        chtag <- "chunk"
+        chname <- "[\"|'](.+)[\"|']"
         chopen <- "\\{"
         chclose <- "\\}"
         startstr <- paste0("^", s0, "#+", s0, chtag, s1, chname, s0, chopen,  s0, "$")
@@ -761,8 +766,10 @@ repo_open <- function(root="~/.R_repo", force=F)
                 obj <- get("this", thisEnv)$get(name)
 
                 destrepo$put(obj, name, entr$description, entr$tags,
-                             entr$source, entr$depends, replace=replace,
-                             URL=entr$URL, asattach=isAttachment(name),
+                             entr$prj, entr$source,
+                             entr$chunk, entr$depends,
+                             replace=replace, URL=entr$URL,
+                             asattach=isAttachment(name),
                              to=entr$attachedto, checkRelations=F)
                 }
         },
@@ -927,7 +934,7 @@ repo_open <- function(root="~/.R_repo", force=F)
                     cat("Project item:", name, "\n")
                     cat("Description:", entries[[e]]$description, "\n")
                     cat("Members:", paste(sapply(entries[prjmembers(name)], get, x="name"),
-                                           collapse=", "), "\n")
+                                           collapse="\n\t"), "\n")
                     cat("R version:", sess$R.version$version.string, "\n")
                     cat("Platform:", sess$platform, "\n")
                     cat("Packages:",
@@ -1256,12 +1263,13 @@ repo_open <- function(root="~/.R_repo", force=F)
     },
 
 
-        
-        attach = function(filepath, description, tags, src=NULL, replace=F, to=NULL, URL=NULL)
+    attach = function(filepath, description, tags, prj=NULL, src=NULL,
+                                  chunk=basename(filepath), replace=F, to=NULL,
+                                  URL=NULL)
         {
             get("this", thisEnv)$put(filepath, basename(filepath),
-                                     description, tags, src, replace=replace,
-                                     asattach=T, to=to, URL=URL)
+                                     description, tags, prj, src, chunk,
+                                     replace=replace, asattach=T, to=to, URL=URL)
         },
 
 
@@ -1333,7 +1341,6 @@ repo_open <- function(root="~/.R_repo", force=F)
         if(!is.null(opt))
             prj <- opt
 
-        
         if(addversion)
             stop("addversion is deprecated, use replace=\"addversion\"")
         
@@ -1440,6 +1447,8 @@ repo_open <- function(root="~/.R_repo", force=F)
 
         if(asattach && !("hide" %in% repoE$tags))
             get("this", thisEnv)$tag(name, "hide")
+
+        if(!is.null(prj) && checkRelations) updatePrjInfo(prj)
     },
 
     

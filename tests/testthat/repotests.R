@@ -7,6 +7,7 @@ build_test_repo <- function(subfolder)
     return(rp1$root())
 }
 
+
 wipe_test_repo <- function(subfolder)
 {
     fold <- file.path(tempdir(), subfolder)
@@ -59,26 +60,28 @@ src <- tempfile()
 
 fcon <- file(src)
 writeLines(c('rp <- repo_open(build_test_repo("temp"))',
+##txt <- c('rp <- repo_open(build_test_repo("temp"))',             
              'rp$put(src, "src", "src", "src", asattach=T)',
-             '## rpchunk i1 {',
+             '## chunk "i1" {',
              'print("Running chunk 1")',
              'x <- 1',
              'rp$put(x, "i1", "item", "tag", src="src", chunk="i1")',
-             ' ## rpchunk i1 }',
+             ' ## chunk "i1" }',
              '',
-             '## rpchunk i2{',
+             '## chunk "i2"{',
              'print("Running chunk 2")',             
              'y <- x+1',
              'rp$put(y, "i2", "item", "tag", src="src", depends="i1", chunk="i2")',
-             '## rpchunk i2 }',
+             '## chunk "i2" }',
              '',
-             '## rpchunk i3{',
+             '## chunk "i3"{',
              'print("Running chunk 3")',             
              'z <- x+y',
              'rp$put(z, "i3", "item", "tag", src="src", depends=c("i1","i2"), chunk="i3")',
-             '## rpchunk i3}'),
-           con=fcon)
-close(fcon)
+    ##      '## chunk "i3"}')
+              '## chunk "i3"}'),             
+            con=fcon)
+    close(fcon)
 
 source(src)
 
@@ -90,6 +93,10 @@ test_that("test source correctly loaded", {
     expect_equal(rp$get("i2"), 2)
     expect_equal(rp$get("i3"), 3)
 })
+
+
+
+
 
 ## overwriting objs in workspace and repo:
 x <- y <- z <- 0
