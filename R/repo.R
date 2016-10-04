@@ -788,10 +788,15 @@ repo_open <- function(root="~/.R_repo", force=F)
             return(h)
         },
                 
-        tags = function()
+        tags = function(name)
         {
-            entr <- entries
-            tagset <- unique(unlist(lapply(entr, get, x="tags")))
+            if(missing(name)) {
+                entr <- entries
+                tagset <- unique(unlist(lapply(entr, get, x="tags")))
+            } else {
+                e <- getEntry(name)
+                tagset <- e$tags
+            }
             return(tagset)
         },
 
@@ -1410,7 +1415,8 @@ repo_open <- function(root="~/.R_repo", force=F)
         if(!notexist & addversion) {
             newname <- checkVersions(name)$new
             get("this", thisEnv)$set(name, newname=newname)
-            get("this", thisEnv)$tag(newname, "hide")
+            if(!("hide" %in% get("this", thisEnv)$tags(newname))) ## avoid warning                
+                get("this", thisEnv)$tag(newname, "hide")
         }            
 
         entr <- get("entries", thisEnv)
@@ -1478,7 +1484,7 @@ repo_open <- function(root="~/.R_repo", force=F)
         if(class(txtorfunc)!="character")
             stop("txtorfunc must be an object of class function or character")
         
-                                        #e <- findEntryIndex(id)
+        ##e <- findEntryIndex(id)
         curobj <- this$get(id)
         this$set(id, obj=paste0(curobj, txtorfunc))
     },        
