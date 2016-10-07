@@ -1,0 +1,124 @@
+##############
+context("global functions")
+##############
+
+build_test_repo <- function(subfolder)
+{
+    fold1 <- file.path(tempdir(), subfolder)
+    rp1 <- repo_open(fold1, T)
+    rp1$put(1:3, paste(subfolder, "item 1"), "description", "tags")
+    return(rp1$root())
+}
+
+
+wipe_test_repo <- function(subfolder)
+{
+    fold <- file.path(tempdir(), subfolder)
+    unlink(fold, recursive=T)
+}
+
+
+##############
+context("repository manipulation")
+##############
+
+rp1 <- repo_open(build_test_repo("repo1"))
+rp1$project("prj name", "prj desc")
+rp1$options(prj="prj name")
+rp1$put(1:3,"test","testdesc","tags")
+rp1$info("prj name")
+wipe_test_repo("repo1")
+
+##############
+context("repository manipulation")
+##############
+
+rp1 <- repo_open(build_test_repo("repo1"))
+rp2 <- repo_open(build_test_repo("repo2"))
+
+rp1$copy(rp2, "repo1 item 1")
+
+test_that("copy normal item", {
+
+    expect_equal(
+        names(rp2$entries()),
+        c("repo2 item 1", "repo1 item 1")
+    )
+    expect_true(rp1$has("repo1 item 1"))
+    expect_true(rp2$has("repo2 item 1"))
+    expect_true(rp2$has("repo1 item 1"))
+    expect_true(!rp2$has("puparuolo"))
+    expect_true(!rp1$has("mulignana"))
+})
+
+wipe_test_repo("repo1")
+wipe_test_repo("repo2")
+
+
+## ##############
+## context("chunks")
+## ##############
+
+## src <- tempfile()
+
+## fcon <- file(src)
+## writeLines(c('rp <- repo_open(build_test_repo("temp"))',
+## ##txt <- c('rp <- repo_open(build_test_repo("temp"))',             
+##              'rp$put(src, "src", "src", "src", asattach=T)',
+##              '## chunk "i1" {',
+##              'print("Running chunk 1")',
+##              'x <- 1',
+##              'rp$put(x, "i1", "item", "tag", src="src", chunk="i1")',
+##              ' ## chunk "i1" }',
+##              '',
+##              '## chunk "i2"{',
+##              'print("Running chunk 2")',             
+##              'y <- x+1',
+##              'rp$put(y, "i2", "item", "tag", src="src", depends="i1", chunk="i2")',
+##              '## chunk "i2" }',
+##              '',
+##              '## chunk "i3"{',
+##              'print("Running chunk 3")',             
+##              'z <- x+y',
+##              'rp$put(z, "i3", "item", "tag", src="src", depends=c("i1","i2"), chunk="i3")',
+##     ##      '## chunk "i3"}')
+##               '## chunk "i3"}'),             
+##             con=fcon)
+##     close(fcon)
+
+## source(src)
+
+## test_that("test source correctly loaded", {
+##     expect_equal(x, 1)
+##     expect_equal(y, 2)
+##     expect_equal(z, 3)
+##     expect_equal(rp$get("i1"), 1)
+##     expect_equal(rp$get("i2"), 2)
+##     expect_equal(rp$get("i3"), 3)
+## })
+
+
+
+
+
+## ## overwriting objs in workspace and repo:
+## x <- y <- z <- 0
+## rp$set("i1", 0)
+## rp$set("i2", 0)
+## rp$set("i3", 0)
+
+## ## rebuilding objects
+## rp$options(replace=T)
+## rp$build("i3")
+
+## test_that("obj and dependencies build", {
+##     expect_equal(x, 1)
+##     expect_equal(y, 2)
+##     expect_equal(z, 3)
+##     expect_equal(rp$get("i1"), 1)
+##     expect_equal(rp$get("i2"), 2)
+##     expect_equal(rp$get("i3"), 3)
+## })
+
+
+## wipe_test_repo("temp")

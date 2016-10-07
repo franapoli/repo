@@ -88,7 +88,10 @@ repo_open <- function(root="~/.R_repo", force=F)
 
     updatePrjInfo <- function(name)
     {
-        get("this", thisEnv)$set(name, sessionInfo())
+        sess <- sessionInfo()
+        pkg <- attr(sess$otherPkgs, "names")
+        pkgv <- sapply(pkg, function(x) as.character(packageVersion(x)))
+        get("this", thisEnv)$set(name, obj=list(session = sess, pkgv = pkgv))
     }
     
     getChunk <- function(name)        
@@ -189,7 +192,7 @@ repo_open <- function(root="~/.R_repo", force=F)
         if(!asattach) {
             if(!is.null(dim(obj)))
                 dims <- dim(obj) else dims <- length(obj)
-        } else dims <- NULL
+        } else dims <- list(NULL)
 
         rmData(name, "temp")            
         
@@ -936,14 +939,17 @@ repo_open <- function(root="~/.R_repo", force=F)
                 if("#project" %in% entries[[e]]$tags)
                 {
                     sess <- get("this",thisEnv)$get(name)
-                    cat("Project item:", name, "\n")
+                    cat("Project name:", name, "\n")
                     cat("Description:", entries[[e]]$description, "\n")
-                    cat("Members:", paste(sapply(entries[prjmembers(name)], get, x="name"),
-                                           collapse="\n\t"), "\n")
-                    cat("R version:", sess$R.version$version.string, "\n")
-                    cat("Platform:", sess$platform, "\n")
+                    cat("Resources:", paste(sapply(entries[prjmembers(name)], get, x="name"),
+                                           collapse="\n\t"), "\n")                    
+                    cat("Platform:", sess$session$platform, "\n")
+                    cat("OS:", sess$session$running, "\n")
+                    cat("R version:", sub("R version ", "",
+                                          sess$session$R.version$version.string), "\n")
                     cat("Packages:",
-                        paste(attr(sess$otherPkgs, "names"), collapse=", "), "\n")
+                        paste(paste(names(sess$pkg), sess$pkg, sep=" "), collapse="\n\t"),
+                        "\n")
                 } else {
 
                     labels <- c("ID:", "Description:", "Tags:",
@@ -1093,14 +1099,19 @@ repo_open <- function(root="~/.R_repo", force=F)
       build = function(name, recursive=T, env=parent.frame(), built=list())
       {
           ch <- getChunk(name)
-          
+          opt <- get("options", thisEnv)[["replace"]]
+          force <- F
+          if(is.null(opt) || opt == "addversion" || opt==T)
+              force <- T
           deps <- getEntry(name)$depends
           if(length(deps)>0) {
               for(i in 1:length(deps)) {
                   if(!(deps[i] %in% built)) {
-                      handleErr("INFO_BUILDING_DEPS", deps[i])
-                      built <- c(built, deps[i])
-                      get("this", thisEnv)$build(deps[i], T, env, built)
+                      if(!get("this", thisEnv)$has(deps[i]) || force) {
+                          handleErr("INFO_BUILDING_DEPS", deps[i])
+                          built <- c(built, deps[i])
+                          get("this", thisEnv)$build(deps[i], T, env, built)
+                      }
                   }
               }
           }
@@ -1326,7 +1337,9 @@ repo_open <- function(root="~/.R_repo", force=F)
     ## },
     project = function(name, description, replace=T)
     {
-        get("this", thisEnv)$put(sessionInfo(), name, description, c("hide", "#project"), replace=replace)
+        get("this", thisEnv)$put(NULL, name, description,
+                                 c("hide", "#project"), replace=replace)
+        updatePrjInfo(name)
     },
         
     put = function(obj, name, description, tags, prj=NULL, src=NULL,
