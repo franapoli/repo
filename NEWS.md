@@ -1,7 +1,14 @@
 
 # News
 
-06/01/16
+mar 18 ott 2016
+
+10/18/16
+
++ Major code refactoring. Direct call of `repo_*` function now
+deprecated.
+
+10/08/16
 
 + added `buildURL` parameter to `set`. It will add an URL to all
 items, such that it can be used is the repository is uploaded to a
