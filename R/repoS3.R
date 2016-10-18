@@ -771,22 +771,41 @@ repo_stashclear <- function(rp, force=F)
 #' object name, description, tags and more.
 #' 
 #' @details The item \code{name} can be any string, however it should
-#'     be a concise identifier, possibly without special character
-#'     (could become mandatory soon). Some tags have a special
-#'     meaning, like "hide" (do not show the item by default),
-#'     "attachment" (the item is an attachment - this should never be
-#'     set manually), "stash" (the item is a stashed item, makes the
-#'     item over-writable by other "stash" items by default).
-#' @param rp An object of class repo.
+#'     be a concise identifier for visualization purposes. Some tags
+#'     have a special meaning, like "hide" (do not show the item by
+#'     default), "attachment" (the item is an attachment - this should
+#'     never be set manually), "stash" (the item is a stashed item,
+#'     makes the item over-writable by other "stash" items by
+#'     default).
+#'
+#'     The \code{src} parameter is used to associated an item with a
+#'     source file. The \code{chunk} parameter is used to associate a
+#'     specific code chunk within \code{src}. In order to specify a
+#'     code chunk within R code, the following syntax can be followed:
+#'
+#' [R code outside the chunk]
+#' chunk ChunkName {
+#'    [R code within the chunk]
+#' chunk ChunkName }
+#'
+#' When calling chunk-aware functions, such as \code{chunk} and
+#' \code{build}, \code{repo} will dynamically look through the source
+#' code and extract the relevant chunk.
+
+#' @param rp 
 #' @param obj An R object to store in the repo.
 #' @param name A character identifier for the new item.
 #' @param description A character description of the item.
 #' @param tags A list of tags to sort the item. Tags are useful for
 #'     selecting sets of items and run bulk actions.
+#' @param prj The name of a \code{project} item as built by the
+#'     \code{project} function.
 #' @param src Name of an existing item to be annotated as the
 #'     "generator" of the new item. Usually it is an attachment item
 #'     containing the source code that generated the new item. Default
 #'     is NULL.
+#' @param chunk Name of a chunk within the code of \code{src}. See
+#'     details.
 #' @param depends Character vector: items that depend on this
 #'     item. Default is NULL.
 #' @param replace One of: V, F, "addversion" to define behaviour when
@@ -798,14 +817,14 @@ repo_stashclear <- function(rp, force=F)
 #'     attachment (see attach). Default is F.
 #' @param to Vector of character. Specifies which item this item is
 #'     attached to. Default is NULL.
+#' @param addversion Deprecated, use the \code{replace} parameter
+#'     instead.
 #' @param URL Remote URL where the \code{pull} function expets to
 #'     download actual item data from. Dafault is NULL.
 #' @param checkRelations Check if items referenced by this item
 #'     exist. Default is T.
-#' @param addversion Deprecated, use the \code{replace} parameter
-#' instead.
 #' @return Used for side effects.
-#' @seealso get, set, attach, info
+#' @seealso get, set, attach, info, project, build
 #' @examples
 #' ## Repository creation
 #' rp_path <- file.path(tempdir(), "example_repo")
@@ -839,12 +858,13 @@ repo_stashclear <- function(rp, force=F)
 #'
 #' ## wiping temporary repo
 #' unlink(rp_path, TRUE)
-repo_put <- function(rp, obj, name, description, tags, src=NULL,
-                     depends = NULL, replace = F, asattach = F,
-                     to = NULL, addversion = F, URL = NULL,
-                     checkRelations = T)
-    rp$put(obj, name, description, tags, src, depends, replace,
-           asattach, to, addversion, URL, checkRelations)
+repo_put <- function(rp, obj, name, description, tags, prj=NULL,
+                     src=NULL, chunk=name, depends = NULL,
+                     replace = F, asattach = F, to = NULL,
+                     addversion = F, URL = NULL, checkRelations = T)
+    rp$put(obj, name, description, tags, prj, src, chunk, depends,
+           replace, asattach, to, addversion, URL, checkRelations)
+
 
 #' Download item remote content
 #'

@@ -1,6 +1,21 @@
 
 # News
 
+10/14/16
+
++ added `chunk` and `build` functions and `chunk` parameter to
+  `put`. Repo can now associate a specific chunk of code with a
+  resources and rebuild it upon request.
++ added support for special `project` items and corresponding
+  `project` function and `prj` parameter in `put`. `project` items
+  store session information automatically when `put` is called. The
+  `info` command works differently on `project` items.
++ Improved aesthetics for the dependency graph through default visual
+  parameters.
++ added `testthat` support for internal tests
++ added `options` function to set `put` default parameters.
+
+
 06/01/16
 
 + added `buildURL` parameter to `set`. It will add an URL to all
