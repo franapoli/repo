@@ -14,8 +14,6 @@ tag list.}
 
 \item{tags}{A list of tags: rmtags will be removed from all items
 matching the list.}
-
-\item{rp}{An object of class repo.}
 }
 \value{
 Used for side effects.

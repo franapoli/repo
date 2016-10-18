@@ -55,6 +55,8 @@ NULL
 ## md5sum for checking stored data
 #'@import tools 
 
+globalVariables(c("entries", "thisEnv", "repofile", "root",
+                  "indexMD5", "this"))
 
 ## repo uses "Local Environment Approach"
 ## (http://www.cyclismo.org/tutorial/R/s3Classes.html#s3classesmethodslocal)

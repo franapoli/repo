@@ -46,8 +46,6 @@ download actual item data from. Dafault is NULL.}
 
 \item{checkRelations}{Check if items referenced by this item
 exist. Default is T.}
-
-\item{rp}{An object of class repo.}
 }
 \value{
 Used for side effects.

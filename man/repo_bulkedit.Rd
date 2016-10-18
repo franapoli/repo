@@ -10,8 +10,6 @@ repo_bulkedit(outfile = NULL, infile = NULL)
 \item{outfile}{Name of a file to put entries data to.}
 
 \item{infile}{Name of a file to read entries data from.}
-
-\item{rp}{An object of class repo.}
 }
 \value{
 Used for side effects.

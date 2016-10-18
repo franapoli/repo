@@ -14,8 +14,6 @@ list.}
 
 \item{tags}{A list of tags: newtags will be added to all items
 matching the list.}
-
-\item{rp}{An object of class repo.}
 }
 \value{
 Used for side effects.

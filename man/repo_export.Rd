@@ -16,8 +16,6 @@ list will be exported.}
 
 \item{askconfirm}{If T ask confirmation when exporting multiple
 items.}
-
-\item{rp}{An object of class repo.}
 }
 \value{
 TRUE on success, FALSE otherwise.

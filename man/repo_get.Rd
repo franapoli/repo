@@ -8,8 +8,6 @@ repo_get(name)
 }
 \arguments{
 \item{name}{An item's name.}
-
-\item{rp}{An object of class repo.}
 }
 \value{
 The previously stored object, or its file path for

@@ -23,8 +23,6 @@ object. Usually a previously attached source code file.}
 \item{to}{An existing item name to attach the file to.}
 
 \item{URL}{A URL where the item contents con be downloaded from.}
-
-\item{rp}{An object of class repo.}
 }
 \value{
 Used for side effects.

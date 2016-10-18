@@ -19,8 +19,6 @@ put). F by default.}
 
 \item{confirm}{If F, don't ask for confirmation when multiple items
 are involved. F by default.}
-
-\item{rp}{An object of class repo (will copy from it)}
 }
 \value{
 Used for side effects.

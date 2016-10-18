@@ -6,9 +6,6 @@
 \usage{
 repo_tags(name)
 }
-\arguments{
-\item{rp}{An object of class repo.}
-}
 \value{
 Character vector of unique tags defined in the repo.
 }

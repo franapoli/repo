@@ -6,9 +6,6 @@
 \usage{
 repo_check()
 }
-\arguments{
-\item{rp}{An object of class repo.}
-}
 \value{
 Used for side effects.
 }

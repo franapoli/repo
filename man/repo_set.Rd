@@ -25,8 +25,6 @@ repo_set(name, obj = NULL, newname = NULL, description = NULL,
 
 \item{addtags}{Tags to be added to current item's tags. Can not be
 used together with the parameter "tags".}
-
-\item{rp}{An object of class repo.}
 }
 \value{
 Used for side effects.

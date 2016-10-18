@@ -6,15 +6,15 @@
     ## This function is meant the centralize messages. in order to
     ## better manage string constants. A few messages are still
     ## around, centralization is ongoing.
-    repo_handleErr <- function(err, ...)
+    handleErr <- function(err, ...)
         {
             pars <- list(...)
             if(length(pars)>0)
                 lpars <- paste0(paste(pars[[1]], collapse=", "), ".")
             switch(err,
-                   "DEBUG" = {
-                       message(pars[[1]])
-                   },
+                   ## "DEBUG" = {
+                   ##     message(pars[[1]])
+                   ## },
                    "ID_NOT_FOUND" = {
                        stop(paste0("Item not found: ", lpars))
                    },
@@ -62,7 +62,7 @@
                    )
         }
 
-    repo_updatePrjInfo <- function(name)
+    updatePrjInfo <- function(name)
     {
         sess <- sessionInfo()
         pkg <- attr(sess$otherPkgs, "names")
@@ -70,7 +70,7 @@
         get("this", thisEnv)$set(name, obj=list(session = sess, pkgv = pkgv))
     }
     
-    repo_getChunk <- function(name)        
+    getChunk <- function(name)        
     {
         entry <- getEntry(name)
         if(is.null(entry$source))
@@ -95,7 +95,7 @@
         names(oks) <- tagss
         if(any(duplicated(tagss)))
             stop(paste("Chunk names are not unique: ",
-                       unique(tagss[duplicapted(tagss)])))
+                       unique(tagss[duplicated(tagss)])))
 
         oke <- which(sapply(txt, grepl, pattern=endstr, perl=T))
         tagse <- sapply(txt[oke], sub, pattern=endstr, replacement="\\1", perl=T)
@@ -120,7 +120,7 @@
     ## Finds the connected component in the dependancy graph
     ## containing a given set of items. Useful to extract indipendent
     ## pieces of a repository.
-    repo_getRelatives <- function(names, ascendants=T, firstset=names)
+    getRelatives <- function(names, ascendants=T, firstset=names)
     {
         makenull <- function(res) {
             if(length(res)==0)
@@ -148,7 +148,7 @@
     ## Given an item name, builds the file path where actual object is
     ## stored. For legacy reasons handles both absolute and relative
     ## to repository root paths.
-    repo_getFile <- function(name)
+    getFile <- function(name)
         {
             entry <- getEntry(name)
 
@@ -160,7 +160,7 @@
         }
 
     ## Stores actual data for an existing item to a file.
-    repo_setData <- function(name, obj, asattach)
+    setData <- function(name, obj, asattach)
     {
         w <- findEntryIndex(name)
         newdata <- list()
@@ -193,7 +193,7 @@
     ## **
     ## Checks wether a set of provided tags are OK. A few tags are
     ## reserved, but this needs to be handled better.
-    repo_checkTags <- function(tags, name=NULL, replace=F)
+    checkTags <- function(tags, name=NULL, replace=F)
     {
 
         dups <- which(duplicated(tolower(tags)))
@@ -218,7 +218,7 @@
     
     ## Checks if an item has multiple version (other items by the same
     ## name + "#1", "#2", ... and return them
-    repo_checkVersions <- function(name)
+    checkVersions <- function(name)
         {
             names <- sapply(entries, get, x="name")
             ## searching for names ending with # and a number
@@ -236,7 +236,7 @@
 
 
     ## Makes a path relative to the repository root
-    repo_relativePath <- function(path)
+    relativePath <- function(path)
     {
         sep <- .Platform$file.sep
         root <- get("root",thisEnv)                
@@ -246,7 +246,7 @@
 
     
     ## this makes sure the repository is not empty
-    repo_stopOnEmpty <- function(doreturn=F) {
+    stopOnEmpty <- function(doreturn=F) {
         if(length(entries)<1) {
             if(doreturn)
                 return(1) else handleErr("EMPTY_REPO")
@@ -256,7 +256,7 @@
     
     
     ## ** Only used by get for deprecated formats, need to be cleaned
-    repo_setEntry <- function(name, newEntry)
+    setEntry <- function(name, newEntry)
     {
         stopOnNotFound(name)
         e <- findEntryIndex(name)
@@ -265,7 +265,7 @@
     }
 
     ## makes sure that an item exists
-    repo_stopOnNotFound <- function(names=NULL, tags=NULL)
+    stopOnNotFound <- function(names=NULL, tags=NULL)
         {
             stopOnEmpty()
             allnames <- sapply(entries, get, x="name")
@@ -275,7 +275,7 @@
         }
     
     ## returns an item's entry
-    repo_getEntry <- function(name) {
+    getEntry <- function(name) {
             e <- findEntryIndex(name)
             if(is.null(e))
                 return(invisible(NULL))
@@ -288,7 +288,7 @@
     ##
     ## this is used by all function that support running on multiple
     ## names or tags
-    repo_runWithTags <- function(f, tags, names, askconfirm, tagfun="OR", ...) {
+    runWithTags <- function(f, tags, names, askconfirm, tagfun="OR", ...) {
         if(!is.null(tags))
             e <- findEntries(tags, tagfun) else {
                 dbnames <- sapply(entries, get, x="name")
@@ -322,7 +322,7 @@
 
 
     ## makes units of measures human readable for print
-    repo_hmnRead <- function(bytes) {
+    hmnRead <- function(bytes) {
 
         values <- c(
             bytes,
@@ -349,11 +349,11 @@
     ## that has been removed. Race conditions are not yet completely
     ## avoided, anyway they are extrimely rare and only involve meta
     ## data (not data).
-    repo_checkIndexUnchanged <- function() {
-        if(DEBUG) {
-            message(paste0("checkIndexUnchanged: cur MD5 is ", md5sum(repofile)))
-            message(paste0("checkIndexUnchanged: stored MD5 is ", indexMD5))
-        }
+    checkIndexUnchanged <- function() {
+        ## if(DEBUG) {
+        ##     message(paste0("checkIndexUnchanged: cur MD5 is ", md5sum(repofile)))
+        ##     message(paste0("checkIndexUnchanged: stored MD5 is ", indexMD5))
+        ## }
         
       if(indexMD5 != md5sum(repofile))
           stop(format(paste0("Repo index has been modified outside this session. ",
@@ -365,12 +365,12 @@
 
 
     ## store all meta data
-    repo_storeIndex <- function() {
+    storeIndex <- function() {
         saveRDS(entries, repofile)
-        if(DEBUG) {
-            message(paste0("storeIndex: stored MD5 is ", indexMD5))
-            message(paste0("StoreIndex: new MD5 is ", md5sum(repofile)))
-        }
+        ## if(DEBUG) {
+        ##     message(paste0("storeIndex: stored MD5 is ", indexMD5))
+        ##     message(paste0("StoreIndex: new MD5 is ", md5sum(repofile)))
+        ## }
         ## NOTE: do not indexMD5 <- md5sum(repofile)... doesn't work
         assign("indexMD5", md5sum(repofile), thisEnv)
         }
@@ -378,7 +378,7 @@
 
     ## **
     ## this is now only used by storeData, neads cleaning
-    repo_buildpath <- function(resname)
+    buildpath <- function(resname)
         {
             resname <- paste0(sample(c(0:9,letters), 32, T),collapse="")
             return(list(root,
@@ -389,7 +389,7 @@
         }
 
     ## check if an item name already exists
-    repo_checkName <- function(name)
+    checkName <- function(name)
         {
             if(length(entries)<1)
                 return(T)
@@ -401,7 +401,7 @@
     ## Existing file is renamed, 2) new file is created, 3) old file
     ## is removed. If anything goes wrong before 3, old file is
     ## restored.
-    repo_rmData <- function(name, phase)
+    rmData <- function(name, phase)
     {
         fpath <- getFile(name)
         fpath_temp <- paste0(fpath, ".remove_me")
@@ -427,7 +427,7 @@
     }
 
     ## stores data in RDS format or copies it if it's an attachment
-    repo_storeData <- function(name, obj, attach=F)
+    storeData <- function(name, obj, attach=F)
         {
             opath <- buildpath(name)
             if(!file.exists(do.call(file.path, opath[1:2])))
@@ -452,7 +452,7 @@
         }
 
     ## builds the item's dependency graph
-    repo_depgraph <- function(tags = NULL, tagfun, depends=T, attached=T, generated=T)
+    depgraph <- function(tags = NULL, tagfun, depends=T, attached=T, generated=T)
         {            
             stopOnEmpty()
             
@@ -493,7 +493,7 @@
 
     ## ** like getEntry, but returns just the index. There's an
     ## inconsistency between "find" and "get"
-    repo_findEntryIndex <- function(name)
+    findEntryIndex <- function(name)
         {
             if(is.null(entries) | length(entries)<1) {
                 return(-1)
@@ -508,7 +508,7 @@
 
     ## finds a set of entries using tags and logic operators or string
     ## matching
-    repo_findEntries <- function(tags=NULL, tagfun="OR", find=NULL)
+    findEntries <- function(tags=NULL, tagfun="OR", find=NULL)
         {
             if(!is.null(tags)) {
                    tagsets <- lapply(entries, get, x="tags")
@@ -534,19 +534,19 @@
         }
 
     ## tells wether an item is an attachment
-    repo_isAttachment <- function(name)
+    isAttachment <- function(name)
         {
             w <- findEntryIndex(name)
             return("attachment" %in% entries[[w]]$tags)
         }
-    repo_isProject <- function(name)
+    isProject <- function(name)
         {
             w <- findEntryIndex(name)
             return("#project" %in% entries[[w]]$tags)
         }
 
     ## returns the list of items attached to an item
-    repo_attachments <- function(name)
+    attachments <- function(name)
         {
             r <- match(name,  sapply(entries, get, x="attachedto"))
             if(is.na(r))
@@ -555,7 +555,7 @@
         }
 
     ## returns the list of items dependant on an item
-    repo_dependants <- function(name)
+    dependants <- function(name)
         {
             r <- sapply(sapply(entries, get, x="depends"), match, x=name)
             w <- which(!is.na(r))
@@ -565,7 +565,7 @@
         }
 
     ## returns the list of items belonging to a project item
-    repo_prjmembers <- function(name)
+    prjmembers <- function(name)
         {
             r <- sapply(sapply(entries,`[[`,"prj"), match, x=name)
             w <- which(!is.na(r))
@@ -577,7 +577,7 @@
     
     ## ** shortens a path using the home (~) notation. Only used by
     ## "info", so could be redesigned.
-    repo_compressPath <- function(path)
+    compressPath <- function(path)
         {
             hp <- path.expand("~")
             return(gsub(paste0("^",hp), "~", path))
@@ -587,7 +587,7 @@
     ## ** creates a table with all items metadata to be shown by
     ## print. Currently filters are applied in the end, which slows
     ## down the process. The flags column is currently not used.
-    repo_entriesToMat <- function(w)
+    entriesToMat <- function(w)
         {
             entr <- entries[w]
 
@@ -624,37 +624,37 @@
 repo_methods_private <- function()
 {
     methods = list(
-        handleErr = repo_handleErr,
-        updatePrjInfo = repo_updatePrjInfo,
-        getChunk = repo_getChunk,
-        getRelatives = repo_getRelatives,
-        getFile = repo_getFile,
-        setData = repo_setData,
-        checkTags = repo_checkTags,
-        checkVersions = repo_checkVersions,
-        relativePath = repo_relativePath,
-        stopOnEmpty = repo_stopOnEmpty,
-        setEntry = repo_setEntry,
-        stopOnNotFound = repo_stopOnNotFound,
-        getEntry = repo_getEntry,
-        runWithTags = repo_runWithTags,
-        hmnRead = repo_hmnRead,
-        checkIndexUnchanged = repo_checkIndexUnchanged,
-        storeIndex = repo_storeIndex,
-        buildpath = repo_buildpath,
-        checkName = repo_checkName,
-        rmData = repo_rmData,
-        storeData = repo_storeData,
-        depgraph = repo_depgraph,
-        findEntryIndex = repo_findEntryIndex,
-        findEntries = repo_findEntries,
-        isAttachment = repo_isAttachment,
-        isProject = repo_isProject,
-        attachments = repo_attachments,
-        dependants = repo_dependants,
-        prjmembers = repo_prjmembers,
-        compressPath = repo_compressPath,
-        entriesToMat = repo_entriesToMat
+        handleErr = handleErr,
+        updatePrjInfo = updatePrjInfo,
+        getChunk = getChunk,
+        getRelatives = getRelatives,
+        getFile = getFile,
+        setData = setData,
+        checkTags = checkTags,
+        checkVersions = checkVersions,
+        relativePath = relativePath,
+        stopOnEmpty = stopOnEmpty,
+        setEntry = setEntry,
+        stopOnNotFound = stopOnNotFound,
+        getEntry = getEntry,
+        runWithTags = runWithTags,
+        hmnRead = hmnRead,
+        checkIndexUnchanged = checkIndexUnchanged,
+        storeIndex = storeIndex,
+        buildpath = buildpath,
+        checkName = checkName,
+        rmData = rmData,
+        storeData = storeData,
+        depgraph = depgraph,
+        findEntryIndex = findEntryIndex,
+        findEntries = findEntries,
+        isAttachment = isAttachment,
+        isProject = isProject,
+        attachments = attachments,
+        dependants = dependants,
+        prjmembers = prjmembers,
+        compressPath = compressPath,
+        entriesToMat = entriesToMat
     )
 
     return(methods)

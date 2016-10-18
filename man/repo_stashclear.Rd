@@ -8,8 +8,6 @@ repo_stashclear(force = F)
 }
 \arguments{
 \item{force}{If TRUE, no confirmation is asked.}
-
-\item{rp}{An object of class repo.}
 }
 \value{
 Used for side effects.

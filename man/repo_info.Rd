@@ -11,8 +11,6 @@ repo_info(name = NULL, tags = NULL)
 about the whole repo will be provided.}
 
 \item{tags}{List of tags: info will run on all items matching the tag list.}
-
-\item{rp}{An object of class repo.}
 }
 \value{
 Used for side effects.

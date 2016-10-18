@@ -16,8 +16,6 @@ by. "all" finds both (connected components including \code{names}.}
 
 \item{excludeseed}{logical. If set to FALSE \code{names} will be
 not included in the output list.}
-
-\item{rp}{An object of class \code{repo}.}
 }
 \value{
 A \code{character} vector of item names.

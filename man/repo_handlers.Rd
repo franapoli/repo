@@ -6,9 +6,6 @@
 \usage{
 repo_handlers()
 }
-\arguments{
-\item{rp}{An object of class repo.}
-}
 \value{
 A list of functions.
 }

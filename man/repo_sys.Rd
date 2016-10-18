@@ -11,8 +11,6 @@ repo_sys(name, command)
 the item will be passed to the system program.}
 
 \item{command}{System command}
-
-\item{rp}{An object of class repo.}
 }
 \value{
 Used for side effects.

@@ -6,9 +6,6 @@
 \usage{
 repo_root()
 }
-\arguments{
-\item{rp}{An object of class repo.}
-}
 \value{
 character cotaining the path to the root of the repo.
 }

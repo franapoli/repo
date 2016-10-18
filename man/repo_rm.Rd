@@ -13,8 +13,6 @@ repo_rm(name = NULL, tags = NULL, force = F)
 removed.}
 
 \item{force}{Don't ask for confirmation.}
-
-\item{rp}{An object of class repo.}
 }
 \value{
 Used for side effects.

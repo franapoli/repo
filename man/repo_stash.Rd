@@ -9,8 +9,6 @@ repo_stash(object, rename = deparse(substitute(object)))
 \arguments{
 \item{object}{The object to store in the repo.}
 
-\item{rp}{An object of class repo.}
-
 \item{name}{An optional character containing the new name for the
 item. Otherwise the name of object is used as item's name.}
 }

@@ -8,8 +8,6 @@ repo_pies(...)
 }
 \arguments{
 \item{...}{Other parameters passed to the \code{pie} function.}
-
-\item{rp}{An object of class repo.}
 }
 \value{
 Used for side effects.

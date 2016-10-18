@@ -12,8 +12,6 @@ repo_append(id, txtorfunc)
 \item{txtorfunc}{Text to be appended to the item's object. It can
 also be a on object of class function: in this case, its source is
 appended.}
-
-\item{rp}{An object of class repo.}
 }
 \value{
 Used for side effects.

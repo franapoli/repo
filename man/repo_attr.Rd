@@ -10,8 +10,6 @@ repo_attr(name, attrib)
 \item{name}{An item name.}
 
 \item{attrib}{An attribute name (currently can be only "path").}
-
-\item{rp}{An object of class repo.}
 }
 \value{
 The item's attribute value.

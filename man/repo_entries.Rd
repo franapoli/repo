@@ -6,9 +6,6 @@
 \usage{
 repo_entries()
 }
-\arguments{
-\item{rp}{An object of class repo.}
-}
 \value{
 A detailed list of item entries.
 }

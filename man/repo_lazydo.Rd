@@ -12,8 +12,6 @@ repo_lazydo(expr, force = F, env = parent.frame())
 \item{force}{If TRUE, execute expr anyway}
 
 \item{env}{Environment for expr, defaults to parent.}
-
-\item{rp}{An object of class repo.}
 }
 \value{
 Results of the expression (either loaded or computed on the

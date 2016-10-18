@@ -4,7 +4,7 @@
 \alias{repo_cpanel}
 \title{Open a visual interface to the repo}
 \usage{
-repo_cpanel()
+repo_cpanel(reporoot = NULL, env = globalenv())
 }
 \arguments{
 \item{reporoot}{An object of class repo. Can be NULL like for repo_open.}

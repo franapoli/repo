@@ -11,8 +11,6 @@ repo_find(what, all = F, show = "ds")
 
 \item{show}{Select columns to show.}
 
-\item{rp}{An object of class repo.}
-
 \item{find}{Character to match any filed (see Details).}
 }
 \value{

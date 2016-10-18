@@ -22,8 +22,6 @@ repo_dependencies(tags = NULL, tagfun = "OR", depends = T, attached = T,
 
 \item{...}{Other parameters passed to the \code{plot.igraph}
 function.}
-
-\item{rp}{An object of class repo.}
 }
 \value{
 Adjacency matrix representing the graph, with edges labeled

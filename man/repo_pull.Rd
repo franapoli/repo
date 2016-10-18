@@ -10,8 +10,6 @@ repo_pull(name, replace = F)
 \item{name}{Name of the existing item that will be updated.}
 
 \item{replace}{If TRUE, existing item's object is overwritten.}
-
-\item{rp}{An object of class repo.}
 }
 \value{
 Used for side effects.
