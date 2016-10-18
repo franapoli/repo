@@ -1,6 +1,12 @@
 
 # News
 
+10/18/16
+
++ Major code refactoring. Direct call of `repo_*` function now
+deprecated.
+
+
 10/14/16
 
 + added `chunk` and `build` functions and `chunk` parameter to
@@ -16,7 +22,7 @@
 + added `options` function to set `put` default parameters.
 
 
-06/01/16
+10/08/16
 
 + added `buildURL` parameter to `set`. It will add an URL to all
 items, such that it can be used is the repository is uploaded to a
