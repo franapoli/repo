@@ -18,16 +18,10 @@ repo_put(obj, name, description, tags, prj = NULL, src = NULL,
 \item{tags}{A list of tags to sort the item. Tags are useful for
 selecting sets of items and run bulk actions.}
 
-\item{prj}{The name of a \code{project} item as built by the
-\code{project} function.}
-
 \item{src}{Name of an existing item to be annotated as the
 "generator" of the new item. Usually it is an attachment item
 containing the source code that generated the new item. Default
 is NULL.}
-
-\item{chunk}{Name of a chunk within the code of \code{src}. See
-details.}
 
 \item{depends}{Character vector: items that depend on this
 item. Default is NULL.}
@@ -63,26 +57,12 @@ object name, description, tags and more.
 }
 \details{
 The item \code{name} can be any string, however it should
-    be a concise identifier for visualization purposes. Some tags
-    have a special meaning, like "hide" (do not show the item by
-    default), "attachment" (the item is an attachment - this should
-    never be set manually), "stash" (the item is a stashed item,
-    makes the item over-writable by other "stash" items by
-    default).
-
-    The \code{src} parameter is used to associated an item with a
-    source file. The \code{chunk} parameter is used to associate a
-    specific code chunk within \code{src}. In order to specify a
-    code chunk within R code, the following syntax can be followed:
-
-> [R code outside the chunk]
-> chunk ChunkName {
->    [R code within the chunk]
-> chunk ChunkName }
-
-When calling chunk-aware functions, such as \code{chunk} and
-\code{build}, \code{repo} will dynamically look through the source
-code and extract the relevant chunk.
+    be a concise identifier, possibly without special character
+    (could become mandatory soon). Some tags have a special
+    meaning, like "hide" (do not show the item by default),
+    "attachment" (the item is an attachment - this should never be
+    set manually), "stash" (the item is a stashed item, makes the
+    item over-writable by other "stash" items by default).
 }
 \examples{
 ## Repository creation
@@ -119,6 +99,6 @@ rp$info("item1#1")
 unlink(rp_path, TRUE)
 }
 \seealso{
-get, set, attach, info, project, build
+get, set, attach, info
 }
 

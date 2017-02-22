@@ -1,7 +1,14 @@
 
 # News
 
-10/18/16
+02/22/17
+
++ A paper about Repo has been published in BMC Bioinformatics
+  [paper about Repo](http://rdcu.be/pklt).
++ Added some testing code.
+
+
+10/18/16, v2.0.5.8
 
 + Major code refactoring. Direct call of `repo_*` function now
 deprecated.
