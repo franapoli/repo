@@ -899,7 +899,14 @@ repo_attr <- function(name, attrib)
 
 repo_chunk = function(name)
 {
+    src <- getSource(name)
+    print(src)
+    if(is.null(src))
+        handleErr("CHUNK_NOSOURCE", name)
     ch <- getChunk(name)
+    print(ch)
+    if(is.null(ch))
+        handleErr("CHUNK_NOCHUNK", name)
     cat(ch, "\n", sep="")
 }
 
@@ -914,9 +921,11 @@ repo_has = function(name)
 }
 
 
-build = function(name, recursive=T, env=parent.frame(), built=list())
+repo_build = function(name, recursive=T, env=parent.frame(), built=list())
 {
     ch <- getChunk(name)
+    if(is.null(ch))
+        handleErr("CHUNK_NOCHUNK", name)
     opt <- get("options", thisEnv)[["replace"]]
     force <- F
     if(is.null(opt) || opt == "addversion" || opt==T)
@@ -1736,7 +1745,8 @@ repo_methods_public <- function()
         root = repo_root,
         options = repo_options,
         has = repo_has,
-        chunk = repo_chunk
+        chunk = repo_chunk,
+        build = repo_build
     )
     return(methods)
 }

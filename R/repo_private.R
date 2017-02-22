@@ -58,6 +58,12 @@
                    },
                    "INFO_BUILDING_DEPS" = {
                        message(paste("Building dependency:", lpars))
+                   },
+                   "CHUNK_NOSOURCE" = {
+                       stop(paste("The following items have no associated source code object:", lpars))
+                   },
+                   "CHUNK_NOCHUNK" = {
+                       stop(paste("The following items have no associated code chunk:", lpars))
                    }
                    )
         }
@@ -158,6 +164,14 @@
 
             return(fpath)
         }
+
+## Given an item name, returns associated source object
+getSource <- function(name)
+        {
+            entry <- getEntry(name)
+            return(entry$src)
+        }
+
 
     ## Stores actual data for an existing item to a file.
     setData <- function(name, obj, asattach)
@@ -654,7 +668,8 @@ repo_methods_private <- function()
         dependants = dependants,
         prjmembers = prjmembers,
         compressPath = compressPath,
-        entriesToMat = entriesToMat
+        entriesToMat = entriesToMat,
+        getSource = getSource
     )
 
     return(methods)

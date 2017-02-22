@@ -93,27 +93,31 @@ context("chunks")
 src <- tempfile()
 fcon <- file(src)
 
-writeLines(c('rp <- repo_open(file.path(tempdir(), "temp"), T)',
-             'rp$put(src, "src", "src", "src", asattach=T)',
-             '## chunk "i1" {',
-             'print("Running chunk 1")',
-             'x <- 1',
-             'rp$put(x, "i1", "item", "tag", src="src", chunk="i1")',
-             ' ## chunk "i1" }',
-             '',
-             '## chunk "i2"{',
-             'print("Running chunk 2")',             
-             'y <- x+1',
-             'rp$put(y, "i2", "item", "tag", src="src", depends="i1", chunk="i2")',
-             '## chunk "i2" }',
-             '',
-             '## chunk "i3"{',
-             'print("Running chunk 3")',             
-             'z <- x+y',
-             'rp$put(z, "i3", "item", "tag", src="src", depends=c("i1","i2"), chunk="i3")',
-             '## chunk "i3"}'),             
-            con=fcon)
-    close(fcon)
+srccode <- paste(
+    c('rp <- repo_open(file.path(tempdir(), "temp"), T)',
+      paste0('srcf <- "', src, '"'),
+      'rp$put(srcf, "src", "src desc", "tags", asattach=T)',
+      '## chunk "i1" {',
+      'print("Running chunk 1")',
+      'x <- 1',
+      'rp$put(x, "i1", "item", "tag", src="src")',
+      '## chunk "i1" }',
+      '',
+      '## chunk "i2"{',
+      'print("Running chunk 2")',             
+      'y <- x+1',
+      'rp$put(y, "i2", "item", "tag", src="src", depends="i1")',
+      '## chunk "i2" }',
+      '',
+      '## chunk "i3"{',
+      'print("Running chunk 3")',             
+      'z <- x+y',
+      'rp$put(z, "i3", "item", "tag", src="src", depends=c("i1","i2"))',
+      '## chunk "i3"}\n'),
+    collapse="\n")
+
+writeLines(srccode, con=fcon)
+close(fcon)
 
 source(src)
 
