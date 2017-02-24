@@ -11,6 +11,11 @@ files in a central local repository, together with tags, annotations,
 provenance and dependence information. Any saved object can then be
 easily located and loaded through the repo interface.
 
+A [paper about Repo](http://rdcu.be/pklt) has been published in BMC
+Bioinformatics.
+
+Latest news are found in the NEWS.md file of the "Untested" branch.
+
 Repo is developed by Francesco Napolitano [![alt text][1.2]][1]
 
 
@@ -19,13 +24,13 @@ Repo is developed by Francesco Napolitano [![alt text][1.2]][1]
 + [Master](https://github.com/franapoli/repo/tree/master): stable major
 releases, usually in sync with lastest CRAN version.
 
-+ [Dev](https://github.com/franapoli/repo/tree/dev): stable minor 
-releases.
++ [Dev](https://github.com/franapoli/repo/tree/dev): fairly stable
+minor releases.
 
 + [Untested](https://github.com/franapoli/repo/tree/untested):
-unstable, in progress versions.
+unstable, in progress versions. Latest news appear in the "NEWS.md"
+file of this branch.
 
-Latest news are found in the NEWS.md file of the "Untested" branch.
 
 ## Getting Started
 

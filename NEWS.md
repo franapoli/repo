@@ -3,8 +3,8 @@
 
 02/22/17
 
-+ A paper about Repo has been published in BMC Bioinformatics
-  [paper about Repo](http://rdcu.be/pklt).
++ A [paper about Repo](http://rdcu.be/pklt) has been published in BMC
+  Bioinformatics.
 + Added some testing code.
 
 
