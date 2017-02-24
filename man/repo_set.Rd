@@ -5,26 +5,39 @@
 \title{Edit an existing item.}
 \usage{
 repo_set(name, obj = NULL, newname = NULL, description = NULL,
-  tags = NULL, src = NULL, depends = NULL, addtags = NULL, URL = NULL,
-  buildURL = NULL)
+  tags = NULL, prj = NULL, src = NULL, chunk = NULL, depends = NULL,
+  addtags = NULL, URL = NULL, buildURL = NULL)
 }
 \arguments{
 \item{name}{An item name.}
 
-\item{obj}{An R object to replace the one currently associated with the item.}
+\item{obj}{An R object to replace the one currently associated with
+the item.}
 
 \item{newname}{Newname of the item.}
 
 \item{description}{Item's description.}
 
-\item{tags}{New item's tags as a ist of character.}
+\item{tags}{New item's tags as a list of character.}
+
+\item{prj}{New item's project as a list of character.}
 
 \item{src}{New item's provenance as a list of character.}
+
+\item{chunk}{New item's chunk name.}
 
 \item{depends}{List of item names indicating dependancies.}
 
 \item{addtags}{Tags to be added to current item's tags. Can not be
 used together with the parameter "tags".}
+
+\item{URL}{A character containing an URL where the item is supposed
+to be downloaded from.}
+
+\item{buildURL}{A character containing a base URL that is completed
+by postfixing the item's relative path. Useful to upload
+repositories online and make their items downloadable. The
+item's current URL is overwritten.}
 }
 \value{
 Used for side effects.

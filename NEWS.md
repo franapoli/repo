@@ -1,6 +1,14 @@
 
 # News
 
+02/24/17, v2.0.5.11
+
++ Runs all checks
++ Documentation updated
++ `dependencies` now accepts overriding of default visual igraph
+  parameters
+
+
 02/22/17
 
 + A [paper about Repo](http://rdcu.be/pklt) has been published in BMC

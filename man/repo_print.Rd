@@ -19,8 +19,6 @@ tags will be shown.}
 
 \item{show}{Select columns to show.}
 
-\item{x}{An object of class repo.}
-
 \item{...}{Further arguments passed to or from other methods}
 }
 \value{

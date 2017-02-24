@@ -15,8 +15,15 @@ repo_attach(filepath, description, tags, prj = NULL, src = NULL,
 \item{tags}{A list of tags to sort the item. Tags are useful for
 selecting sets of items and run bulk actions.}
 
+\item{prj}{The name of a \code{project} item in the repository (see
+\code{project}). Default is no associated project item.}
+
 \item{src}{The name of the item that produced the stored
 object. Usually a previously attached source code file.}
+
+\item{chunk}{The name of the code chunk within \code{src} that is
+responsible for building the item. Set to \code{name} by
+default. See \code{build}.}
 
 \item{replace}{If the item exists, overwrite the specified fields.}
 

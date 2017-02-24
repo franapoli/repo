@@ -5,13 +5,14 @@
 \title{Build and/or plots a dependency graph}
 \usage{
 repo_dependencies(tags = NULL, tagfun = "OR", depends = T, attached = T,
-  generated = T, plot = T, vertex.frame.color = "lightblue",
-  edge.arrow.size = 0.4, vertex.color = "lightblue",
-  vertex.label.cex = 0.7, vertex.label.family = "Helvetica",
-  vertex.label.color = "black", edge.label.color = "darkgray",
-  edge.label.family = "Helvetica", edge.label.cex = 0.6, ...)
+  generated = T, plot = T, ...)
 }
 \arguments{
+\item{tags}{Only show nodes matching tags}
+
+\item{tagfun}{Function specifying how to match tags (by default
+"OR": match any of \code{tags}).}
+
 \item{depends}{If TRUE, show "depends on" edges.}
 
 \item{attached}{If TRUE, show "attached to" edges.}
@@ -29,9 +30,9 @@ Adjacency matrix representing the graph, with edges labeled
     respectively.
 }
 \description{
-Creates a weighted adjacency matrix, in which \code{(i,j) = x} means that
-item \code{i} is in relation \code{x} with item \code{j}. The resulting graph is
-plotted.
+Creates a weighted adjacency matrix, in which \code{(i,j) = x}
+means that item \code{i} is in relation \code{x} with item
+\code{j}. The resulting graph is plotted.
 }
 \details{
 The relation between any two items \code{i} and \code{j} can have

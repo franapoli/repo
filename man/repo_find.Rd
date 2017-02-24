@@ -7,11 +7,12 @@
 repo_find(what, all = F, show = "ds")
 }
 \arguments{
+\item{what}{Character to be matched against any field (see
+Details).}
+
 \item{all}{Show also items tagged with "hide".}
 
 \item{show}{Select columns to show.}
-
-\item{find}{Character to match any filed (see Details).}
 }
 \value{
 Used for side effects.
