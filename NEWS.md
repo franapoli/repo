@@ -1,7 +1,43 @@
 
 # News
 
-06/01/16, v2.0.4.5
+02/24/17, v2.0.5.11
+
++ Runs all checks
++ Documentation updated
++ `dependencies` now accepts overriding of default visual igraph
+  parameters
+
+
+02/22/17
+
++ A [paper about Repo](http://rdcu.be/pklt) has been published in BMC
+  Bioinformatics.
++ Added some testing code.
+
+
+10/18/16, v2.0.5.8
+
++ Major code refactoring. Direct call of `repo_*` function now
+deprecated.
+
+
+10/14/16
+
++ added `chunk` and `build` functions and `chunk` parameter to
+  `put`. Repo can now associate a specific chunk of code with a
+  resources and rebuild it upon request.
++ added support for special `project` items and corresponding
+  `project` function and `prj` parameter in `put`. `project` items
+  store session information automatically when `put` is called. The
+  `info` command works differently on `project` items.
++ Improved aesthetics for the dependency graph through default visual
+  parameters.
++ added `testthat` support for internal tests
++ added `options` function to set `put` default parameters.
+
+
+10/08/16
 
 + added `buildURL` parameter to `set`. It will add an URL to all
 items, such that it can be used is the repository is uploaded to a

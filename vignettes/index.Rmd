@@ -100,7 +100,7 @@ separately. Here's a more compact call to `put`:
 
 ```{r}
 rp$put(iris$Species, "irisLabels", "The Iris class lables.",
-         c("labels", "iris", "repodemo"), "index.Rmd")
+         c("labels", "iris", "repodemo"), src="index.Rmd")
 ```
 
 ### Attaching visualizations
@@ -138,7 +138,7 @@ plot(iris2d, main="2D visualization of the Iris dataset",
 invisible(dev.off())
 rp$attach(fpath, "Iris 2D visualization obtained with PCA.",
             c("visualization", "iris", "repodemo"),
-              "index.Rmd", to="myiris")
+              src="index.Rmd", to="myiris")
 ```
 
 Note that the PDF temporarily created at `fpath` can be safely removed
@@ -176,7 +176,7 @@ plot(irispca)
 invisible(dev.off())
 rp$attach(fpath, "Variance explained by the PCs of the Iris dataset",
             c("visualization", "iris", "repodemo"),
-              "index.Rmd", to="iris2D.pdf")
+              src="index.Rmd", to="iris2D.pdf")
 ```
 
 ### Storing some results
@@ -194,7 +194,7 @@ things sorted as the repository grows.
 kiris <- kmeans(myiris, 5)$cluster
 rp$put(kiris, "iris_5clu", "Kmeans clustering of the Iris data, k=5.",
          c("metadata", "iris", "kmeans", "clustering", "repodemo"),
-           "index.Rmd", depends="myiris", T)
+           src="index.Rmd", depends="myiris")
 ```
 
 The following shows what the clustering looks like. The figure
@@ -211,7 +211,7 @@ plot(iris2d, main="Iris dataset kmeans clustering", col=kiris)
 invisible(dev.off())
 rp$attach(fpath, "Iris K-means clustering.",
 	c("visualization", "iris", "clustering", "kmeans", "repodemo"),
-	"index.Rmd", to="iris_5clu")
+	src="index.Rmd", to="iris_5clu")
 ```
 
 Finally, a contingency table of the Iris classes versus clusters is
@@ -227,7 +227,7 @@ rp$put(res, "iris_cluVsSpecies",
          paste("Contingency table of the kmeans clustering versus the",
                "original labels of the Iris dataset."),
          c("result", "iris","validation", "clustering", "repodemo", "hide"),
-         "index.Rmd", c("myiris", "irisLabels", "iris_5clu"), T)
+         src="index.Rmd", depends=c("myiris", "irisLabels", "iris_5clu"), replace=T)
 ```
 
 ## Looking at the repository
@@ -399,7 +399,7 @@ kiris2 <- kmeans(myiris, 5)$cluster
 rp$put(kiris, "iris_5clu",
          "Kmeans clustering of the Iris data, k=5. Today's version!",
          c("metadata", "iris", "kmeans", "clustering", "repodemo"),
-           "index.Rmd", depends="myiris", replace="addversion")
+           src="index.Rmd", depends="myiris", replace="addversion")
 ```
 
 * **addversion** when replace is set to "addversion", Repo will add a
