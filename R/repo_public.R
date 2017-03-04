@@ -1,5 +1,5 @@
 ############################################
-########## PUBLIC METHODS ##################
+######### PUBLIC METHODS ##################
 ############################################
 
 
@@ -809,6 +809,7 @@ repo_bulkedit <- function(outfile=NULL, infile=NULL)
         stop("Please provide exactly one of infile or outfile.")
 
     if(!is.null(outfile)) {
+
         if(file.exists(outfile))
             stop("File already exists.")
         
@@ -926,15 +927,29 @@ repo_has = function(name)
     return(!is.null(getEntry(name)))
 }
 
+##' Builds a resource using the associated code chunk
+##'
+##' In order to be \code{build}able, a repository item must have an
+##' associated source file and code chunk.
 
-repo_build = function(name, recursive=T, env=parent.frame(), built=list())
+##' @param name Namo of an item in the repo.
+##' @param recursive Build dependencies not already in the repo
+##'     recursively (T by default).
+##' @param force Re-build dependencies recursively even if already in
+##'     the repo (F by default).
+##' @param env Environment in which to run the code chunk assciated
+##'     with the item to build. Parent environment by default.
+##' @param built A list of items already built used for recursion (not
+##'     meant to be passed directly).
+##' @return Nothing, used for side effects.
+##' @export
+repo_build = function(name, recursive=T, force=F, env=parent.frame(), built=list())
 {
     ch <- getChunk(name)
     if(is.null(ch))
         handleErr("CHUNK_NOCHUNK", name)
     opt <- get("options", thisEnv)[["replace"]]
-    force <- F
-    if(is.null(opt) || opt == "addversion" || opt==T)
+    if(opt == "addversion" || opt==T)
         force <- T
     deps <- getEntry(name)$depends
     if(length(deps)>0) {
@@ -943,7 +958,7 @@ repo_build = function(name, recursive=T, env=parent.frame(), built=list())
                 if(!get("this", thisEnv)$has(deps[i]) || force) {
                     handleErr("INFO_BUILDING_DEPS", deps[i])
                     built <- c(built, deps[i])
-                    get("this", thisEnv)$build(deps[i], T, env, built)
+                    get("this", thisEnv)$build(deps[i], T, force, env, built)
                 }
             }
         }
@@ -1166,16 +1181,17 @@ repo_untag <- function(name = NULL, rmtags, tags = NULL)
 {
     if(!xor(is.null(name), is.null(tags)))
         stop("You must provide either name or tags.")
-    if(!is.null(tags) | length(name)>1)
-        runWithTags("untag", tags, name, F, rmtags) else {
-                                                        currtags <- getEntry(name)$tags
-                                                        w <- rmtags %in% currtags
-                                                        if(!any(w))
-                                                            warning(paste0("Tag/s ", paste0(rmtags[!w], collapse=", "),
-                                                                           " not present in entry ", name))
-                                                        currtags <- setdiff(currtags, rmtags)
-                                                        get("this", thisEnv)$set(name, tags = currtags)
-                                                    }
+    if(!is.null(tags) | length(name)>1) {
+        runWithTags("untag", tags, name, F, rmtags)
+    } else {
+        currtags <- getEntry(name)$tags
+        w <- rmtags %in% currtags
+        if(!any(w))
+            warning(paste0("Tag/s ", paste0(rmtags[!w], collapse=", "),
+                           " not present in entry ", name))
+        currtags <- setdiff(currtags, rmtags)
+        get("this", thisEnv)$set(name, tags = currtags)
+    }
 }
 
 
@@ -1433,19 +1449,7 @@ repo_pull <- function(name, replace=F) {
 
 
 
-## project = function(name)
-## {
 
-        ##     stopOnNotFound(name)
-        ##     all <- sapply(entries, get, x="name")
-        ##     prj <- lapply(entries, get, x="prj")
-        ##     items <- list()
-        ##     for(i in 1:length(prj))
-        ##         if(name %in% prj)
-        ##             items <- c(items, all[i])
-        ##     return(items)
-
-        ## },
 repo_project <- function(name, description, replace=T)
 {
     get("this", thisEnv)$put(NULL, name, description,
@@ -1714,14 +1718,52 @@ repo_append <- function(id, txtorfunc)
 #' ## wiping temporary repo
 #' unlink(rp_path, TRUE)
 
-
-
 repo_root <- function()
 {
     return(get("root",thisEnv))
 }
 
 
+#' Returns item's dependancies
+#'
+#' @param name The name of a repository item.
+#' @return The items on which the input item depends.
+repo_depends <- function(name)
+{
+    return(getEntry(name)$depends)
+    ## deps <- get("dependants", thisEnv)(name)
+    ## depnames <- sapply(entries[deps], get, x="name")
+    ## return(depnames)
+}
+
+
+#' Loads an item to current workspace
+#'
+#' Like \code{repo_get}, returns the contents of a stored item. But,
+#' unlike \code{repo_get}, loads it to the current namespace.
+#'
+#' @param names List or vector of repository item names.
+#' @param overwrite_existing Overwrite an existing variable by the
+#'     same name in the current workspace. If F (defaults) throws an
+#'     error.
+#' @param env Environment to load the variable into (parent environment
+#'     by default).
+#' @return Nothing, used for side effects.
+repo_load <- function(names, overwrite_existing=F, env=parent.frame())
+{
+    for(i in 1:length(names)) {
+        obj <- get("this", thisEnv)$get(names[[i]])
+        assign(names[[i]], obj, envir=env)
+    }
+    return(invisible(NULL))
+}
+
+
+#' Set repository-wide options
+#'
+#' @param ... options to set
+#' @return if optional paramters are not passed, the current options
+#'     are returned
 
 repo_options <- function(...)
 {
@@ -1772,7 +1814,11 @@ repo_methods_public <- function()
         options = repo_options,
         has = repo_has,
         chunk = repo_chunk,
-        build = repo_build
+        build = repo_build,
+        depends = repo_depends,
+        load = repo_load
     )
     return(methods)
 }
+
+

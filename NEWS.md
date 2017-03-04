@@ -1,6 +1,13 @@
 
 # News
 
+03/04/17, v2.0.5.12
+
++ Added `depends` function
++ Added `load` function
++ Added `force` parameter to `build`
++ More documentation updates
+
 02/24/17, v2.0.5.11
 
 + Runs all checks
