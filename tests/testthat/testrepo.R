@@ -37,7 +37,8 @@ test_that("repository successfully created", {
 rp1$project("prj name", "prj desc")
 rp1$options(prj="prj name")
 rp1$put(1:3,"test","testdesc","tags")
-##rp1$info("prj name")
+rp1$put(4,"dependantItem","testdesc","tags", depends="test")
+
 e2 <- rp1$entries()[["prj name"]]
 e3 <- rp1$entries()[["test"]]
 
@@ -47,6 +48,15 @@ test_that("adding project", {
     expect_true(rp1$has("test"))
     expect_true(file.exists(file.path(rp1$root(), e3[["dump"]])))
     expect_equal(rp1$entries()[["test"]]$prj, "prj name")
+    expect_equal(rp1$entries()[["dependantItem"]]$depends, "test")
+    expect_equal(rp1$depends("dependantItem"), "test")
+})
+
+env=environment()
+rp1$load(c("test", "dependantItem"))
+test_that("loading items to workspace", {
+    expect_true("test" %in% ls(envir=env))
+    expect_true("dependantItem" %in% ls(envir=env))
 })
 
 rp1$rm("test")
@@ -56,7 +66,6 @@ test_that("remove items", {
     expect_false(rp1$has("test"))
     expect_false(file.exists(file.path(rp1$root(), e3[["dump"]])))
 })
-
 
 wipe_test_repo("repo1")
 
@@ -93,28 +102,29 @@ context("chunks")
 src <- tempfile()
 fcon <- file(src)
 
-srccode <- paste(
-    c('rp <- repo_open(file.path(tempdir(), "temp"), T)',
-      paste0('srcf <- "', src, '"'),
-      'rp$put(srcf, "src", "src desc", "tags", asattach=T)',
-      '## chunk "i1" {',
-      'print("Running chunk 1")',
-      'x <- 1',
-      'rp$put(x, "i1", "item", "tag", src="src")',
-      '## chunk "i1" }',
-      '',
-      '## chunk "i2"{',
-      'print("Running chunk 2")',             
-      'y <- x+1',
-      'rp$put(y, "i2", "item", "tag", src="src", depends="i1")',
-      '## chunk "i2" }',
-      '',
-      '## chunk "i3"{',
-      'print("Running chunk 3")',             
-      'z <- x+y',
-      'rp$put(z, "i3", "item", "tag", src="src", depends=c("i1","i2"))',
-      '## chunk "i3"}\n'),
-    collapse="\n")
+srccode <- '
+rp <- repo_open(file.path(tempdir(), "temp"), T)
+srcf <- "SRCNAME"
+rp$put(srcf, "src", "src desc", "tags", asattach=T)
+## chunk "i1" {
+print("Running chunk 1")
+x <- 1
+rp$put(x, "i1", "item", "tag", src="src")
+## chunk "i1" }
+
+## chunk "i2"{
+print("Running chunk 2")
+y <- x+1
+rp$put(y, "i2", "item", "tag", src="src", depends="i1")
+## chunk "i2" }
+
+## chunk "i3"{
+print("Running chunk 3")
+z <- x+y
+rp$put(z, "i3", "item", "tag", src="src", depends=c("i1","i2"))
+## chunk "i3"}
+'
+srccode <- gsub("SRCNAME", src, srccode)
 
 writeLines(srccode, con=fcon)
 close(fcon)
@@ -139,7 +149,7 @@ rp$set("i3", 0)
 
 ## rebuilding objects
 rp$options(replace=T)
-rp$build("i3")
+rp$build("i3", force=T)
 
 test_that("obj and dependencies build", {
     expect_equal(x, 1)
