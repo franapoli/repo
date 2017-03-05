@@ -1,6 +1,10 @@
 
 # News
 
+03/05/17, v2.0.5.13
+
++ Added forking
+
 03/04/17, v2.0.5.12
 
 + Added `depends` function

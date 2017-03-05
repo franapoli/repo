@@ -14,8 +14,13 @@ build_test_repo <- function(subfolder)
 wipe_test_repo <- function(subfolder)
 {
     fold <- file.path(tempdir(), subfolder)
-    unlink(fold, recursive=T)
+    if(file.exists(fold))
+        unlink(fold, recursive=T)
 }
+
+wipe_test_repo("repo1")
+wipe_test_repo("repo2")
+wipe_test_repo("temp")
 
 
 ##############
@@ -96,11 +101,8 @@ wipe_test_repo("repo2")
 
 
 ##############
-context("chunks")
+context("chunk basics")
 ##############
-
-src <- tempfile()
-fcon <- file(src)
 
 srccode <- '
 rp <- repo_open(file.path(tempdir(), "temp"), T)
@@ -124,8 +126,9 @@ z <- x+y
 rp$put(z, "i3", "item", "tag", src="src", depends=c("i1","i2"))
 ## chunk "i3"}
 '
+src <- tempfile()
 srccode <- gsub("SRCNAME", src, srccode)
-
+fcon <- file(src, "w")
 writeLines(srccode, con=fcon)
 close(fcon)
 
@@ -158,6 +161,81 @@ test_that("obj and dependencies build", {
     expect_equal(rp$get("i1"), 1)
     expect_equal(rp$get("i2"), 2)
     expect_equal(rp$get("i3"), 3)
+})
+
+
+wipe_test_repo("temp")
+
+
+
+
+
+##############
+context("chunk forks")
+##############
+
+
+srccode <- '
+rp <- repo_open(file.path(tempdir(), "temp"), T)
+
+rp$options(active_forks = "ACTIVEFORKS")
+srcf <- "SRCNAME"
+rp$put(srcf, "src", "src desc", "tags", asattach=T)
+
+## chunk "i1" {
+print("Running chunk 1")
+x <- 1
+rp$put(x, "i1", "item", "tag", src="src")
+## chunk "i1" }
+
+## chunk "i2#fork1"{
+print("Running chunk 2")
+y <- x+1
+rp$put(y, "i2#fork1", "item", "tag", src="src", depends="i1")
+## chunk "i2#fork1" }
+
+## chunk "i2#fork2"{
+print("Running chunk 2")
+y <- x+2
+rp$put(y, "i2#fork2", "item", "tag", src="src", depends="i1")
+## chunk "i2#fork2" }
+
+## chunk "i3"{
+print("Running chunk 3")
+z <- x+y
+rp$put(z, "i3", "item", "tag", src="src", depends=c("i1","i2"))
+## chunk "i3"}
+'
+src <- tempfile()
+fcon <- file(src, open="w")
+srccode <- gsub("SRCNAME", src, srccode)
+srccode <- gsub("ACTIVEFORKS", "fork1", srccode)
+writeLines(srccode, con=fcon)
+close(fcon)
+
+source(src)
+print(c(x,y,z))
+test_that("test fork1 execution", {
+    expect_equal(x, 1)
+    expect_equal(y, 2)
+    expect_equal(z, 3)
+    expect_equal(rp$get("i1"), 1)
+    expect_equal(rp$get("i2"), 2)
+    expect_equal(rp$get("i3"), 4)
+})
+
+
+## rebuilding objects
+rp$options(replace=T, active_forks="fork2")
+rp$build("i3", force=T)
+
+test_that("test fork2 execution", {
+    expect_equal(x, 1)
+    expect_equal(y, 3)
+    expect_equal(z, 4)
+    expect_equal(rp$get("i1"), 1)
+    expect_equal(rp$get("i2"), 3)
+    expect_equal(rp$get("i3"), 4)
 })
 
 

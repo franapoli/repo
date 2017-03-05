@@ -64,6 +64,12 @@
                    },
                    "CHUNK_NOCHUNK" = {
                        stop(paste("The following items have no associated code chunk:", lpars))
+                   },
+                   "FORK_CONFLICT" = {
+                       stop(paste("The following forks are all active and contain the same item:", lpars))
+                   },
+                   "FORK_NOACTIVEFORK" = {
+                       stop(paste("None of the active forks contain the following item:", lpars))
                    }
                    )
         }
@@ -75,16 +81,9 @@
         pkgv <- sapply(pkg, function(x) as.character(packageVersion(x)))
         get("this", thisEnv)$set(name, obj=list(session = sess, pkgv = pkgv))
     }
-    
-    getChunk <- function(name)        
-    {
-        entry <- getEntry(name)
-        if(is.null(entry$source))
-            return(NULL)
-        cname <- entry$chunk
 
-        srcfile <- get("this", thisEnv)$attr(name, "srcfile")
-        txt <- readLines(srcfile)
+
+findChunkData <- function(textlines) {
         s0 <- "[[:blank:]]*"
         s1 <- "[[:blank:]]+"
         chtag <- "chunk"
@@ -94,23 +93,85 @@
         startstr <- paste0("^", s0, "#+", s0, chtag, s1, chname, s0, chopen,  s0, "$")
         endstr   <- paste0("^", s0, "#+", s0, chtag, s1, chname, s0, chclose, s0, "$")
 
-        oks <- which(sapply(txt, grepl, pattern=startstr, perl=T))
-        tagss <- sapply(txt[oks], sub, pattern=startstr, replacement="\\1", perl=T)
-        if(!(cname %in% tagss))
-            return(NULL)
-        names(oks) <- tagss
-        if(any(duplicated(tagss)))
-            stop(paste("Chunk names are not unique: ",
-                       unique(tagss[duplicated(tagss)])))
-
-        oke <- which(sapply(txt, grepl, pattern=endstr, perl=T))
-        tagse <- sapply(txt[oke], sub, pattern=endstr, replacement="\\1", perl=T)
+        oks <- which(sapply(textlines, grepl, pattern=startstr, perl=T))
+        tagss <- sapply(textlines[oks], sub, pattern=startstr, replacement="\\1", perl=T)
+        oke <- which(sapply(textlines, grepl, pattern=endstr, perl=T))
+        tagse <- sapply(textlines[oke], sub, pattern=endstr, replacement="\\1", perl=T)
         names(oke) <- tagse
+        return(list(oks=oks, tagss=tagss, oke=oke, tagse=tagse))
+}
 
-        chunks <- vector("character", length(tagss))
-        for(i in which(tagss == cname)) ## written to find all chunks
-        {
-            tag <- tagss[i]
+
+## reads all file source code associated with an item. The item must
+## already be in the repo.
+getSourceLines <- function(name) {
+    entry <- getEntry(name)
+    if(is.null(entry$source))
+        return(NULL)
+    
+    srcfile <- get("this", thisEnv)$attr(name, "srcfile")
+    txt <- readLines(srcfile)
+}
+
+## change name if item has an associated fork. Must work before the
+## item is in the repo, in that case srcItem must be supplied. Is
+## srcItem is NULL, the item is assumed to be in the repo already.
+forkedName <- function(name, srcItem=NULL) {
+        
+    #srclines <- readLines(getEntry(srcItem)$dump)
+    act_forks <- get("options", thisEnv)[["active_forks"]]
+    forks <- unique(getItemForks(name)$v)
+    if(length(forks)==0)
+        return(name)
+    if(sum(forks %in% act_forks)>1)
+        handleErr("FORK_CONFLICT", forks)
+    if(sum(forks %in% act_forks)==0)
+        handleErr("FORK_NOACTIVEFORK", name)
+    return(paste0(name, "#", forks[forks %in% act_forks]))
+}
+
+## Removes inactive chunks from chunkdata
+deforkChunkData <- function(chunkdata, active_chunks=NULL)
+{
+    tags <- chunkdata$tagss
+    forkedi <- grep("#", tags)
+    forks <- gsub(".+#", "", tags[forkedi])
+    ok <- (1:length(tags))[-forkedi[!forks %in% active_chunks]]
+    chunkdata <- lapply(chunkdata, `[`, ok)
+    chunkdata$tagss <- gsub("#.+", "", chunkdata$tagss)
+    chunkdata$tagse <- gsub("#.+", "", chunkdata$tagse)
+    return(chunkdata)
+}
+    
+getChunk <- function(name, active_chunks=NULL)
+{
+    entry <- getEntry(name)
+    if(is.null(entry$source))
+        return(NULL)
+    
+    txt <- getSourceLines(name)
+    if(is.null(txt))
+        return(NULL)
+    chunkData <- findChunkData(txt)
+    ##chunkData <- deforkChunkData(findChunkData(txt), active_chunks)
+    tagss <- chunkData$tagss
+    oks <- chunkData$oks
+    tagse <- chunkData$tagse
+    oke <- chunkData$oke
+    cname <- entry$chunk
+    if(!(cname %in% tagss))
+        return(NULL)
+    
+    names(oks) <- tagss
+    if(any(duplicated(tagss)))
+        stop(paste("Chunk names are not unique: ",
+                   unique(tagss[duplicated(tagss)])))
+    
+
+    chunks <- vector("character", length(tagss))
+    for(i in which(tagss == cname)) ## written to find all chunks
+    {
+        tag <- tagss[i]
             if(!(tag %in% tagse))
                 stop(paste(tag, "has no matching end"))
             if(sum(tagse==tag)>1)
@@ -246,6 +307,21 @@ getSource <- function(name)
                 newname <- paste0(name, "#1")
             
             return(list(w=which(w!=-1), v=v, new=newname))
+        }
+
+    ## Checks if an item has multiple forks (other items by the same
+    ## name + "#fork1", "#fork2", ... and return them
+    getItemForks <- function(name)
+        {
+            names <- sapply(entries, get, x="name")
+            ## searching for names ending with #, then anything but a
+            ## number, then whatever
+            w <- regexpr(paste0(name, "#[^[:digit:]].+$"), names)
+            
+            ## extract the version names
+            v <- gsub(paste0(name,"#"),"",names[w!=-1])
+            
+            return(list(w=which(w!=-1), v=v))
         }
 
 
@@ -506,7 +582,7 @@ getSource <- function(name)
 
 
     ## ** like getEntry, but returns just the index. There's an
-    ## inconsistency between "find" and "get"
+    ## inconsistency between "find" and "get" in their names
     findEntryIndex <- function(name)
         {
             if(is.null(entries) | length(entries)<1) {
@@ -669,7 +745,11 @@ repo_methods_private <- function()
         prjmembers = prjmembers,
         compressPath = compressPath,
         entriesToMat = entriesToMat,
-        getSource = getSource
+        getSource = getSource,
+        forkedName = forkedName,
+        getItemForks = getItemForks,
+        deforkChunkData = deforkChunkData,
+        getSourceLines = getSourceLines
     )
 
     return(methods)

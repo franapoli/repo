@@ -10,8 +10,8 @@ repo_get(name)
 \item{name}{An item's name.}
 }
 \value{
-The previously stored object, or its file path for
-attachments.
+The previously stored object, or its file system path for
+    attachments.
 }
 \description{
 Retrieve an item from the repo.
