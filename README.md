@@ -60,9 +60,6 @@ Repository contents:
                user    1 41 B
      The Pi costant    1 47 B
                   r   10 61 B
-           diameter   10 67 B
-      circumference   10 96 B
-               area   10 95 B
           diameters   10 67 B
      circumferences   10 96 B
               areas   10 95 B
@@ -70,8 +67,8 @@ Repository contents:
     rp$info()
 
     Root:            /tmp/RtmpdqjKvJ 
-    Number of items: 10 
-    Total size:      709 B 
+    Number of items: 7 
+    Total size:      509 B 
 
     rp$info("area")
 
