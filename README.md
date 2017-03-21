@@ -18,28 +18,24 @@ Latest news are found in the NEWS.md file of the "Untested" branch.
 
 Repo is developed by Francesco Napolitano [![alt text][1.2]][1]
 
+
 ## Minimal example
 
-Repository creation:
+Repository creation in the default folder:
 
     library(repo)
-    rp <- repo_open(tempdir(), T)
+    rp <- repo_open()
 
-    Repo created.
+Putting some stuff (it is saved on permanent storage). In this case,
+just values and names are specified:
 
-    rp$options(replace=T)
+    rp$put(Inf, "God")
+    rp$put(0, "user")
 
-Putting some stuff in (saved on permanent storage):
+Putting specifying dependencies:
 
-    rp$put(Inf, "God", "This variable contains the Creator", c("tag1"))
-    rp$put(0, "user", "This variable contains a user", c("tag1"))
-
-Putting with dependencies set:
-
-    rp$put(pi, "The Pi costant",
-        "This is just a variable containing the Pi costant", c("tag1"), depends="God")
-
-    rp$put(1:10, "r", "10 different radius lengths", c("tag1"), depends="user")
+    rp$put(pi, "The Pi costant", depends="God")
+    rp$put(1:10, "r", depends="user")
 
 Getting stuff from the repository on the fly:
 
@@ -47,25 +43,13 @@ Getting stuff from the repository on the fly:
     circum <- 2 * rp$get("The Pi costant") * rp$get("r")
     area <- rp$get("The Pi costant") * rp$get("r") ^ 2
 
-    rp$put(diam, "diameter", "This is the diameter", c("tag1"), depends = "r")
-    rp$put(circum, "circumference", "This is the circumference", c("tag1"), depends = c("The Pi costant", "r"))
-    rp$put(area, "area", "This is the area", c("tag1"), depends = c("The Pi costant", "r"))
+Putting with verbose descriptions:
 
-The results:
-
-    rp$get("diameter")
-
-     [1]  2  4  6  8 10 12 14 16 18 20
-
-    rp$get("circumference")
-
-     [1]  6.283185 12.566371 18.849556 25.132741 31.415927 37.699112 43.982297
-     [8] 50.265482 56.548668 62.831853
-
-    rp$get("area")
-
-     [1]   3.141593  12.566371  28.274334  50.265482  78.539816 113.097336
-     [7] 153.938040 201.061930 254.469005 314.159265
+    rp$put(diam, "diameters", "These are the diameters", depends = "r")
+    rp$put(circum, "circumferences", "These are the circumferences",
+           depends = c("The Pi costant", "r"))
+    rp$put(area, "areas", "This are the areas",
+           depends = c("The Pi costant", "r"))
 
 Repository contents:
 
@@ -79,12 +63,28 @@ Repository contents:
            diameter   10 67 B
       circumference   10 96 B
                area   10 95 B
+          diameters   10 67 B
+     circumferences   10 96 B
+              areas   10 95 B
 
     rp$info()
 
-    Root:            /tmp/Rtmpej4bxs 
-    Number of items: 7 
-    Total size:      451 B 
+    Root:            /tmp/RtmpdqjKvJ 
+    Number of items: 10 
+    Total size:      709 B 
+
+    rp$info("area")
+
+    ID:           area
+    Description:  This is the area
+    Tags:         -
+    Dimensions:   10
+    Timestamp:    2017-03-21 18:40:04
+    Size on disk: 95 B
+    Attached to:  -
+    Stored in:    lv/07/og/lv07og6hk4bvv18gfwret3awyflc2hlc
+    MD5 checksum: 3dd7b683b10ec061459211ee284899e8
+    URL:          -
 
 Visualizing dependencies:
 

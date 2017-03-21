@@ -20,27 +20,36 @@ opts_chunk$set(comment=NA)
 ##opts_chunk$set(fig.align="center")
 ```
 
-Repository creation:
+Repository creation in the default folder:
 
-```{r}
+```{r echo=FALSE, output=FALSE, message=FALSE}
 library(repo)
 rp <- repo_open(tempdir(), T)
+```
+
+```{r, eval=FALSE}
+library(repo)
+rp <- repo_open()
+```
+
+```{r echo=FALSE, output=FALSE, message=FALSE}
 rp$options(replace=T)
 ```
 
-Putting some stuff in (saved on permanent storage):
+
+
+Putting some stuff (it is saved on permanent storage). In this case, just
+values and names are specified:
 
 ```{r}
-rp$put(Inf, "God", "This variable contains the Creator", c("tag1"))
-rp$put(0, "user", "This variable contains a user", c("tag1"))
+rp$put(Inf, "God")
+rp$put(0, "user")
 ```
-Putting with dependencies set:
+Putting specifying dependencies:
 
 ```{r}
-rp$put(pi, "The Pi costant",
-    "This is just a variable containing the Pi costant", c("tag1"), depends="God")
-
-rp$put(1:10, "r", "10 different radius lengths", c("tag1"), depends="user")
+rp$put(pi, "The Pi costant", depends="God")
+rp$put(1:10, "r", depends="user")
 ```
 
 Getting stuff from the repository on the fly:
@@ -49,22 +58,21 @@ Getting stuff from the repository on the fly:
 diam <- 2 * rp$get("r")
 circum <- 2 * rp$get("The Pi costant") * rp$get("r")
 area <- rp$get("The Pi costant") * rp$get("r") ^ 2
-
-rp$put(diam, "diameter", "This is the diameter", c("tag1"), depends = "r")
-rp$put(circum, "circumference", "This is the circumference", c("tag1"), depends = c("The Pi costant", "r"))
-rp$put(area, "area", "This is the area", c("tag1"), depends = c("The Pi costant", "r"))
 ```
-The results:
+Putting with verbose descriptions:
 ```{r}
-rp$get("diameter")
-rp$get("circumference")
-rp$get("area")
+rp$put(diam, "diameters", "These are the diameters", depends = "r")
+rp$put(circum, "circumferences", "These are the circumferences",
+       depends = c("The Pi costant", "r"))
+rp$put(area, "areas", "This are the areas",
+       depends = c("The Pi costant", "r"))
 ```
 Repository contents:
 
 ```{r}
 print(rp)
 rp$info()
+rp$info("area")
 ```
 Visualizing dependencies:
 

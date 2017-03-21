@@ -1539,7 +1539,7 @@ repo_project <- function(name, description, replace=T)
 #'
 #' ## wiping temporary repo
 #' unlink(rp_path, TRUE)
-repo_put <- function(obj, name, description, tags, prj=NULL, src=NULL,
+repo_put <- function(obj, name, description=NULL, tags=NULL, prj=NULL, src=NULL,
                      chunk=name, depends=NULL, replace=F, asattach=F,
                      to=NULL, addversion=F, URL=NULL, checkRelations=T)
 {
@@ -1567,8 +1567,8 @@ repo_put <- function(obj, name, description, tags, prj=NULL, src=NULL,
     }
     
     
-    if(missing(obj) | missing(name) | missing(description) | missing(tags))
-        stop("You must provide all of: obj, name, description, tags.")
+    if(missing(obj) | missing(name))
+        stop("You must provide all of: obj, name")
 
     if(name == "repo")
         handleErr("ID_RESERVED")    
