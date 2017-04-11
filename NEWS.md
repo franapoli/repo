@@ -17,7 +17,7 @@ New features:
 	chunk "ChunkName#fork2"{
 		## ...
 	}
-	## the following sets the active chunk:
+	`##` the following sets the active chunk:
 	rp$options(chunk="fork")
 
 	Outputs from different forks will be stored together in the repo
