@@ -27,4 +27,3 @@ rp$info("item1")
 ## wiping temporary repo
 unlink(rp_path, TRUE)
 }
-

@@ -155,13 +155,14 @@ repo_dependencies <- function(tags=NULL, tagfun="OR", depends=T,
             rownames(deps2) <- colnames(deps2) <- basename(rownames(deps))
             g <- igraph::graph.adjacency(deps2, weighted=c("type"))
             pars[["x"]] <- g
-            pars[["edge.label"]] <- c("depends", "attached", "generated")
+            pars[["edge.label"]] <-
+                c("depends", "attached", "generated")[igraph::get.edge.attribute(g,"type")]
             do.call(igraph::plot.igraph, pars)
         } else {
             stop("The suggested package igraph is not installed.")
         }              
     }
-    invisible(depgraph())
+    invisible(deps)
 }
 
 
@@ -1264,7 +1265,7 @@ repo_set <- function(name, obj=NULL, newname=NULL, description=NULL,
         entr$tags <- unique(c(entr$tags, checkTags(addtags, name)))
     }
     if(!is.null(src))
-        entr$src <- src
+        entr$source <- src
 
     if(!is.null(depends))
         entr$depends <- depends
@@ -1287,7 +1288,7 @@ repo_set <- function(name, obj=NULL, newname=NULL, description=NULL,
         entr$checksum <- newinfo[["checksum"]]
         entr$dims <- newinfo[["dims"]]
     }
-    
+
     entries[[w]] <- entr
     assign("entries", entries, thisEnv)
     storeIndex()
@@ -1332,9 +1333,9 @@ repo_set <- function(name, obj=NULL, newname=NULL, description=NULL,
 #'
 #' ## wiping temporary repo
 #' unlink(rp_path, TRUE)
-repo_attach <- function(filepath, description, tags, prj=NULL, src=NULL,
-                        chunk=basename(filepath), replace=F, to=NULL,
-                        URL=NULL)
+repo_attach <- function(filepath, description=NULL, tags=NULL,
+                        prj=NULL, src=NULL, chunk=basename(filepath),
+                        replace=F, to=NULL, URL=NULL)
 {
     get("this", thisEnv)$put(filepath, basename(filepath),
                              description, tags, prj, src, chunk,

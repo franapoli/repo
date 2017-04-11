@@ -72,7 +72,7 @@ Repository contents:
 ```{r}
 print(rp)
 rp$info()
-rp$info("area")
+rp$info("areas")
 ```
 Visualizing dependencies:
 

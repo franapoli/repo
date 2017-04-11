@@ -59,28 +59,29 @@ Repository contents:
                 God    1 44 B
                user    1 41 B
      The Pi costant    1 47 B
-                  r   10 61 B
+                  r   10 60 B
           diameters   10 67 B
      circumferences   10 96 B
               areas   10 95 B
 
     rp$info()
 
-    Root:            /tmp/RtmpdqjKvJ 
+    Root:            /tmp/RtmpjOSKE5 
     Number of items: 7 
-    Total size:      509 B 
+    Total size:      450 B 
 
-    rp$info("area")
+    rp$info("areas")
 
-    ID:           area
-    Description:  This is the area
-    Tags:         -
+    ID:           areas
+    Description:  This are the areas
+    Tags:         
     Dimensions:   10
-    Timestamp:    2017-03-21 18:40:04
+    Timestamp:    2017-04-11 18:13:40
     Size on disk: 95 B
+    Provenance:   
     Attached to:  -
-    Stored in:    lv/07/og/lv07og6hk4bvv18gfwret3awyflc2hlc
-    MD5 checksum: 3dd7b683b10ec061459211ee284899e8
+    Stored in:    xw/tt/zm/xwttzmigamg57309nvo3nd6cx8r59jss
+    MD5 checksum: 8b24858f4e92014f5fb29f76c3505588
     URL:          -
 
 Visualizing dependencies:

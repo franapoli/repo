@@ -4,9 +4,9 @@
 \alias{repo_put}
 \title{Create a new item in the repo.}
 \usage{
-repo_put(obj, name, description, tags, prj = NULL, src = NULL,
-  chunk = name, depends = NULL, replace = F, asattach = F, to = NULL,
-  addversion = F, URL = NULL, checkRelations = T)
+repo_put(obj, name, description = NULL, tags = NULL, prj = NULL,
+  src = NULL, chunk = name, depends = NULL, replace = F, asattach = F,
+  to = NULL, addversion = F, URL = NULL, checkRelations = T)
 }
 \arguments{
 \item{obj}{An R object to store in the repo.}
@@ -108,4 +108,3 @@ unlink(rp_path, TRUE)
 \seealso{
 get, set, attach, info
 }
-

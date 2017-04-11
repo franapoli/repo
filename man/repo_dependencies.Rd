@@ -83,4 +83,3 @@ rp$dependencies(generated=FALSE)
 ## wiping temporary repo
 unlink(rp_path, TRUE)
 }
-

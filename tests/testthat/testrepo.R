@@ -39,6 +39,12 @@ test_that("repository successfully created", {
     expect_equal(dim(data), c(3,1))
 })
 
+
+rp1$set("repo1 item 1", description="edited")
+test_that("edit entry", {
+    expect_equal(rp1$entries()[["repo1 item 1"]]$description, "edited")
+})
+
 rp1$project("prj name", "prj desc")
 rp1$options(prj="prj name")
 rp1$put(1:3,"test","testdesc","tags")
@@ -72,6 +78,52 @@ test_that("remove items", {
     expect_false(file.exists(file.path(rp1$root(), e3[["dump"]])))
 })
 
+wipe_test_repo("repo1")
+
+
+##############
+context("test README code")
+##############
+
+rp <- repo_open(build_test_repo("repo1"))
+
+rp$put(Inf, "God")
+rp$put(0, "user")
+rp$put(pi, "The Pi costant", depends="God")
+rp$put(1:10, "r", depends="user")
+diam <- 2 * rp$get("r")
+circum <- 2 * rp$get("The Pi costant") * rp$get("r")
+area <- rp$get("The Pi costant") * rp$get("r") ^ 2
+rp$put(diam, "diameters", "These are the diameters", depends = "r")
+rp$put(circum, "circumferences", "These are the circumferences",
+       depends = c("The Pi costant", "r"))
+
+fname <- tempfile()
+fcon <- file(fname, "w")
+writeLines("random text", con=fcon)
+rp$attach(fname, "an attachment", to=c("circumferences", "diameters"))
+close(fcon)    
+rp$set("circumferences", src=basename(fname))
+rp$put(area, "areas", "This are the areas",
+       depends = c("The Pi costant", "r"), src=basename(fname))
+
+m <- rp$dependencies(plot=F)
+
+test_that("dependency matrix entries", {
+    expect_equal(nrow(m), ncol(m))
+    expect_equal(nrow(m), length(rp$entries()))
+    expect_equal(sum(m), 7*1 + 2*2 + 2*3)
+    expect_equal(m["The Pi costant", "God"], 1)
+    expect_equal(m["r", "user"], 1)
+    expect_equal(m["diameters", "r"], 1)
+    expect_equal(m["diameters", "r"], 1)
+    expect_true(all(m["circumferences", c("The Pi costant", "r")]==1))
+    expect_true(all(m["areas", c("The Pi costant", "r")]==1))
+    expect_true(all(m[basename(fname), c("circumferences", "diameters")]==2))
+    expect_true(all(m[c("circumferences", "areas"), basename(fname)]==3))
+})
+
+rm(rp)
 wipe_test_repo("repo1")
 
 ##############

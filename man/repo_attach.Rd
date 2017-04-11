@@ -4,8 +4,9 @@
 \alias{repo_attach}
 \title{Create a new item from an existing file.}
 \usage{
-repo_attach(filepath, description, tags, prj = NULL, src = NULL,
-  chunk = basename(filepath), replace = F, to = NULL, URL = NULL)
+repo_attach(filepath, description = NULL, tags = NULL, prj = NULL,
+  src = NULL, chunk = basename(filepath), replace = F, to = NULL,
+  URL = NULL)
 }
 \arguments{
 \item{filepath}{The path to the file to be stored in the repo.}
@@ -58,4 +59,3 @@ rp$sys("afigure.pdf", "evince")
 ## wiping temporary repo
 unlink(rp_path, TRUE)
 }
-
