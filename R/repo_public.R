@@ -155,13 +155,14 @@ repo_dependencies <- function(tags=NULL, tagfun="OR", depends=T,
             rownames(deps2) <- colnames(deps2) <- basename(rownames(deps))
             g <- igraph::graph.adjacency(deps2, weighted=c("type"))
             pars[["x"]] <- g
-            pars[["edge.label"]] <- c("depends", "attached", "generated")
+            pars[["edge.label"]] <-
+                c("depends", "attached", "generated")[igraph::get.edge.attribute(g,"type")]
             do.call(igraph::plot.igraph, pars)
         } else {
             stop("The suggested package igraph is not installed.")
         }              
     }
-    invisible(depgraph())
+    invisible(deps)
 }
 
 
@@ -922,7 +923,7 @@ repo_chunk = function(name)
 ##' @param name Item name.
 ##' @return TRUE if \code{name} is in the repository, FALSE otherwise.
 ##' @export
-repo_has = function(name)
+repo_has <- function(name)
 {
     return(!is.null(getEntry(name)))
 }
@@ -931,7 +932,6 @@ repo_has = function(name)
 ##'
 ##' In order to be \code{build}able, a repository item must have an
 ##' associated source file and code chunk.
-
 ##' @param name Namo of an item in the repo.
 ##' @param recursive Build dependencies not already in the repo
 ##'     recursively (T by default).
@@ -943,14 +943,15 @@ repo_has = function(name)
 ##'     meant to be passed directly).
 ##' @return Nothing, used for side effects.
 ##' @export
-repo_build = function(name, recursive=T, force=F, env=parent.frame(), built=list())
+repo_build <- function(name, recursive=T, force=F, env=parent.frame(), built=list())
 {
-    ch <- getChunk(name)
+    ch <- getChunk(forkedName(name))
     if(is.null(ch))
         handleErr("CHUNK_NOCHUNK", name)
     opt <- get("options", thisEnv)[["replace"]]
-    if(opt == "addversion" || opt==T)
-        force <- T
+    if(!is.null(opt))
+        if(opt == "addversion" || opt==T)
+            force <- T
     deps <- getEntry(name)$depends
     if(length(deps)>0) {
         for(i in 1:length(deps)) {
@@ -974,8 +975,8 @@ repo_build = function(name, recursive=T, force=F, env=parent.frame(), built=list
 #' Retrieve an item from the repo.
 #' 
 #' @param name An item's name.
-#' @return The previously stored object, or its file path for
-#' attachments.
+#' @return The previously stored object, or its file system path for
+#'     attachments.
 #' @examples
 #' rp_path <- file.path(tempdir(), "example_repo")
 #' rp <- repo_open(rp_path, TRUE)
@@ -985,7 +986,8 @@ repo_build = function(name, recursive=T, force=F, env=parent.frame(), built=list
 #' ## wiping temporary repo
 #' unlink(rp_path, TRUE)
 repo_get <- function(name)
-{          
+{
+    name <- forkedName(name)
     if(checkName(name)){                
         enames <- sapply(entries, get, x="name")
         x <- agrep(name, enames)
@@ -1263,7 +1265,7 @@ repo_set <- function(name, obj=NULL, newname=NULL, description=NULL,
         entr$tags <- unique(c(entr$tags, checkTags(addtags, name)))
     }
     if(!is.null(src))
-        entr$src <- src
+        entr$source <- src
 
     if(!is.null(depends))
         entr$depends <- depends
@@ -1286,7 +1288,7 @@ repo_set <- function(name, obj=NULL, newname=NULL, description=NULL,
         entr$checksum <- newinfo[["checksum"]]
         entr$dims <- newinfo[["dims"]]
     }
-    
+
     entries[[w]] <- entr
     assign("entries", entries, thisEnv)
     storeIndex()
@@ -1331,9 +1333,9 @@ repo_set <- function(name, obj=NULL, newname=NULL, description=NULL,
 #'
 #' ## wiping temporary repo
 #' unlink(rp_path, TRUE)
-repo_attach <- function(filepath, description, tags, prj=NULL, src=NULL,
-                        chunk=basename(filepath), replace=F, to=NULL,
-                        URL=NULL)
+repo_attach <- function(filepath, description=NULL, tags=NULL,
+                        prj=NULL, src=NULL, chunk=basename(filepath),
+                        replace=F, to=NULL, URL=NULL)
 {
     get("this", thisEnv)$put(filepath, basename(filepath),
                              description, tags, prj, src, chunk,
@@ -1538,7 +1540,7 @@ repo_project <- function(name, description, replace=T)
 #'
 #' ## wiping temporary repo
 #' unlink(rp_path, TRUE)
-repo_put <- function(obj, name, description, tags, prj=NULL, src=NULL,
+repo_put <- function(obj, name, description=NULL, tags=NULL, prj=NULL, src=NULL,
                      chunk=name, depends=NULL, replace=F, asattach=F,
                      to=NULL, addversion=F, URL=NULL, checkRelations=T)
 {
@@ -1566,9 +1568,11 @@ repo_put <- function(obj, name, description, tags, prj=NULL, src=NULL,
     }
     
     
-    if(missing(obj) | missing(name) | missing(description) | missing(tags))
-        stop("You must provide all of: obj, name, description, tags.")
-    
+    if(missing(obj) | missing(name))
+        stop("You must provide all of: obj, name")
+
+    if(name == "repo")
+        handleErr("ID_RESERVED")    
     
     if(!is.null(to))
         asattach <- T
@@ -1576,9 +1580,6 @@ repo_put <- function(obj, name, description, tags, prj=NULL, src=NULL,
     if(asattach)
         if(!file.exists(obj))
             handleErr("ATTACHMENT_FILE_NOT_FOUND")
-    
-    if(name == "repo")
-        handleErr("ID_RESERVED")
 
     notexist <- checkName(name)
     if(!notexist & !replace & !addversion)
@@ -1594,7 +1595,7 @@ repo_put <- function(obj, name, description, tags, prj=NULL, src=NULL,
     }
 
     if(!is.null(depends) && checkRelations) 
-        stopOnNotFound(depends)
+        stopOnNotFound(sapply(depends, forkedName))
 
     if(!is.null(src) && checkRelations) 
         stopOnNotFound(src)

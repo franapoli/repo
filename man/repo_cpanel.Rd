@@ -19,4 +19,3 @@ Opens a browser window with a Shiny interface to a repo. The
 interface is preliminary and has some exploration features together
 with a "Load into workspace" button for a selected item.
 }
-

@@ -19,6 +19,78 @@ Latest news are found in the NEWS.md file of the "Untested" branch.
 Repo is developed by Francesco Napolitano [![alt text][1.2]][1]
 
 
+## Minimal example
+
+Repository creation in the default folder:
+
+    library(repo)
+    rp <- repo_open()
+
+Putting some stuff (it is saved on permanent storage). In this case,
+just values and names are specified:
+
+    rp$put(Inf, "God")
+    rp$put(0, "user")
+
+Putting specifying dependencies:
+
+    rp$put(pi, "The Pi costant", depends="God")
+    rp$put(1:10, "r", depends="user")
+
+Getting stuff from the repository on the fly:
+
+    diam <- 2 * rp$get("r")
+    circum <- 2 * rp$get("The Pi costant") * rp$get("r")
+    area <- rp$get("The Pi costant") * rp$get("r") ^ 2
+
+Putting with verbose descriptions:
+
+    rp$put(diam, "diameters", "These are the diameters", depends = "r")
+    rp$put(circum, "circumferences", "These are the circumferences",
+           depends = c("The Pi costant", "r"))
+    rp$put(area, "areas", "This are the areas",
+           depends = c("The Pi costant", "r"))
+
+Repository contents:
+
+    print(rp)
+
+                 ID Dims Size
+                God    1 44 B
+               user    1 41 B
+     The Pi costant    1 47 B
+                  r   10 60 B
+          diameters   10 67 B
+     circumferences   10 96 B
+              areas   10 95 B
+
+    rp$info()
+
+    Root:            /tmp/RtmpjOSKE5 
+    Number of items: 7 
+    Total size:      450 B 
+
+    rp$info("areas")
+
+    ID:           areas
+    Description:  This are the areas
+    Tags:         
+    Dimensions:   10
+    Timestamp:    2017-04-11 18:13:40
+    Size on disk: 95 B
+    Provenance:   
+    Attached to:  -
+    Stored in:    xw/tt/zm/xwttzmigamg57309nvo3nd6cx8r59jss
+    MD5 checksum: 8b24858f4e92014f5fb29f76c3505588
+    URL:          -
+
+Visualizing dependencies:
+
+    rp$dependencies()
+
+![](readme_example_files/figure-markdown_strict/unnamed-chunk-9-1.png)
+
+
 ## Development branches
 
 + [Master](https://github.com/franapoli/repo/tree/master): stable major
@@ -32,7 +104,7 @@ unstable, in progress versions. Latest news appear in the "NEWS.md"
 file of this branch.
 
 
-## Getting Started
+## Guides
 
 An introductory vignette is available:
 

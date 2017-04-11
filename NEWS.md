@@ -1,12 +1,48 @@
 
 # News
 
+
+04/11/17, v2.1.0
+
+New features:
+
++ Minor releases (vX.X.X, which go to the dev branch) like this one
+  will have a new-features summary.
++ Descriptions and tags are no more mandatory
++ Alternative versions of the same chunk can now be defined like this:
+
+	chunk "ChunkName#fork1"{
+		## ...
+	}
+	chunk "ChunkName#fork2"{
+		## ...
+	}
+	## the following sets the active chunk:
+	rp$options(chunk="fork")
+
+	Outputs from different forks will be stored together in the repo
+	but all operations will refer to the output of the active
+	chunk. This is to be better documented.
+
+
+Change log:
+
++ descriptions and tags are no more mandatory also in `attach`
++ fixed regression in `dependencies` (wrong plot edges)
++ fixed bug in `set`, was not working when setting `src` parameter
+
+
+03/05/17, v2.0.5.13
+
++ Added forking
+
 03/04/17, v2.0.5.12
 
 + Added `depends` function
 + Added `load` function
 + Added `force` parameter to `build`
 + More documentation updates
+
 
 02/24/17, v2.0.5.11
 

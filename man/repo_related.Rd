@@ -26,4 +26,3 @@ Relations are defined as in the dependency graph.
 \seealso{
 dependencies
 }
-

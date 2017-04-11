@@ -14,8 +14,13 @@ build_test_repo <- function(subfolder)
 wipe_test_repo <- function(subfolder)
 {
     fold <- file.path(tempdir(), subfolder)
-    unlink(fold, recursive=T)
+    if(file.exists(fold))
+        unlink(fold, recursive=T)
 }
+
+wipe_test_repo("repo1")
+wipe_test_repo("repo2")
+wipe_test_repo("temp")
 
 
 ##############
@@ -32,6 +37,12 @@ test_that("repository successfully created", {
     expect_true(rp1$has("repo1 item 1"))
     expect_equal(rp1$get("repo1 item 1"), 1:3)
     expect_equal(dim(data), c(3,1))
+})
+
+
+rp1$set("repo1 item 1", description="edited")
+test_that("edit entry", {
+    expect_equal(rp1$entries()[["repo1 item 1"]]$description, "edited")
 })
 
 rp1$project("prj name", "prj desc")
@@ -69,6 +80,52 @@ test_that("remove items", {
 
 wipe_test_repo("repo1")
 
+
+##############
+context("test README code")
+##############
+
+rp <- repo_open(build_test_repo("repo1"))
+
+rp$put(Inf, "God")
+rp$put(0, "user")
+rp$put(pi, "The Pi costant", depends="God")
+rp$put(1:10, "r", depends="user")
+diam <- 2 * rp$get("r")
+circum <- 2 * rp$get("The Pi costant") * rp$get("r")
+area <- rp$get("The Pi costant") * rp$get("r") ^ 2
+rp$put(diam, "diameters", "These are the diameters", depends = "r")
+rp$put(circum, "circumferences", "These are the circumferences",
+       depends = c("The Pi costant", "r"))
+
+fname <- tempfile()
+fcon <- file(fname, "w")
+writeLines("random text", con=fcon)
+rp$attach(fname, "an attachment", to=c("circumferences", "diameters"))
+close(fcon)    
+rp$set("circumferences", src=basename(fname))
+rp$put(area, "areas", "This are the areas",
+       depends = c("The Pi costant", "r"), src=basename(fname))
+
+m <- rp$dependencies(plot=F)
+
+test_that("dependency matrix entries", {
+    expect_equal(nrow(m), ncol(m))
+    expect_equal(nrow(m), length(rp$entries()))
+    expect_equal(sum(m), 7*1 + 2*2 + 2*3)
+    expect_equal(m["The Pi costant", "God"], 1)
+    expect_equal(m["r", "user"], 1)
+    expect_equal(m["diameters", "r"], 1)
+    expect_equal(m["diameters", "r"], 1)
+    expect_true(all(m["circumferences", c("The Pi costant", "r")]==1))
+    expect_true(all(m["areas", c("The Pi costant", "r")]==1))
+    expect_true(all(m[basename(fname), c("circumferences", "diameters")]==2))
+    expect_true(all(m[c("circumferences", "areas"), basename(fname)]==3))
+})
+
+rm(rp)
+wipe_test_repo("repo1")
+
 ##############
 context("multiple repositories")
 ##############
@@ -96,11 +153,8 @@ wipe_test_repo("repo2")
 
 
 ##############
-context("chunks")
+context("chunk basics")
 ##############
-
-src <- tempfile()
-fcon <- file(src)
 
 srccode <- '
 rp <- repo_open(file.path(tempdir(), "temp"), T)
@@ -124,8 +178,9 @@ z <- x+y
 rp$put(z, "i3", "item", "tag", src="src", depends=c("i1","i2"))
 ## chunk "i3"}
 '
+src <- tempfile()
 srccode <- gsub("SRCNAME", src, srccode)
-
+fcon <- file(src, "w")
 writeLines(srccode, con=fcon)
 close(fcon)
 
@@ -158,6 +213,81 @@ test_that("obj and dependencies build", {
     expect_equal(rp$get("i1"), 1)
     expect_equal(rp$get("i2"), 2)
     expect_equal(rp$get("i3"), 3)
+})
+
+
+wipe_test_repo("temp")
+
+
+
+
+
+##############
+context("chunk forks")
+##############
+
+
+srccode <- '
+rp <- repo_open(file.path(tempdir(), "temp"), T)
+
+rp$options(active_forks = "ACTIVEFORKS")
+srcf <- "SRCNAME"
+rp$put(srcf, "src", "src desc", "tags", asattach=T)
+
+## chunk "i1" {
+print("Running chunk 1")
+x <- 1
+rp$put(x, "i1", "item", "tag", src="src")
+## chunk "i1" }
+
+## chunk "i2#fork1"{
+print("Running chunk 2")
+y <- x+1
+rp$put(y, "i2#fork1", "item", "tag", src="src", depends="i1")
+## chunk "i2#fork1" }
+
+## chunk "i2#fork2"{
+print("Running chunk 2")
+y <- x+2
+rp$put(y, "i2#fork2", "item", "tag", src="src", depends="i1")
+## chunk "i2#fork2" }
+
+## chunk "i3"{
+print("Running chunk 3")
+z <- x+y
+rp$put(z, "i3", "item", "tag", src="src", depends=c("i1","i2"))
+## chunk "i3"}
+'
+src <- tempfile()
+fcon <- file(src, open="w")
+srccode <- gsub("SRCNAME", src, srccode)
+srccode <- gsub("ACTIVEFORKS", "fork1", srccode)
+writeLines(srccode, con=fcon)
+close(fcon)
+
+source(src)
+print(c(x,y,z))
+test_that("test fork1 execution", {
+    expect_equal(x, 1)
+    expect_equal(y, 2)
+    expect_equal(z, 3)
+    expect_equal(rp$get("i1"), 1)
+    expect_equal(rp$get("i2"), 2)
+    expect_equal(rp$get("i3"), 4)
+})
+
+
+## rebuilding objects
+rp$options(replace=T, active_forks="fork2")
+rp$build("i3", force=T)
+
+test_that("test fork2 execution", {
+    expect_equal(x, 1)
+    expect_equal(y, 3)
+    expect_equal(z, 4)
+    expect_equal(rp$get("i1"), 1)
+    expect_equal(rp$get("i2"), 3)
+    expect_equal(rp$get("i3"), 4)
 })
 
 

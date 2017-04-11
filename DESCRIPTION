@@ -1,7 +1,7 @@
 Package: repo
 Type: Package
 Title: A Data-Centered Data Flow Manager
-Version: 2.0.5.12
+Version: 2.1.0
 Date: 2016-05-02
 Author: Francesco Napolitano <franapoli@gmail.com>
 Maintainer: Francesco Napolitano <franapoli@gmail.com>
@@ -20,4 +20,4 @@ Suggests:
     shiny,
     testthat
 VignetteBuilder: knitr
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1

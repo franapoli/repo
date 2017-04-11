@@ -2,8 +2,8 @@
 % Please edit documentation in R/repo.R
 \docType{package}
 \name{repo-package}
-\alias{repo}
 \alias{repo-package}
+\alias{repo}
 \title{Repo: The Data-centered Data Flow Manager}
 \description{
 Repo: The Data-centered Data Flow Manager
@@ -26,4 +26,3 @@ For a complete list of functions, use \code{library(help = "repo")}.
 \author{
 Francesco Napolitano \email{franapoli@gmail.com}
 }
-

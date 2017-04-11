@@ -53,7 +53,9 @@ NULL
 ## digest is used in lazydo and bulkedit
 #'@import digest
 ## md5sum for checking stored data
-#'@import tools 
+#'@import tools
+#'@importFrom graphics pie
+#'@importFrom utils download.file packageVersion sessionInfo
 
 globalVariables(c("entries", "thisEnv", "repofile", "root",
                   "indexMD5", "this"))
