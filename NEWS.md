@@ -20,9 +20,9 @@ New features:
 	## the following sets the active chunk:
 	rp$options(chunk="fork")
 ```
-	Outputs from different forks will be stored together in the repo
-	but all operations will refer to the output of the active
-	chunk. This is to be better documented.
+Outputs from different forks will be stored together in the repo
+but all operations will refer to the output of the active
+chunk. This is to be better documented.
 
 
 Change log:
