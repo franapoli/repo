@@ -10,16 +10,16 @@ New features:
   will have a new-features summary.
 + Descriptions and tags are no more mandatory
 + Alternative versions of the same chunk can now be defined like this:
-
+```
 	chunk "ChunkName#fork1"{
 		## ...
 	}
 	chunk "ChunkName#fork2"{
 		## ...
 	}
-	`##` the following sets the active chunk:
+	## the following sets the active chunk:
 	rp$options(chunk="fork")
-
+```
 	Outputs from different forks will be stored together in the repo
 	but all operations will refer to the output of the active
 	chunk. This is to be better documented.
