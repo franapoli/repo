@@ -40,6 +40,13 @@ test_that("repository successfully created", {
 })
 
 
+`unnamed var` <- 99
+rp1$put(`unnamed var`)
+test_that("Putting unnamed variable worked", {
+    expect_true(rp1$has("unnamed var"))
+    expect_equal(rp1$get("unnamed var"), 99)
+})
+
 rp1$set("repo1 item 1", description="edited")
 test_that("edit entry", {
     expect_equal(rp1$entries()[["repo1 item 1"]]$description, "edited")
@@ -164,19 +171,19 @@ rp$put(srcf, "src", "src desc", "tags", asattach=T)
 print("Running chunk 1")
 x <- 1
 rp$put(x, "i1", "item", "tag", src="src")
-## chunk "i1" }
+## }
 
 ## chunk "i2"{
 print("Running chunk 2")
 y <- x+1
 rp$put(y, "i2", "item", "tag", src="src", depends="i1")
-## chunk "i2" }
+## }
 
 ## chunk "i3"{
 print("Running chunk 3")
 z <- x+y
 rp$put(z, "i3", "item", "tag", src="src", depends=c("i1","i2"))
-## chunk "i3"}
+## }
 '
 src <- tempfile()
 srccode <- gsub("SRCNAME", src, srccode)
@@ -238,25 +245,25 @@ rp$put(srcf, "src", "src desc", "tags", asattach=T)
 print("Running chunk 1")
 x <- 1
 rp$put(x, "i1", "item", "tag", src="src")
-## chunk "i1" }
+## }
 
 ## chunk "i2#fork1"{
 print("Running chunk 2")
 y <- x+1
 rp$put(y, "i2#fork1", "item", "tag", src="src", depends="i1")
-## chunk "i2#fork1" }
+## }
 
 ## chunk "i2#fork2"{
 print("Running chunk 2")
 y <- x+2
 rp$put(y, "i2#fork2", "item", "tag", src="src", depends="i1")
-## chunk "i2#fork2" }
+## }
 
 ## chunk "i3"{
 print("Running chunk 3")
 z <- x+y
 rp$put(z, "i3", "item", "tag", src="src", depends=c("i1","i2"))
-## chunk "i3"}
+## }
 '
 src <- tempfile()
 fcon <- file(src, open="w")

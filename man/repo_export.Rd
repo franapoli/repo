@@ -32,3 +32,4 @@ rp$export("item1", tempdir()) # creates item1.RDS in a tempdir
 ## wiping temporary repo
 unlink(rp_path, TRUE)
 }
+

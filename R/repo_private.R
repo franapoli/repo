@@ -91,7 +91,7 @@ findChunkData <- function(textlines) {
         chopen <- "\\{"
         chclose <- "\\}"
         startstr <- paste0("^", s0, "#+", s0, chtag, s1, chname, s0, chopen,  s0, "$")
-        endstr   <- paste0("^", s0, "#+", s0, chtag, s1, chname, s0, chclose, s0, "$")
+        endstr   <- paste0("^", s0, "#+", s0, chclose, s0, "$")
 
         oks <- which(sapply(textlines, grepl, pattern=startstr, perl=T))
         tagss <- sapply(textlines[oks], sub, pattern=startstr, replacement="\\1", perl=T)
@@ -162,7 +162,7 @@ getChunk <- function(name, active_chunks=NULL)
     if(!(cname %in% tagss))
         return(NULL)
     
-    names(oks) <- tagss
+    names(oks) <- names(oke) <- tagss
     if(any(duplicated(tagss)))
         stop(paste("Chunk names are not unique: ",
                    unique(tagss[duplicated(tagss)])))
@@ -172,17 +172,20 @@ getChunk <- function(name, active_chunks=NULL)
     for(i in which(tagss == cname)) ## written to find all chunks
     {
         tag <- tagss[i]
-            if(!(tag %in% tagse))
-                stop(paste(tag, "has no matching end"))
-            if(sum(tagse==tag)>1)
-                stop(paste(tag, "has more than 1 matching end"))
-            if(oke[tag]<oks[tag])
-                stop(paste(tag, "has end line before start line"))
-            chunks[i] <- paste(txt[(oks[tag]+1):(oke[tag]-1)], collapse="\n")
-        }
-        return(chunks[[which(tagss==cname)]])
+        ## if(!(tag %in% tagse))
+        ##     stop(paste(tag, "has no matching end"))
+        ## if(sum(tagse==tag)>1)
+        ##     stop(paste(tag, "has more than 1 matching end"))
         
+        if(length(oks)!=length(oke))
+            stop("Some chunks are open, check syntax")
+        if(oke[tag]<oks[tag])
+            stop(paste(tag, "has end line before start line"))
+        chunks[i] <- paste(txt[(oks[tag]+1):(oke[tag]-1)], collapse="\n")
     }
+    return(chunks[[which(tagss==cname)]])
+        
+}
 
     ## Finds the connected component in the dependancy graph
     ## containing a given set of items. Useful to extract indipendent

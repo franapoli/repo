@@ -29,3 +29,15 @@ Nothing, used for side effects.
 In order to be \code{build}able, a repository item must have an
 associated source file and code chunk.
 }
+\details{
+Code chunks are defined as in the following example: ```
+## chunk "item 1" {
+        x <- code_to_make_x()
+        rp$put(x, "item 1")
+## }
+```
+
+`item 1` must be associated to the source (`src` parameter of
+`put`) containing the chunk code.
+}
+

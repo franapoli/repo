@@ -15,3 +15,4 @@ TRUE if \code{name} is in the repository, FALSE otherwise.
 \description{
 Check wether a repository has an item
 }
+

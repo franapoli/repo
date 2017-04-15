@@ -16,3 +16,4 @@ if optional paramters are not passed, the current options
 \description{
 Set repository-wide options
 }
+

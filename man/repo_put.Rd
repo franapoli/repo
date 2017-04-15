@@ -2,7 +2,7 @@
 % Please edit documentation in R/repo_public.R
 \name{repo_put}
 \alias{repo_put}
-\title{Create a new item in the repo.}
+\title{Create a new item in the repository.}
 \usage{
 repo_put(obj, name, description = NULL, tags = NULL, prj = NULL,
   src = NULL, chunk = name, depends = NULL, replace = F, asattach = F,
@@ -108,3 +108,4 @@ unlink(rp_path, TRUE)
 \seealso{
 get, set, attach, info
 }
+

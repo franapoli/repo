@@ -1,6 +1,21 @@
 
 # News
 
+04/15/17, v2.2.0.0
+
++ Also the item name in `put` is now optional. If not provided, the
+name of the `obj` variable will be used.
+
++ The chunk format has been simplified, the close tag is now just `}`,
+as follows:
+```
+	## chunk "ChunkName" {
+		## ...
+	## }
+```
+
++ Some documentation updates.
+
 
 04/11/17, v2.1.0
 
@@ -11,12 +26,12 @@ New features:
 + Descriptions and tags are no more mandatory
 + Alternative versions of the same chunk can now be defined like this:
 ```
-	chunk "ChunkName#fork1"{
+	## chunk "ChunkName#fork1"{
 		## ...
-	}
-	chunk "ChunkName#fork2"{
+	## chunk "ChunkName#fork1"}
+	## chunk "ChunkName#fork2"{
 		## ...
-	}
+	## chunk "ChunkName#fork2"}
 	## the following sets the active chunk:
 	rp$options(chunk="fork")
 ```
