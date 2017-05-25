@@ -4,14 +4,15 @@
 \alias{repo_put}
 \title{Create a new item in the repository.}
 \usage{
-repo_put(obj, name, description = NULL, tags = NULL, prj = NULL,
+repo_put(obj, name = NULL, description = NULL, tags = NULL, prj = NULL,
   src = NULL, chunk = name, depends = NULL, replace = F, asattach = F,
   to = NULL, addversion = F, URL = NULL, checkRelations = T)
 }
 \arguments{
 \item{obj}{An R object to store in the repo.}
 
-\item{name}{A character identifier for the new item.}
+\item{name}{A character identifier for the new item. If NULL, the
+name of the \code{obj} variable will be used.}
 
 \item{description}{A character description of the item.}
 

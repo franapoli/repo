@@ -104,12 +104,18 @@ findChunkData <- function(textlines) {
 
 ## reads all file source code associated with an item. The item must
 ## already be in the repo.
-getSourceLines <- function(name) {
+getSourceLines <- function(name, src) {
     entry <- getEntry(name)
-    if(is.null(entry$source))
+    if(is.null(entry$source) && is.null(src))
         return(NULL)
+
+    if(checkName(src))
+        handleErr("ID_NOT_FOUND", src)
     
-    srcfile <- get("this", thisEnv)$attr(name, "srcfile")
+    if(is.null(src)) {
+        srcfile <- get("this", thisEnv)$attr(name, "srcfile")
+        } else srcfile <- get("this", thisEnv)$get(src)
+    
     txt <- readLines(srcfile)
 }
 
@@ -143,13 +149,15 @@ deforkChunkData <- function(chunkdata, active_chunks=NULL)
     return(chunkdata)
 }
     
-getChunk <- function(name, active_chunks=NULL)
+getChunk <- function(name, active_chunks=NULL, src=NULL)
 {
     entry <- getEntry(name)
     if(is.null(entry$source))
-        return(NULL)
+        if(is.null(src))
+            return(NULL)
     
-    txt <- getSourceLines(name)
+    txt <- getSourceLines(name, src)
+    
     if(is.null(txt))
         return(NULL)
     chunkData <- findChunkData(txt)
@@ -158,7 +166,8 @@ getChunk <- function(name, active_chunks=NULL)
     oks <- chunkData$oks
     tagse <- chunkData$tagse
     oke <- chunkData$oke
-    cname <- entry$chunk
+    if(is.null(src)) 
+        cname <- entry$chunk else cname <- name
     if(!(cname %in% tagss))
         return(NULL)
     
@@ -233,7 +242,7 @@ getChunk <- function(name, active_chunks=NULL)
 getSource <- function(name)
         {
             entry <- getEntry(name)
-            return(entry$src)
+            return(invisible(entry$source))
         }
 
 
