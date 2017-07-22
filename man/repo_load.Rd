@@ -23,3 +23,4 @@ Nothing, used for side effects.
 Like \code{repo_get}, returns the contents of a stored item. But,
 unlike \code{repo_get}, loads it to the current namespace.
 }
+

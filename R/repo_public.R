@@ -3,18 +3,6 @@
 ############################################
 
 
-## This list contains the functions that will be returned to the
-## user as interface to the repo object. Each of these functions
-## is also defined as a regular function in the global
-## environment. The function 'foo' for example is also defined as
-## 'repo_foo', taking the repository object as first
-## parameter. The reason for the definition of the repo_* function
-## was mainly in the use of roxygen, which doesn't work
-## here. repo_* functions are defined and documented in the
-## repoS3.R file. Refer to that file for the user documentation of
-## the following functions.
-
-
 
 #' Finds all items related to a set of item
 #'
@@ -905,7 +893,12 @@ repo_attr <- function(name, attrib)
     return(res)
 }
 
-repo_chunk = function(name)
+##' Shows code chunk associated with an item
+##'
+##' @param name Item name.
+##' @return List of lines of code, invisibly.
+##' @export
+repo_chunk <- function(name)
 {
     src <- getSource(name)
     print(src)
@@ -916,6 +909,7 @@ repo_chunk = function(name)
     if(is.null(ch))
         handleErr("CHUNK_NOCHUNK", name)
     cat(ch, "\n", sep="")
+    return(invisible(ch))
 }
 
 ##' Check wether a repository has an item
@@ -942,6 +936,16 @@ repo_has <- function(name)
 ##' @param built A list of items already built used for recursion (not
 ##'     meant to be passed directly).
 ##' @return Nothing, used for side effects.
+##' @details Code chunks are defined as in the following example: ```
+##'	## chunk "item 1" {
+##'         x <- code_to_make_x()
+##'         rp$put(x, "item 1")
+##'	## }
+##'```
+##'
+##' `item 1` must be associated to the source (`src` parameter of
+##' `put`) containing the chunk code.
+##'
 ##' @export
 repo_build <- function(name, recursive=T, force=F, env=parent.frame(), built=list())
 {
@@ -1452,6 +1456,20 @@ repo_pull <- function(name, replace=F) {
 
 
 
+#' Defines and \code{put}-s a \code{project} item.
+#'
+#' A \code{project} item is a special item containing session
+#' information, including package dependencies. Every time a new item
+#' is stored in the repository, it will automatically be assigned to
+#' the current project, if one has been defined, and session
+#' information will be updated.
+#'
+#' @param name character containing the name of the project
+#' @param description character containing a longer description of the
+#'     project
+#' @param replace logical, if T then an existing project item by the
+#'     same name will be overwritten.
+#' @return Used for side effects.
 repo_project <- function(name, description, replace=T)
 {
     get("this", thisEnv)$put(NULL, name, description,
@@ -1461,7 +1479,7 @@ repo_project <- function(name, description, replace=T)
 
 
 
-#' Create a new item in the repo.
+#' Create a new item in the repository.
 #'
 #' Given an R object, stores it to an RDS file in the \code{repo} root
 #' and add an associated item to the \code{repo} index, including
@@ -1475,7 +1493,8 @@ repo_project <- function(name, description, replace=T)
 #'     set manually), "stash" (the item is a stashed item, makes the
 #'     item over-writable by other "stash" items by default).
 #' @param obj An R object to store in the repo.
-#' @param name A character identifier for the new item.
+#' @param name A character identifier for the new item. If NULL, the
+#'     name of the \code{obj} variable will be used.
 #' @param description A character description of the item.
 #' @param tags A list of tags to sort the item. Tags are useful for
 #'     selecting sets of items and run bulk actions.
@@ -1540,7 +1559,7 @@ repo_project <- function(name, description, replace=T)
 #'
 #' ## wiping temporary repo
 #' unlink(rp_path, TRUE)
-repo_put <- function(obj, name, description=NULL, tags=NULL, prj=NULL, src=NULL,
+repo_put <- function(obj, name=NULL, description=NULL, tags=NULL, prj=NULL, src=NULL,
                      chunk=name, depends=NULL, replace=F, asattach=F,
                      to=NULL, addversion=F, URL=NULL, checkRelations=T)
 {
@@ -1568,9 +1587,12 @@ repo_put <- function(obj, name, description=NULL, tags=NULL, prj=NULL, src=NULL,
     }
     
     
-    if(missing(obj) | missing(name))
-        stop("You must provide all of: obj, name")
+    if(missing(obj))
+        stop("You must provide parameter: obj")
 
+    if(is.null(name))
+        name <- deparse(substitute(obj))
+    
     if(name == "repo")
         handleErr("ID_RESERVED")    
     
@@ -1675,36 +1697,36 @@ repo_put <- function(obj, name, description=NULL, tags=NULL, prj=NULL, src=NULL,
 ## }
 
 
-
-#' Append text to an existing item content.
-#'
-#' This feature is experimental.
-#' 
-#' @param id The name of an item whose object is of class character.
-#' @param txtorfunc Text to be appended to the item's object. It can
-#' also be a on object of class function: in this case, its source is
-#' appended.
-#' @return Used for side effects.
-repo_append <- function(id, txtorfunc)
-{
-    checkIndexUnchanged()
+## The following has been dropped
+## #' Append text to an existing item content.
+## #'
+## #' This feature is experimental.
+## #' 
+## #' @param id The name of an item whose object is of class character.
+## #' @param txtorfunc Text to be appended to the item's object. It can
+## #' also be a on object of class function: in this case, its source is
+## #' appended.
+## #' @return Used for side effects.
+## repo_append <- function(id, txtorfunc)
+## {
+##     checkIndexUnchanged()
     
-    notexist <- checkName(id)
-    if(notexist)
-        stop("Identifier not found.")
+##     notexist <- checkName(id)
+##     if(notexist)
+##         stop("Identifier not found.")
 
-    if(class(txtorfunc)=="function")
-        txtorfunc <- paste0("\n",
-                            paste(deparse(txtorfunc), collapse="\n"),
-                            "\n")
+##     if(class(txtorfunc)=="function")
+##         txtorfunc <- paste0("\n",
+##                             paste(deparse(txtorfunc), collapse="\n"),
+##                             "\n")
 
-    if(class(txtorfunc)!="character")
-        stop("txtorfunc must be an object of class function or character")
+##     if(class(txtorfunc)!="character")
+##         stop("txtorfunc must be an object of class function or character")
     
-    ##e <- findEntryIndex(id)
-    curobj <- this$get(id)
-    this$set(id, obj=paste0(curobj, txtorfunc))
-}
+##     ##e <- findEntryIndex(id)
+##     curobj <- this$get(id)
+##     this$set(id, obj=paste0(curobj, txtorfunc))
+## }
 
 
 
@@ -1810,7 +1832,6 @@ repo_methods_public <- function()
         project = repo_project,
         put = repo_put,
         cpanel = repo_cpanel,
-        append = repo_append,
         root = repo_root,
         options = repo_options,
         has = repo_has,
