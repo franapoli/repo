@@ -16,23 +16,22 @@ knitr::opts_chunk$set(fig.width=7, fig.height=7, comment="")
 
 ## Introduction
 
-This is a getting-started guide to the **Repo** R package, which
+This is a getting-started guide for the **Repo** R package, which
 implements an R objects repository manager.  It is a **data-centered
 data flow manager**.
 
 The Repo package builds one (or more) centralized local repository
 where R objects are stored together with corresponding annotations,
-tags, dependency notes, provenance traces, notes, source code. Once a
+tags, dependency notes, provenance traces, source code. Once a
 repository has been populated, stored objects can be easily searched,
 navigated, edited, imported/exported. Annotations can be exploited to
 reconstruct data flows and perform typical pipeline management
 operations.
 
-What follows is a walk-through aimed at quickly introducing to the
-main features of Repo. Additional information can be found in the
-paper: Napolitano, F. *repo: an R package for data-centered management
-of bioinformatic pipelines*. **BMC Bioinformatics** 18, 112 (2017).
-
+Additional information can be found in the paper: Napolitano,
+F. [*repo: an R package for data-centered management of bioinformatic
+pipelines*](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/s12859-017-1510-6). **BMC
+Bioinformatics** 18, 112 (2017).
 
 Repo latest version can be found at: https://github.com/franapoli/repo
 
@@ -51,9 +50,9 @@ rp <- repo_open(tempdir(), force=T)
 ```
 
 This document is produced by a script named `index.Rmd`. The script
-itself can be added to the repository and newly created resources will
-be annotated as being produced by it. This will be automated through
-the `options` command.
+itself can be added to the repository and newly created resources
+annotated as being produced by it. The annotation is made automatic
+using the `options` command.
 
 
 ```{r}
@@ -71,9 +70,14 @@ repository:
 myiris <- scale(as.matrix(iris[,1:4]))
 ```
 
-The following call to the `put` method stores the contents of `myiris`
-in the repository. The data will be actually saved in the repo root in
-RDS format.
+The shortest way to permanently store the `myiris` object in the
+repository is simply:
+
+```{r}
+rp$put(myiris)
+```
+
+However, richer annotation is possible, for example:
 
 ```{r}
 ## chunk "myiris" {
@@ -85,15 +89,16 @@ rp$put(
         "Normalization is made with the scale function",
         "with default parameters."
     ),
-    tags = c("dataset", "iris", "repodemo")
+    tags = c("dataset", "iris", "repodemo"),
+    replace=T
 )
 ## }
 ```
 
 The call provides the data to be stored (`obj`), an identifier
-(`name`), a longer `description`, a list of `tags`, the stored item
-containing the source code that generates the new item (`src`). All
-the parameters but `obj` are optional.
+(`name`), a longer `description`, a list of `tags`. The parameter
+`replace` set to T allows to overwrite the existing item created
+before.
 
 The comment lines (`## chunk "myiris" {` and `## }`) have a special
 meaning: they associate the corresponding code to the resource. The
@@ -105,23 +110,23 @@ rp$chunk("myiris")
 
 The code associated with an item should take care of building and
 storing it. The *build* command executes the code in the current
-environment:
+environment. It can automatically build dependencies, too.
 
 ```{r}
 rp$rm("myiris")
-rp$build("myiris")
+rp$build("myiris", "index.Rmd")
 ```
 
 
 In this example, the Iris class annotation will be stored
-separately. The following is s a more compact call to `put`:
+separately:
 
 ```{r}
 rp$put(iris$Species, "irisLabels",
 		     tags = c("labels", "iris", "repodemo"))
 ```
 
-### Attaching visualizations
+### Attaching figures
 
 The following code produces a 2D visualization of the Iris data
 and shows it:
@@ -137,14 +142,14 @@ Note that `irisLabels` is loaded on the fly from the repository.
 
 It would be nice to store the figure itself in the repo together with
 the Iris data. This is done using the `attach` method, which stores
-any file in the repo as is, plus annotations. Two parameters differ
-from `put`:
+any file in the repo as is (as opposed to R objects), plus
+annotations. Two parameters differ from `put`:
 
 * **filepath** Instead of an identifier, `attach` takes a file name
 (with path). The file name will be also the item identifier.
 
-* **to** This optional parameter tells Repo which item the new one
-is attached to.
+* **to** This optional parameter tells Repo which item the new one is
+attached to. Can be empty.
 
 
 ```{r}
@@ -170,7 +175,8 @@ The following code makes a clustering of the Iris data and stores it
 in the repository. There is one parameter to note:
 
 * **depends** Tells Repo that, in order to compute the `kiris`
-variable, data contained in `myiris` are necessary.
+variable, `myiris` is necessary. (Can be exploited by `build` and to
+                                  create dependency graphs).
 
 ```{r}
 kiris <- kmeans(myiris, 5)$cluster
@@ -228,8 +234,7 @@ some details, which by defaults are: name, dimensions, size.
 rp ## resolves to print(rp)
 ```
 
-Hidden items are... hidden. The following makes all
-the items appear:
+Hidden items are... hidden. The following will show them too:
 
 
 ```{r}
@@ -252,8 +257,8 @@ size on disk:
 rp$print(show="st")
 ```
 
-The `find` command will try to match a search string against all item
-fields in the repository:
+The `find` command will match a search string against all item fields
+in the repository:
 
 ```{r}
 rp$find("clu", all=T)
@@ -265,13 +270,6 @@ repository by using the `pies` command:
 
 ```{r}
 rp$pies()
-```
-
-If the *Shiny* library is installed, the following command will show a
-Shiny interface to the repository:
-
-```{r, eval=F}
-rp$cpanel()
 ```
 
 Finally, the `check` command runs an integrity check verifying that
@@ -296,7 +294,6 @@ relation from i to j of type 1, 2 or 3 (*dependency*, *attachment* or
 
 ```{r}
 depgraph <- rp$dependencies(plot=F)
-rownames(depgraph) <- colnames(depgraph) <- basename(rownames(depgraph))
 library(knitr)
 kable(depgraph)
 ```
@@ -306,7 +303,8 @@ plot the dependency graph. This plot requires the *igraph* library.
 
 
 ```{r}
-rp$dependencies()
+if(require("igraph", NULL, T, F))
+     rp$dependencies()
 ```
 
 The three types of edges can be shown selectively, so here's how the
@@ -314,7 +312,8 @@ graph looks like without the "generated" edges:
 
 
 ```{r}
-rp$dependencies(generated=F)
+if(require("igraph"))
+    rp$dependencies(generated=F)
 ```
 
 ## Accessing items in the repo
@@ -346,15 +345,15 @@ rp$info("myiris")
 
 ## Item versions, temporary items, remote contents
 
-There are actually 4 different ways of adding an object to a
+There are actually 3 different ways of adding an object to a
 repository:
 
 * Add a new object (`rp$put`)
 * Overwrite an existing object (`rp$put(replace=T)`)
 * Add a new version of an existing object (`rp$put(replace="addversion")`)
 
-Plus, item contents can be dowloaded if an URL is provided with it
-(`rp$pull`).
+Plus, item contents for an existing entry can be dowloaded if an URL
+is provided with it (`rp$pull`).
 
 ### Versioning
 
@@ -425,18 +424,30 @@ following code creates an item provided with a remote URL. A call to
 ```{r}
 rp$put("Local content", "item1",
 	"This points to big data you may want to download",
-	"tag", URL="http://www.francesconapolitano.it/repo/remote")
-print(rp$get("item1"))
-rp$pull("item1", replace=T)
+	"tag", URL="http://exampleURL/repo")
 print(rp$get("item1"))
 ```
+
+```{r, eval=F}
+rp$pull("item1", replace=T)
+```
+
+```{r, include=F}
+rp$set("item1", obj="Remote content")
+```
+
+```{r}
+print(rp$get("item1"))
+```
+
 
 ## Handlers
 
 The `handlers` method returns a list of functions by the same names of
 the items in the repo. Each of these functions can call Repo methods
 (`get` by default) on the corresponding items. In this way all item
-names are loaded, which may be usefule for example to exploit auto-completion features of the editor.
+names are loaded, which may be usefule for example to exploit
+auto-completion features of the editor.
 
 
 ```{r}
