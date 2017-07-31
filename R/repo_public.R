@@ -901,11 +901,11 @@ repo_attr <- function(name, attrib)
 repo_chunk <- function(name)
 {
     src <- getSource(name)
-    print(src)
+    ##print(src)
     if(is.null(src))
         handleErr("CHUNK_NOSOURCE", name)
     ch <- getChunk(name)
-    print(ch)
+    ##print(ch)
     if(is.null(ch))
         handleErr("CHUNK_NOCHUNK", name)
     cat(ch, "\n", sep="")
@@ -947,9 +947,12 @@ repo_has <- function(name)
 ##' `put`) containing the chunk code.
 ##'
 ##' @export
-repo_build <- function(name, recursive=T, force=F, env=parent.frame(), built=list())
+repo_build <- function(name, src=NULL, recursive=T, force=F, env=parent.frame(), built=list())
 {
-    ch <- getChunk(forkedName(name))
+    if(checkName(name) && is.null(src))
+        handleErr("ID_NOT_FOUND", name)
+    
+    ch <- getChunk(forkedName(name), src=src)
     if(is.null(ch))
         handleErr("CHUNK_NOCHUNK", name)
     opt <- get("options", thisEnv)[["replace"]]
@@ -969,6 +972,7 @@ repo_build <- function(name, recursive=T, force=F, env=parent.frame(), built=lis
         }
     }
 
+    
     data <- eval(parse(text=ch), env)
 
     return(invisible())

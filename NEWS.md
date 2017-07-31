@@ -1,7 +1,12 @@
 
 # News
 
-04/15/17, v2.2.0.0
+07/25/16, v2.1.0.9001
+
++ Correcting vignette for next release
++ fixed version numbering (there is no v2.2)
+
+04/15/17, v2.1.0.9000
 
 + Also the item name in `put` is now optional. If not provided, the
 name of the `obj` variable will be used.
