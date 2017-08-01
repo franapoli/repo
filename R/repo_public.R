@@ -927,6 +927,9 @@ repo_has <- function(name)
 ##' In order to be \code{build}able, a repository item must have an
 ##' associated source file and code chunk.
 ##' @param name Namo of an item in the repo.
+##' @param src Path to a source file containing the code block
+##'     associated with the resource. Not necessary if \code{name} is
+##'     already in the repository and has an associated source item.
 ##' @param recursive Build dependencies not already in the repo
 ##'     recursively (T by default).
 ##' @param force Re-build dependencies recursively even if already in
@@ -949,7 +952,7 @@ repo_has <- function(name)
 ##' @export
 repo_build <- function(name, src=NULL, recursive=T, force=F, env=parent.frame(), built=list())
 {
-    if(checkName(name) && is.null(src))
+    if(checkName(forkedName(name)) && is.null(src))
         handleErr("ID_NOT_FOUND", name)
     
     ch <- getChunk(forkedName(name), src=src)
@@ -966,7 +969,8 @@ repo_build <- function(name, src=NULL, recursive=T, force=F, env=parent.frame(),
                 if(!get("this", thisEnv)$has(deps[i]) || force) {
                     handleErr("INFO_BUILDING_DEPS", deps[i])
                     built <- c(built, deps[i])
-                    get("this", thisEnv)$build(deps[i], T, force, env, built)
+                    get("this", thisEnv)$build(deps[i], recursive=T, force=force, env=env,
+                                               built=built)
                 }
             }
         }
@@ -1154,7 +1158,7 @@ repo_lazydo <- function(expr, force=F, env=parent.frame())
     {
         handleErr("LAZY_NOT_FOUND")
         res <- eval(expr, envir=env)
-        get("this", thisEnv)$stash(res, resname)
+        get("this", thisEnv)$put(res, resname)
         get("this", thisEnv)$set(resname,
                                  description=quote(expr),
                                  addtags="lazydo")
@@ -1382,6 +1386,9 @@ repo_attach <- function(filepath, description=NULL, tags=NULL,
 #' unlink(rp_path, TRUE)
 repo_stash <- function(object, rename = deparse(substitute(object)))
 {
+    .Deprecated("put", "repo",
+                paste("Since now most parameters of the put command",
+                      "are optional, stash is deprecated."))
     name <- deparse(substitute(object))
     if(!stopOnEmpty(T)){
         e <- getEntry(rename)

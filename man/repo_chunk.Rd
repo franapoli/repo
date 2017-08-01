@@ -15,4 +15,3 @@ List of lines of code, invisibly.
 \description{
 Shows code chunk associated with an item
 }
-

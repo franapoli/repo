@@ -1,9 +1,18 @@
 
 # News
 
-07/25/16, v2.1.0.9001
+08/01/17, v2.1.1 - CRAN candidate release
+
++ Fixed bug in `repo_build`
+
++ Deprecated `stash`: now that `put` parameters are mostly optional,
+it is not necessary anymore.
+
+
+07/25/17, v2.1.0.9001
 
 + Correcting vignette for next release
+
 + fixed version numbering (there is no v2.2)
 
 04/15/17, v2.1.0.9000

@@ -43,4 +43,3 @@ unlink(rp_path, TRUE)
 \seealso{
 repo_set
 }
-

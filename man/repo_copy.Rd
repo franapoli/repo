@@ -41,4 +41,3 @@ rp1$copy(rp2, "item1")
 unlink(rp_path1, TRUE)
 unlink(rp_path2, TRUE)
 }
-

@@ -20,4 +20,3 @@ print(rp$root())
 ## wiping temporary repo
 unlink(rp_path, TRUE)
 }
-

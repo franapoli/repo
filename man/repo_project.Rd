@@ -25,4 +25,3 @@ is stored in the repository, it will automatically be assigned to
 the current project, if one has been defined, and session
 information will be updated.
 }
-

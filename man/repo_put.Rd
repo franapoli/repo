@@ -109,4 +109,3 @@ unlink(rp_path, TRUE)
 \seealso{
 get, set, attach, info
 }
-

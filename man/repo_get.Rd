@@ -25,4 +25,3 @@ print(rp$get("item1"))
 ## wiping temporary repo
 unlink(rp_path, TRUE)
 }
-

@@ -4,11 +4,15 @@
 \alias{repo_build}
 \title{Builds a resource using the associated code chunk}
 \usage{
-repo_build(name, recursive = T, force = F, env = parent.frame(),
-  built = list())
+repo_build(name, src = NULL, recursive = T, force = F,
+  env = parent.frame(), built = list())
 }
 \arguments{
 \item{name}{Namo of an item in the repo.}
+
+\item{src}{Path to a source file containing the code block
+associated with the resource. Not necessary if \code{name} is
+already in the repository and has an associated source item.}
 
 \item{recursive}{Build dependencies not already in the repo
 recursively (T by default).}
@@ -40,4 +44,3 @@ Code chunks are defined as in the following example: ```
 `item 1` must be associated to the source (`src` parameter of
 `put`) containing the chunk code.
 }
-
