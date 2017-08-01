@@ -20,16 +20,21 @@ A very simplified call to put that only requires to specify
 a variable name.
 }
 \details{
-The name parameter is used to search the parent
-(or a different specified) environment for the actual object to
-store. Then it is also used as the item name. The reserved tags
-"stash" and "hide" are set. In case a stashed item by the same name
-already exists, it is automatically overwritten. In case a
-non-stashed item by the same name already exists, an error is
-raised. A different name can be specified through the rename
-parameter in such cases.
+This function is now deprecated, as most parameters of
+    \code{put} are now optional. The latter should be used
+    instead.
+
+    The \code{name} parameter is used to search the parent (or a
+    different specified) environment for the actual object to
+    store. Then it is also used as the item name. The reserved tags
+    "stash" and "hide" are set. In case a stashed item by the same
+    name already exists, it is automatically overwritten. In case a
+    non-stashed item by the same name already exists, an error is
+    raised. A different name can be specified through the rename
+    parameter in such cases.
 }
 \examples{
+\dontrun{
 rp_path <- file.path(tempdir(), "example_repo")
 rp <- repo_open(rp_path, TRUE)
 tempdata <- runif(10)
@@ -38,6 +43,7 @@ rp$info("tempdata")
 
 ## wiping temporary repo
 unlink(rp_path, TRUE)
+}
 }
 \seealso{
 repo_put, repo_lazydo

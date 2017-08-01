@@ -1,4 +1,4 @@
-[![](http://cranlogs.r-pkg.org/badges/repo)](http://cran.rstudio.com/web/packages/repo/index.html)
+[![](http://cranlogs.r-pkg.org/badges/repo)](https://cran.r-project.org/package=repo)
 [![Travis-CI Build Status](https://travis-ci.org/franapoli/repo.svg?branch=master)](https://travis-ci.org/franapoli/repo)
 <!-- Grab your social icons from https://github.com/carlsednaoui/gitsocial -->
 [1.2]: http://i.imgur.com/wWzX9uB.png (me on Twitter)

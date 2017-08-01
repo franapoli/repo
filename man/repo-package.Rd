@@ -17,9 +17,10 @@ tools to easily locate and load previously stored resources.
 
 Create a new repository with \code{rp <- repo_open()}.
 
-Given the object rp of class \code{repo}, the \code{repo} function
-\code{foo} can be called in two ways: 1) \code{repo_foo(rp)} or 2)
-\code{rp$foo()}.
+Given the object rp of class \code{repo}, the \code{repo} command
+\code{foo} must be called like this: \code{rp$foo()}. However, the
+public name of \code{foo} will be \code{repo_foo}, and this name
+must be used to get help (\code{?repo_foo}).
 
 For a complete list of functions, use \code{library(help = "repo")}.
 }

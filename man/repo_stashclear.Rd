@@ -15,7 +15,11 @@ Used for side effects.
 \description{
 Remove all stashed data
 }
+\details{
+Note \code{stash} is now deprecated.
+}
 \examples{
+\dontrun{
 rp_path <- file.path(tempdir(), "example_repo")
 rp <- repo_open(rp_path, TRUE)
 tempdata <- runif(10)
@@ -25,6 +29,7 @@ rp$stashclear(TRUE)
 
 ## wiping temporary repo
 unlink(rp_path, TRUE)
+}
 }
 \seealso{
 repo_rm, repo_stash

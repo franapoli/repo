@@ -32,8 +32,8 @@ rp$put(2, "item2", "Sample item 2", "repo_handlers")
 
 ## Getting item handlers
 h <- rp$handlers()
-## handlers have the same names as the items in the repo (and they include
-## an handler to the repo itself).
+## handlers have the same names as the items in the repo (and they
+## include an handler to the repo itself).
 names(h)
 
 ## Without arguments, function "item1" loads item named "item1".

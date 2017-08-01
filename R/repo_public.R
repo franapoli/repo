@@ -339,8 +339,8 @@ repo_copy <- function(destrepo, name, tags=NULL, replace=F, confirm=T)
 #'
 #' ## Getting item handlers
 #' h <- rp$handlers()
-#' ## handlers have the same names as the items in the repo (and they include
-#' ## an handler to the repo itself).
+#' ## handlers have the same names as the items in the repo (and they
+#' ## include an handler to the repo itself).
 #' names(h)
 #'
 #' ## Without arguments, function "item1" loads item named "item1".
@@ -1361,21 +1361,25 @@ repo_attach <- function(filepath, description=NULL, tags=NULL,
 #' A very simplified call to put that only requires to specify
 #' a variable name.
 #'
-#' @details
-#' The name parameter is used to search the parent
-#' (or a different specified) environment for the actual object to
-#' store. Then it is also used as the item name. The reserved tags
-#' "stash" and "hide" are set. In case a stashed item by the same name
-#' already exists, it is automatically overwritten. In case a
-#' non-stashed item by the same name already exists, an error is
-#' raised. A different name can be specified through the rename
-#' parameter in such cases.
+#' @details This function is now deprecated, as most parameters of
+#'     \code{put} are now optional. The latter should be used
+#'     instead.
+#'
+#'     The \code{name} parameter is used to search the parent (or a
+#'     different specified) environment for the actual object to
+#'     store. Then it is also used as the item name. The reserved tags
+#'     "stash" and "hide" are set. In case a stashed item by the same
+#'     name already exists, it is automatically overwritten. In case a
+#'     non-stashed item by the same name already exists, an error is
+#'     raised. A different name can be specified through the rename
+#'     parameter in such cases.
 #' @param object The object to store in the repo.
 #' @param rename An optional character containing the new name for the
-#' item. Otherwise the name of object is used as item's name.
+#'     item. Otherwise the name of object is used as item's name.
 #' @return Used for side effects.
 #' @seealso repo_put, repo_lazydo
 #' @examples
+#' \dontrun{
 #' rp_path <- file.path(tempdir(), "example_repo")
 #' rp <- repo_open(rp_path, TRUE)
 #' tempdata <- runif(10)
@@ -1384,6 +1388,7 @@ repo_attach <- function(filepath, description=NULL, tags=NULL,
 #'
 #' ## wiping temporary repo
 #' unlink(rp_path, TRUE)
+#' }
 repo_stash <- function(object, rename = deparse(substitute(object)))
 {
     .Deprecated("put", "repo",
@@ -1406,10 +1411,12 @@ repo_stash <- function(object, rename = deparse(substitute(object)))
 
 #' Remove all stashed data
 #'
+#' @details Note \code{stash} is now deprecated.
 #' @param force If TRUE, no confirmation is asked.
 #' @return Used for side effects.
 #' @seealso repo_rm, repo_stash
 #' @examples
+#' \dontrun{
 #' rp_path <- file.path(tempdir(), "example_repo")
 #' rp <- repo_open(rp_path, TRUE)
 #' tempdata <- runif(10)
@@ -1419,8 +1426,12 @@ repo_stash <- function(object, rename = deparse(substitute(object)))
 #'
 #' ## wiping temporary repo
 #' unlink(rp_path, TRUE)
+#' }
 repo_stashclear <- function(force=F)
 {
+    .Deprecated("", "repo",
+                paste("Since now most parameters of the put command",
+                      "are optional, stash and stashclear are deprecated."))
     get("this", thisEnv)$rm(tags=c("stash", "hide"), force=force)
 }
 
@@ -1570,9 +1581,10 @@ repo_project <- function(name, description, replace=T)
 #'
 #' ## wiping temporary repo
 #' unlink(rp_path, TRUE)
-repo_put <- function(obj, name=NULL, description=NULL, tags=NULL, prj=NULL, src=NULL,
-                     chunk=name, depends=NULL, replace=F, asattach=F,
-                     to=NULL, addversion=F, URL=NULL, checkRelations=T)
+repo_put <- function(obj, name=NULL, description=NULL, tags=NULL,
+                     prj=NULL, src=NULL, chunk=name, depends=NULL,
+                     replace=F, asattach=F, to=NULL, addversion=F,
+                     URL=NULL, checkRelations=T)
 {
     checkIndexUnchanged()
 
