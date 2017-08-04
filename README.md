@@ -1,3 +1,11 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+
+
 [![](http://cranlogs.r-pkg.org/badges/repo)](https://cran.r-project.org/package=repo)
 <sup><sub>Master branch:</sub></sup> [![Travis-CI Build Status](https://travis-ci.org/franapoli/repo.svg?branch=master)](https://travis-ci.org/franapoli/repo)
 <sup><sub>Dev branch:</sub></sup> [![Travis-CI Build Status](https://travis-ci.org/franapoli/repo.svg?branch=dev)](https://travis-ci.org/franapoli/repo)
@@ -26,72 +34,97 @@ Repo is developed by Francesco Napolitano [![alt text][1.2]][1]
 
 Repository creation in the default folder:
 
+
+```r
     library(repo)
     rp <- repo_open()
+```
+
+
+
 
 Putting some stuff (it is saved on permanent storage). In this case,
 just values and names are specified:
 
+
+```r
     rp$put(Inf, "God")
     rp$put(0, "user")
+```
 
 Putting specifying dependencies:
 
+
+```r
     rp$put(pi, "The Pi costant", depends="God")
     rp$put(1:10, "r", depends="user")
+```
 
 Getting stuff from the repository on the fly:
 
+
+```r
     diam <- 2 * rp$get("r")
     circum <- 2 * rp$get("The Pi costant") * rp$get("r")
     area <- rp$get("The Pi costant") * rp$get("r") ^ 2
+```
 
 Putting with verbose descriptions:
 
+
+```r
     rp$put(diam, "diameters", "These are the diameters", depends = "r")
     rp$put(circum, "circumferences", "These are the circumferences",
            depends = c("The Pi costant", "r"))
     rp$put(area, "areas", "This are the areas",
            depends = c("The Pi costant", "r"))
+```
 
 Repository contents:
 
+
+```r
     print(rp)
+#>              ID Dims Size
+#>             God    1 42 B
+#>            user    1 40 B
+#>  The Pi costant    1 45 B
+#>               r   10 60 B
+#>       diameters   10 65 B
+#>  circumferences   10 94 B
+#>           areas   10 93 B
+```
 
-                 ID Dims Size
-                God    1 44 B
-               user    1 41 B
-     The Pi costant    1 47 B
-                  r   10 60 B
-          diameters   10 67 B
-     circumferences   10 96 B
-              areas   10 95 B
-
+```r
     rp$info()
+#> Root:            /tmp/RtmpMdybip/8q93x6Gq9OqR 
+#> Number of items: 7 
+#> Total size:      439 B
+```
 
-    Root:            /tmp/RtmpjOSKE5 
-    Number of items: 7 
-    Total size:      450 B 
-
+```r
     rp$info("areas")
-
-    ID:           areas
-    Description:  This are the areas
-    Tags:         
-    Dimensions:   10
-    Timestamp:    2017-04-11 18:13:40
-    Size on disk: 95 B
-    Provenance:   
-    Attached to:  -
-    Stored in:    xw/tt/zm/xwttzmigamg57309nvo3nd6cx8r59jss
-    MD5 checksum: 8b24858f4e92014f5fb29f76c3505588
-    URL:          -
+#> ID:           areas
+#> Description:  This are the areas
+#> Tags:         
+#> Dimensions:   10
+#> Timestamp:    2017-08-04 15:02:30
+#> Size on disk: 93 B
+#> Provenance:   
+#> Attached to:  -
+#> Stored in:    nx/o9/fc/nxo9fc8eltighqgwkdwxzzzckwefznoi
+#> MD5 checksum: 65b946a5ffd6d1a63572e1ccfe3a9e08
+#> URL:          -
+```
 
 Visualizing dependencies:
 
-    rp$dependencies()
 
-![](readme_example_files/figure-markdown_strict/unnamed-chunk-9-1.png)
+```r
+    rp$dependencies()
+```
+
+![plot of chunk depgraph](inst/README-depgraph-1.png)
 
 
 ## Development branches

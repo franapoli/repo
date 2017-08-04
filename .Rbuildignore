@@ -1,5 +1,3 @@
-cran-comments.md
-readme_example_files
-readme_example.md
-readme_example.Rmd
+^cran-comments\.md$
 ^\.travis\.yml$
+^Rmd$
