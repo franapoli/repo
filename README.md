@@ -97,7 +97,7 @@ Repository contents:
 
 ```r
     rp$info()
-#> Root:            /tmp/RtmpMdybip/8q93x6Gq9OqR 
+#> Root:            /tmp/RtmpIjPq16/kZJJAjPdwgCB 
 #> Number of items: 7 
 #> Total size:      439 B
 ```
@@ -108,11 +108,11 @@ Repository contents:
 #> Description:  This are the areas
 #> Tags:         
 #> Dimensions:   10
-#> Timestamp:    2017-08-04 15:02:30
+#> Timestamp:    2017-08-04 15:40:03
 #> Size on disk: 93 B
 #> Provenance:   
 #> Attached to:  -
-#> Stored in:    nx/o9/fc/nxo9fc8eltighqgwkdwxzzzckwefznoi
+#> Stored in:    sk/nr/zy/sknrzyen718nms80t89timt6fyrc2zvx
 #> MD5 checksum: 65b946a5ffd6d1a63572e1ccfe3a9e08
 #> URL:          -
 ```
@@ -140,15 +140,15 @@ unstable, in progress versions. Latest news appear in the "NEWS.md"
 file of this branch.
 
 
-## Guides
+## Manuals
 
-An introductory vignette is available:
+Besides inline help, two documents are available as introductory
+material:
 
-+ [Built from master
-branch](https://rawgit.com/franapoli/repo/gh-pages/index.html).
++ [A paper published on BMC Bioinformatics](http://rdcu.be/pklt)
 
-+ [Built from dev
-branch](https://rawgit.com/franapoli/repo/gh-pages-dev/index.html).
++ [An introductory
+vignette](https://rawgit.com/franapoli/repo/gh-pages/index.html).
 
 
 ## Download and Installation

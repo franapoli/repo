@@ -118,15 +118,15 @@ unstable, in progress versions. Latest news appear in the "NEWS.md"
 file of this branch.
 
 
-## Guides
+## Manuals
 
-An introductory vignette is available:
+Besides inline help, two documents are available as introductory
+material:
 
-+ [Built from master
-branch](https://rawgit.com/franapoli/repo/gh-pages/index.html).
++ [A paper published on BMC Bioinformatics](http://rdcu.be/pklt)
 
-+ [Built from dev
-branch](https://rawgit.com/franapoli/repo/gh-pages-dev/index.html).
++ [An introductory
+vignette](https://rawgit.com/franapoli/repo/gh-pages/index.html).
 
 
 ## Download and Installation
