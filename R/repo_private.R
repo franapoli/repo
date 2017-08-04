@@ -54,7 +54,7 @@
                                    "Use replace=T to overwrite."))
                    },
                    "ATTACHMENT_FILE_NOT_FOUND" = {
-                       stop(paste0("Attachment file not found"))
+                       stop(paste0("Attachment file not found: ", lpars))
                    },
                    "INFO_BUILDING_DEPS" = {
                        message(paste("Building dependency:", lpars))

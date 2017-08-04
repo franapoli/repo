@@ -1,6 +1,8 @@
 
 # News
 
+08/03/17, v2.1.1 - Major release submitted to CRAN
+
 08/01/17, v2.1.1 - CRAN candidate release
 
 + Fixed bug in `repo_build`

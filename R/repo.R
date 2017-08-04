@@ -66,7 +66,8 @@ globalVariables(c("entries", "thisEnv", "repofile", "root",
 ## All repo objects are defined within the repo_open function. They
 ## include a list of "methods" that the user can call, and a number of
 ## functions only used within repo.
-repo_open <- function(root="~/.R_repo", force=F)
+repo_open <- function(root=normalizePath(file.path("~",".R_repo"),
+                                         mustWork=F), force=F)
 {
     root <- normalizePath(root, mustWork=F)
     repofile <- file.path(root, "R_repo.RDS")

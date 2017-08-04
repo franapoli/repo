@@ -1624,7 +1624,7 @@ repo_put <- function(obj, name=NULL, description=NULL, tags=NULL,
 
     if(asattach)
         if(!file.exists(obj))
-            handleErr("ATTACHMENT_FILE_NOT_FOUND")
+            handleErr("ATTACHMENT_FILE_NOT_FOUND", obj)
 
     notexist <- checkName(name)
     if(!notexist & !replace & !addversion)
