@@ -1221,7 +1221,7 @@ repo_untag <- function(name = NULL, rmtags, tags = NULL)
 #' @param prj New item's project as a list of character.
 #' @param src New item's provenance as a list of character.
 #' @param chunk New item's chunk name.
-#' @param depends List of item names indicating dependancies.
+#' @param depends List of item names indicating dependencies.
 #' @param addtags Tags to be added to current item's tags. Can not be
 #'     used together with the parameter "tags".
 #' @param URL A character containing an URL where the item is supposed

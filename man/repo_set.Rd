@@ -26,7 +26,7 @@ the item.}
 
 \item{chunk}{New item's chunk name.}
 
-\item{depends}{List of item names indicating dependancies.}
+\item{depends}{List of item names indicating dependencies.}
 
 \item{addtags}{Tags to be added to current item's tags. Can not be
 used together with the parameter "tags".}
