@@ -2,7 +2,7 @@
 % Please edit documentation in R/repo_public.R
 \name{repo_depends}
 \alias{repo_depends}
-\title{Returns item's dependancies}
+\title{Returns item's dependencies}
 \usage{
 repo_depends(name)
 }
@@ -13,5 +13,5 @@ repo_depends(name)
 The items on which the input item depends.
 }
 \description{
-Returns item's dependancies
+Returns item's dependencies
 }

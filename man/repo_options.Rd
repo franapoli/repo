@@ -10,7 +10,7 @@ repo_options(...)
 \item{...}{options to set}
 }
 \value{
-if optional paramters are not passed, the current options
+if optional parameters are not passed, the current options
     are returned
 }
 \description{

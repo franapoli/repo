@@ -8,7 +8,7 @@ repo_build(name, src = NULL, recursive = T, force = F,
   env = parent.frame(), built = list())
 }
 \arguments{
-\item{name}{Namo of an item in the repo.}
+\item{name}{Name of an item in the repo.}
 
 \item{src}{Path to a source file containing the code block
 associated with the resource. Not necessary if \code{name} is
@@ -20,7 +20,7 @@ recursively (T by default).}
 \item{force}{Re-build dependencies recursively even if already in
 the repo (F by default).}
 
-\item{env}{Environment in which to run the code chunk assciated
+\item{env}{Environment in which to run the code chunk associated
 with the item to build. Parent environment by default.}
 
 \item{built}{A list of items already built used for recursion (not
