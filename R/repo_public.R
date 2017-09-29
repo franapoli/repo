@@ -182,35 +182,27 @@ repo_check <- function()
     stopOnEmpty()
     entr <- entries
 
-    warn <- 0
     for(i in 1:length(entr))
     {
-        cat(paste0("Checking ", entr[[i]]$name, "..."))
+        handleErr("CHECK_MD5_INFO_STARTING", entr[[i]]$name)
         if(file.exists(getFile(entr[[i]]$name))){
             md5s <- md5sum(getFile(entr[[i]]$name))
             if(md5s != entr[[i]]$checksum) {
-                cat(" changed!")
-                warning("File has changed!")
-            } else cat(" ok.")
+                handleErr("CHECK_MD5_WARNING_FAILED")
+            } else handleErr("CHECK_MD5_INFO_SUCCESS")
         } else {
-            cat(" not found!")
-            warn <- warn + 1
+            handleErr("CHECK_WARNING_NOTFOUND")
         }
-        cat("\n")
     }
-    if(warn > 0)
-        warning(paste0("There were ", warn, " missing files!"))
 
-    cat("\nChecking for extraneous files in repo root... ")
+    handleErr("CHECK_EXTRA_INFO_STARTING")
     allfiles <- file.path(root, list.files(root, recursive=T))
     dumps <- sapply(sapply(entries, get, x="name"), getFile)
     junk <- setdiff(path.expand(allfiles), path.expand(dumps))
     junk <- setdiff(junk, repofile)
     if(length(junk)>0){
-        cat("found some:\n")
-        cat(paste(junk, collapse="\n"))
-    } else cat("ok.")
-    cat("\n")
+        handleErr("CHECK_EXTRA_INFO_FAILED", junk)
+    } else handleErr("CHECK_EXTRA_INFO_SUCCESS")
     invisible()
 }
 
