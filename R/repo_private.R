@@ -9,7 +9,7 @@
         {
             pars <- list(...)
             if(length(pars)>0)
-                lpars <- paste0(paste(pars[[1]], collapse=", "), ".")
+                lpars <- paste(pars[[1]], collapse=", ")
             switch(err,
                    ## "DEBUG" = {
                    ##     message(pars[[1]])
@@ -71,30 +71,33 @@
                    "FORK_NOACTIVEFORK" = {
                        stop(paste("None of the active forks contain the following item:", lpars))
                    },
-                   "CHECK_INFO_MD5_STARTING" = {
-                       message(paste("Checking:", lpars, "..."), appendLF=F)
+                   "CHECK_MD5_INFO_STARTING" = {
+                       message(paste0("Checking: ", lpars, "..."),
+                               appendLF=FALSE)
                    },
-                   "CHECK_INFO_MD5_FINISHED" = {
+                   "CHECK_MD5_INFO_SUCCESS" = {
                        message(" ok.")
                    },
-                   "CHECK_WARNING_MD5_FAILED" = {
+                   "CHECK_MD5_WARNING_FAILED" = {
                        message(" changed!")
                        warning("Item file has changed!")
                    },
-                   "CHECK_WARNING_MD5_NOTFOUND" = {
+                   "CHECK_MD5_WARNING_NOTFOUND" = {
                        message(" not found!")
                        warning("Item file was not found!")
                    },
-                   "CHECK_WARNING_MD5_NOTFOUND" = {
+                   "CHECK_MD5_WARNING_NOTFOUND" = {
                        message(" not found!")
                        warning("Item file was not found!")
                    },
-                   "CHECK_INFO_EXTRA_STARTING" = {
-                       message("\nChecking for extraneous files in repo root...")
+                   "CHECK_EXTRA_INFO_STARTING" = {
+                       message(paste0("\nChecking for extraneous ",
+                                      "files in repo root... "),
+                                      appendLF=FALSE)
                    },
-                   "CHECK_INFO_EXTRA_FAILED" = {
-                       message("Some extraneous file found:\n")
-                       message(paste(junk, collapse="\n"))
+                   "CHECK_EXTRA_INFO_FAILED" = {
+                       message("\nSome extraneous file found:\n")
+                       message(gsub(", ", "\n", lpars)) ## in this case one per line is better
                        },
                    "CHECK_EXTRA_INFO_SUCCESS" = {
                        message("ok.")

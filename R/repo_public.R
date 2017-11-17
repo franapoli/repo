@@ -1444,7 +1444,7 @@ repo_stashclear <- function(force=F)
 #' rp_path <- file.path(tempdir(), "example_repo")
 #' rp <- repo_open(rp_path, TRUE)
 #' remote_URL <- paste0("https://github.com/franapoli/repo/blob/",
-#'                      "dev/inst/remote_sample.RDS?raw=true")
+#'                      "untested/inst/remote_sample.RDS?raw=true")
 #'
 #' ## The following item will have remote source
 #' rp$put("Local content", "item1", "Sample item 1", "tag",
@@ -1454,7 +1454,7 @@ repo_stashclear <- function(force=F)
 #' ## suppressWarnings(try(rp$pull("item1"), TRUE))
 #'  tryCatch(rp$pull("item1"),
 #'          error = function(e)
-#'              message("There were warnings whle accessing remote content"),o
+#'              message("There were warnings whle accessing remote content"),
 #'          warning = function(w)
 #'              message("Could not download remote content")
 #'          )
