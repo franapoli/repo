@@ -1,6 +1,13 @@
 
 # News
 
+11/18/17, v2.1.2
+
++ Fixed broken link to remote sample
+
++ Changed the outputs of `repo_check`, which can now be
+`suppressedMessages`-ed.
+
 08/03/17, v2.1.1 - Major release submitted to CRAN
 
 08/01/17, v2.1.1 - CRAN candidate release
