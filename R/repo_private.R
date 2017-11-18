@@ -2,15 +2,14 @@
 ########## PRIVATE METHODS #################
 ############################################
 
-    ## **
-    ## This function is meant the centralize messages. in order to
-    ## better manage string constants. A few messages are still
-    ## around, centralization is ongoing.
+    ## This function is meant to centralize diagnostic, warning and
+    ## error messages. Messages actually constituting the function
+    ## output instead are hard-coded with "cat".
     handleErr <- function(err, ...)
         {
             pars <- list(...)
             if(length(pars)>0)
-                lpars <- paste0(paste(pars[[1]], collapse=", "), ".")
+                lpars <- paste(pars[[1]], collapse=", ")
             switch(err,
                    ## "DEBUG" = {
                    ##     message(pars[[1]])
@@ -66,10 +65,42 @@
                        stop(paste("The following items have no associated code chunk:", lpars))
                    },
                    "FORK_CONFLICT" = {
-                       stop(paste("The following forks are all active and contain the same item:", lpars))
+                       stop(paste("The following forks are all active and contain the same item:",
+                                  lpars))
                    },
                    "FORK_NOACTIVEFORK" = {
                        stop(paste("None of the active forks contain the following item:", lpars))
+                   },
+                   "CHECK_MD5_INFO_STARTING" = {
+                       message(paste0("Checking: ", lpars, "..."),
+                               appendLF=FALSE)
+                   },
+                   "CHECK_MD5_INFO_SUCCESS" = {
+                       message(" ok.")
+                   },
+                   "CHECK_MD5_WARNING_FAILED" = {
+                       message(" changed!")
+                       warning("Item file has changed!")
+                   },
+                   "CHECK_MD5_WARNING_NOTFOUND" = {
+                       message(" not found!")
+                       warning("Item file was not found!")
+                   },
+                   "CHECK_MD5_WARNING_NOTFOUND" = {
+                       message(" not found!")
+                       warning("Item file was not found!")
+                   },
+                   "CHECK_EXTRA_INFO_STARTING" = {
+                       message(paste0("\nChecking for extraneous ",
+                                      "files in repo root... "),
+                                      appendLF=FALSE)
+                   },
+                   "CHECK_EXTRA_INFO_FAILED" = {
+                       message("\nSome extraneous file found:\n")
+                       message(gsub(", ", "\n", lpars)) ## in this case one per line is better
+                       },
+                   "CHECK_EXTRA_INFO_SUCCESS" = {
+                       message("ok.")
                    }
                    )
         }

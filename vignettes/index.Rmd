@@ -56,7 +56,7 @@ using the `options` command.
 
 
 ```{r}
-rp$attach("index.Rmd", "Source code for Repo vignette", replace=T)
+rp$attach("index.Rmd", "Source code for Repo vignette")
 rp$options(src="index.Rmd")
 ```
 
@@ -66,14 +66,14 @@ rp$options(src="index.Rmd")
 Here is a normalized version of the *Iris* dataset to be stored in the
 repository:
 
-```{r}
+```{r, eval=F}
 myiris <- scale(as.matrix(iris[,1:4]))
 ```
 
 The shortest way to permanently store the `myiris` object in the
 repository is simply:
 
-```{r}
+```{r, eval=F}
 rp$put(myiris)
 ```
 
@@ -81,6 +81,8 @@ However, richer annotation is possible, for example:
 
 ```{r}
 ## chunk "myiris" {
+myiris <- scale(as.matrix(iris[,1:4]))
+
 rp$put(
     obj = myiris,
     name = "myiris", 
@@ -89,16 +91,13 @@ rp$put(
         "Normalization is made with the scale function",
         "with default parameters."
     ),
-    tags = c("dataset", "iris", "repodemo"),
-    replace=T
+    tags = c("dataset", "iris", "repodemo")
 )
 ## }
 ```
 
 The call provides the data to be stored (`obj`), an identifier
-(`name`), a longer `description`, a list of `tags`. The parameter
-`replace` set to T allows to overwrite the existing item created
-before.
+(`name`), a longer `description`, a list of `tags`.
 
 The comment lines (`## chunk "myiris" {` and `## }`) have a special
 meaning: they associate the corresponding code to the resource. The
@@ -175,8 +174,8 @@ The following code makes a clustering of the Iris data and stores it
 in the repository. There is one parameter to note:
 
 * **depends** Tells Repo that, in order to compute the `kiris`
-variable, `myiris` is necessary. (Can be exploited by `build` and to
-                                  create dependency graphs).
+variable, `myiris` is necessary. (This information is used by `build`
+to build dependencies and by `dependencies` to show them).
 
 ```{r}
 kiris <- kmeans(myiris, 5)$cluster
@@ -213,7 +212,7 @@ rp$put(res, "iris_cluVsSpecies",
          paste("Contingency table of the kmeans clustering versus the",
                "original labels of the Iris dataset."),
          c("result", "iris","validation", "clustering", "repodemo", "hide"),
-         src="index.Rmd", depends=c("myiris", "irisLabels", "iris_5clu"), replace=T)
+         src="index.Rmd", depends=c("myiris", "irisLabels", "iris_5clu"))
 ```
 
 ## Looking at the repository
