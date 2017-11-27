@@ -1,6 +1,20 @@
 
 # News
 
+27 nov 2017, v2.1.2.1
+
++ `stash` is not deprecated anymore, as it is useful to lazydo
+
++ fixed some `stash` behaviour, like when `put`-ing an item with the
+same name of `stash`-ed item, which now does not throw an error.
+
++ `lazydo` with `force=T` will not throw an error for existing item,
+which is now a `stash`-ed item
+
++ `laxydo` now does not take an object of type `expression`, but an
+expression directly.
+
+
 11/18/17, v2.1.2
 
 + Fixed broken link to remote sample

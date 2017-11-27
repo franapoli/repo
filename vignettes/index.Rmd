@@ -402,13 +402,24 @@ results. When the same expression is run again, the results will be
 loaded from the repository instead of being built again.
 
 ```{r}
-expr <- expression({
-	Sys.sleep(3)
-	result <- "This took 3 seconds to compute"
-})
+
+## First run
+system.time(rp$lazydo(
+    {
+	Sys.sleep(.5)
+	result <- "This took half a second to compute"
+    }
+))
+
+## Second run
+system.time(rp$lazydo(
+    {
+	Sys.sleep(.5)
+	result <- "This took half a second to compute"
+    }
+))
 	
-system.time(rp$lazydo(expr)) # first run
-system.time(rp$lazydo(expr)) # second run
+
 ```
 
 ### Pulling
