@@ -35,35 +35,44 @@ The new item is automatically tagged with "stash", "hide" and
 \examples{
 rp_path <- file.path(tempdir(), "example_repo")
 rp <- repo_open(rp_path, TRUE)
-expr <- expression(
+
+
+## First run
+system.time(rp$lazydo(
     {
-        v <- vector("numeric", 10)
-        for(i in 1:10) {
-            v[i] <- i
-            Sys.sleep(1/10)
-        }
-        print("Done.")
-        v
+        Sys.sleep(1/10)
+        x <- 10
     }
-)
+))
 
-system.time(v <- rp$lazydo(expr)) # first run
-## Repo needs to build resource.
-## [1] "Done."
-##    user  system elapsed 
-##   0.006   0.000   1.007
+## lazydo is building resource from code.
+## Cached item name is: f3c27f11f99dce20919976701d921c62
+##   user  system elapsed 
+##  0.004   0.000   0.108 
 
-system.time(v <- rp$lazydo(expr)) # second run
-## Repo found precomputed resource.
-##    user  system elapsed 
-##   0.000   0.004   0.001
+## Second run
+system.time(rp$lazydo(
+    {
+        Sys.sleep(1/10)
+        x <- 10
+    }
+))
 
-## The item's name in the repo can be obtained using digest:
-library(digest)
-resname <- digest(expr)
-## Or as the name of the last item added:
-resname <- tail(rp$entries(),1)[[1]]$name
+## lazydo found precomputed resource.
+##   user  system elapsed 
+##  0.001   0.000   0.001 
 
+
+## The item's name in the repo can be obtained as the name of the
+## last item added:
+
+l <- length(rp$entries())
+resname <- rp$entries()[[l]]$name
+cat(rp$entries()[[l]]$description)
+## {
+##    Sys.sleep(1/10)
+##    x <- 10
+## }
 rp$rm(resname) ## single cached item cleared
 
 ## wiping temporary repo

@@ -15,9 +15,6 @@ Used for side effects.
 \description{
 Remove all stashed data
 }
-\details{
-Note \code{stash} is now deprecated.
-}
 \examples{
 \dontrun{
 rp_path <- file.path(tempdir(), "example_repo")
