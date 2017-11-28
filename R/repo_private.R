@@ -42,9 +42,6 @@
                    "LAZY_NOT_FOUND" = {
                        message("lazydo is building resource from code.")
                    },
-                   "LAZY_NOT_EXPR" = {
-                       stop("expr must be of class expression.")
-                   },
                    "LAZY_NAME" = {
                        message(paste0("Cached item name is: ", lpars))
                    },
