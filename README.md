@@ -9,7 +9,6 @@ output: github_document
 [![](http://cranlogs.r-pkg.org/badges/repo)](https://cran.r-project.org/package=repo)
 <sup><sub>Master branch:</sub></sup> [![Travis-CI Build Status](https://travis-ci.org/franapoli/repo.svg?branch=master)](https://travis-ci.org/franapoli/repo)
 <sup><sub>Dev branch:</sub></sup> [![Travis-CI Build Status](https://travis-ci.org/franapoli/repo.svg?branch=dev)](https://travis-ci.org/franapoli/repo)
-<sup><sub>Untested branch:</sub></sup> [![Travis-CI Build Status](https://travis-ci.org/franapoli/repo.svg?branch=untested)](https://travis-ci.org/franapoli/repo)
 <!-- Grab your social icons from https://github.com/carlsednaoui/gitsocial -->
 [1.2]: http://i.imgur.com/wWzX9uB.png (me on Twitter)
 [1]: http://www.twitter.com/franapoli
