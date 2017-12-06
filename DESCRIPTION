@@ -1,7 +1,7 @@
 Package: repo
 Type: Package
 Title: A Data-Centered Data Flow Manager
-Version: 2.1.2.1
+Version: 2.1.2.2
 Date: 2017-11-17
 Author: Francesco Napolitano <franapoli@gmail.com>
 Maintainer: Francesco Napolitano <franapoli@gmail.com>

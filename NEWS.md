@@ -1,6 +1,10 @@
 
 # News
 
+6 dic 2017, v2.1.2.2
+
++ Changed error and warning calls with `call.=F`
+
 27 nov 2017, v2.1.2.1
 
 + `stash` is not deprecated anymore, as it is useful to lazydo

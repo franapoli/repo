@@ -15,26 +15,28 @@
                    ##     message(pars[[1]])
                    ## },
                    "ID_NOT_FOUND" = {
-                       stop(paste0("Item not found: ", lpars))
+                       stop(paste0("Item not found: ", lpars), call.=F)
                    },
                    "ID_EXISTING" = {
-                       stop(paste0("There is already an item with this name: ", lpars))
+                       stop(paste0("There is already an item with this name: ", lpars),
+                            call.=F)
                    },
                    "ID_RESERVED" = {
-                       stop(paste0("Id not valid (reserved): ", lpars))
+                       stop(paste0("Id not valid (reserved): ", lpars), call.=F)
                    },
                    "TAG_RESERVED" = {
-                       warning(paste0("Reserved TAG used: ", lpars))
+                       warning(paste0("Reserved TAG used: ", lpars), call.=F)
                    },
                    "EMPTY_REPO" = {
-                       stop("Repo is empty.")
+                       stop("Repo is empty.", call.=F)
                    },
                    "MISS_OBJ_HAS_URL" = {
                        stop(paste0("The file object could not be found. ",
-                                   "However, it can be downloaded using pull."))
+                                   "However, it can be downloaded using pull."),
+                            call.=F)
                    },
                    "NO_URL" = {
-                       stop("The object has no associated URL.")
+                       stop("The object has no associated URL.", call.=F)
                    },
                    "LAZY_FOUND" = {
                        message("lazydo found precomputed resource.")
@@ -47,23 +49,25 @@
                    },
                    "DATA_ALREADY_THERE" = {
                        stop(paste0("There is existing content for ", lpars, ". ",
-                                   "Use replace=T to overwrite."))
+                                   "Use replace=T to overwrite."), call.=F)
                    },
                    "ATTACHMENT_FILE_NOT_FOUND" = {
-                       stop(paste0("Attachment file not found: ", lpars))
+                       stop(paste0("Attachment file not found: ", lpars), call.=F)
                    },
                    "INFO_BUILDING_DEPS" = {
                        message(paste("Building dependency:", lpars))
                    },
                    "CHUNK_NOSOURCE" = {
-                       stop(paste("The following items have no associated source code object:", lpars))
+                       stop(paste("The following items have no associated source code object:",
+                                  lpars), call.=F)
                    },
                    "CHUNK_NOCHUNK" = {
-                       stop(paste("The following items have no associated code chunk:", lpars))
+                       stop(paste("The following items have no associated code chunk:", lpars),
+                            call.=F)
                    },
                    "FORK_CONFLICT" = {
                        stop(paste("The following forks are all active and contain the same item:",
-                                  lpars))
+                                  lpars), call.=F)
                    },
                    "FORK_NOACTIVEFORK" = {
                        stop(paste("None of the active forks contain the following item:", lpars))
@@ -77,15 +81,15 @@
                    },
                    "CHECK_MD5_WARNING_FAILED" = {
                        message(" changed!")
-                       warning("Item file has changed!")
+                       warning("Item file has changed!", call.=F)
                    },
                    "CHECK_MD5_WARNING_NOTFOUND" = {
                        message(" not found!")
-                       warning("Item file was not found!")
+                       warning("Item file was not found!", call.=F)
                    },
                    "CHECK_MD5_WARNING_NOTFOUND" = {
                        message(" not found!")
-                       warning("Item file was not found!")
+                       warning("Item file was not found!", call.=F)
                    },
                    "CHECK_EXTRA_INFO_STARTING" = {
                        message(paste0("\nChecking for extraneous ",
