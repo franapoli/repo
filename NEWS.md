@@ -1,17 +1,17 @@
 
 # News
 
-May 4, 2018, v2.1.2.3
+May 4, 2018, v2.1.3
 
 + Significant speedup of all operations involving a search through the
 items, including `find` and `print`. These are now usable with large
 repositories (tested with tens of thousands items).
 
-6 dic 2017, v2.1.2.2
+Dic 6, 2017, v2.1.2.2
 
 + Changed error and warning calls with `call.=F`
 
-27 nov 2017, v2.1.2.1
+Nov 27, 2017, v2.1.2.1
 
 + `stash` is not deprecated anymore, as it is useful to lazydo
 
@@ -68,8 +68,6 @@ as follows:
 
 New features:
 
-+ Minor releases (vX.X.X, which go to the dev branch) like this one
-  will have a new-features summary.
 + Descriptions and tags are no more mandatory
 + Alternative versions of the same chunk can now be defined like this:
 ```

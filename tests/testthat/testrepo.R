@@ -70,13 +70,12 @@ context("lazydo")
 ##############
 
 rp <- repo_open(build_test_repo("repo1"))
-expr <- expression(2*10+80)
 
 test_that("lazydo building and loading", {
-    expect_message(rp$lazydo(expr), ".*building.*")
-    expect_equal(rp$get(names(rp$entries())[[2]]), eval(expr))
-    expect_message(cached <- rp$lazydo(expr), ".*precomputed.*")
-    expect_equal(cached, eval(expr))
+    expect_message(rp$lazydo(2*10+80), ".*building.*")
+    expect_equal(rp$get(names(rp$entries())[[2]]), 2*10+80)
+    expect_message(cached <- rp$lazydo(2*10+80), ".*precomputed.*")
+    expect_equal(cached, 2*10+80)
     expect_message(rp$lazydo(expr, force=T), ".*building.*")
 })
 
