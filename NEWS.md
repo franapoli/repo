@@ -1,6 +1,12 @@
 
 # News
 
+May 4, 2018, v2.1.2.3
+
++ Significant speedup of all operations involving a search through the
+items, including `find` and `print`. These are now usable with large
+repositories (tested with tens of thousands items).
+
 6 dic 2017, v2.1.2.2
 
 + Changed error and warning calls with `call.=F`

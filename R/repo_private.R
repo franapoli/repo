@@ -644,6 +644,7 @@ getSource <- function(name)
     ## matching
     findEntries <- function(tags=NULL, tagfun="OR", find=NULL)
         {
+          
             if(!is.null(tags)) {
                    tagsets <- lapply(entries, get, x="tags")
 
@@ -721,7 +722,7 @@ getSource <- function(name)
     ## ** creates a table with all items metadata to be shown by
     ## print. Currently filters are applied in the end, which slows
     ## down the process. The flags column is currently not used.
-    entriesToMat <- function(w)
+    entriesToMat <- function(w, flags=F)
         {
             entr <- entries[w]
 
@@ -731,22 +732,23 @@ getSource <- function(name)
             a <- matrix(NA, length(names), length(labels))
             colnames(a) <- labels
 
-            attachs <- depends <- hasattach <- allows <- rep(" ", length(entr))
-                            
             tagsets <- lapply(entr, get, x="tags")
-            attachs[sapply(tagsets, is.element, el="attachment")] <- "x"
-            depends[sapply(lapply(entr, get, x="depends"), length)>0] <- "x"
-            allows[!sapply(lapply(names, dependants), length)>0] <- "x"
-            hasattach[!sapply((sapply(names, attachments)), is.null)] <- "x"            
+            attachs <- rep(" ", length(entr))
+            if(flags) {
+              depends <- hasattach <- allows <- attachs
+              depends[sapply(lapply(entr, get, x="depends"), length)>0] <- "x"
+              allows[!sapply(lapply(names, dependants), length)>0] <- "x"
+              hasattach[!sapply((sapply(names, attachments)), is.null)] <- "x"
+              flags <- paste0(attachs, hasattach, depends, allows)            
+              a[,2] <- flags
+            }
 
-            flags <- paste0(attachs, hasattach, depends, allows)
-            
+            attachs[sapply(tagsets, is.element, el="attachment")] <- "x"
             descriptions <- sapply(entr, get, x="description")
             prefixes <- rep("", length(names))
-            prefixes[attachs == "x"] <- "@"                        
+            prefixes[attachs == "x"] <- "@"
 
             a[,"ID"] <- paste0(prefixes, names)
-            a[,2] <- flags
             a[,"Dims"] <- sapply(lapply(entr, get, x="dims"), paste, collapse="x");
             a[a[,"Dims"]=="", "Dims"] <- "-"            
             a[,"Tags"] <- sapply(tagsets, paste, collapse=", ")

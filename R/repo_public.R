@@ -520,9 +520,6 @@ print.repo <- function(x, tags=NULL, tagfun="OR",
 #' unlink(rp_path, TRUE)
 repo_print <- function(tags=NULL, tagfun="OR", find=NULL, all=F, show="ds")
 {
-    ## TODO: Part of the code is now in function entriesToMat,
-    ## should be removed from here.
-
     if(!is.null(tags) & !is.null(find))
         stop("Please provide either tags or find.")
     
@@ -537,43 +534,16 @@ repo_print <- function(tags=NULL, tagfun="OR", find=NULL, all=F, show="ds")
             return(invisible())
         } else {
             entr <- entr[w]
+            a <- entriesToMat(w)
         }
+    } else {
+      a <- entriesToMat(1:length(entr))
     }
 
     
-    labels <- c("ID", "a@><", "Dims", "Tags", "Size")
-    names <- sapply(entr, get, x="name")
-
-    a <- matrix(NA, length(names), length(labels))
-    colnames(a) <- labels
-
-    attachs <- depends <- hasattach <- allows <- rep(" ", length(entr))
     
-    tagsets <- lapply(entr, get, x="tags")
-    attachs[sapply(tagsets, is.element, el="attachment")] <- "x"
-    depends[sapply(lapply(entr, get, x="depends"), length)>0] <- "x"
-    allows[!sapply(lapply(names, dependants), length)>0] <- "x"
-    hasattach[!sapply((sapply(names, attachments)), is.null)] <- "x"
-
-    flags <- paste0(attachs, hasattach, depends, allows)
-
-    descriptions <- sapply(entr, get, x="description")
-    
-                                        #tagsets <- lapply(tagsets, setdiff, y="attachment")
-                                        #tagsets <- lapply(tagsets, setdiff, y="hide")
-                                        #tagsets <- lapply(tagsets, setdiff, y="stash")
-
-    prefixes <- rep("", length(names))
-    prefixes[attachs == "x"] <- "@"                        
-    
-    a[,"ID"] <- paste0(prefixes, names)
-    a[,2] <- flags
-    a[,"Dims"] <- sapply(lapply(entr, get, x="dims"), paste, collapse="x"); a[a[,"Dims"]=="", "Dims"] <- "-"            
-    a[,"Tags"] <- sapply(tagsets, paste, collapse=", ")
-    a[,"Size"] <- sapply(lapply(entr, get, x="size"), hmnRead)
-    ##a[,"URL"] <- sapply(entr, get, x="URL")
-
     h <- rep(F,length(entr))
+    tagsets <- lapply(entr, get, x="tags")
     hidden <- sapply(tagsets, is.element, el="hide")
 
     if(!all)
@@ -584,15 +554,14 @@ repo_print <- function(tags=NULL, tagfun="OR", find=NULL, all=F, show="ds")
         message("All matched entries are hidden, use all=T.")
         return(invisible(NULL))
     }
-
     
     cols <- c(T, sapply(c("f","d","t","s"), grepl, show))
-    m <- as.data.frame(a[!h,cols], nm="")
+    a <- as.data.frame(a[!h,cols], nm="")
 
     if(sum(!h)>1)
-        print(m, quote=F, row.names=F) else print(t(m), quote=F, row.names=F)
+        print(a, quote=F, row.names=F) else print(t(a), quote=F, row.names=F)
 
-    invisible(m)
+    invisible(a)
 }
 
 
