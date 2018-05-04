@@ -20,11 +20,7 @@ A very simplified call to put that only requires to specify
 a variable name.
 }
 \details{
-This function is now deprecated, as most parameters of
-    \code{put} are now optional. The latter should be used
-    instead.
-
-    The \code{name} parameter is used to search the parent (or a
+The \code{name} parameter is used to search the parent (or a
     different specified) environment for the actual object to
     store. Then it is also used as the item name. The reserved tags
     "stash" and "hide" are set. In case a stashed item by the same

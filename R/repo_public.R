@@ -182,35 +182,27 @@ repo_check <- function()
     stopOnEmpty()
     entr <- entries
 
-    warn <- 0
     for(i in 1:length(entr))
     {
-        cat(paste0("Checking ", entr[[i]]$name, "..."))
+        handleErr("CHECK_MD5_INFO_STARTING", entr[[i]]$name)
         if(file.exists(getFile(entr[[i]]$name))){
             md5s <- md5sum(getFile(entr[[i]]$name))
             if(md5s != entr[[i]]$checksum) {
-                cat(" changed!")
-                warning("File has changed!")
-            } else cat(" ok.")
+                handleErr("CHECK_MD5_WARNING_FAILED")
+            } else handleErr("CHECK_MD5_INFO_SUCCESS")
         } else {
-            cat(" not found!")
-            warn <- warn + 1
+            handleErr("CHECK_WARNING_NOTFOUND")
         }
-        cat("\n")
     }
-    if(warn > 0)
-        warning(paste0("There were ", warn, " missing files!"))
 
-    cat("\nChecking for extraneous files in repo root... ")
+    handleErr("CHECK_EXTRA_INFO_STARTING")
     allfiles <- file.path(root, list.files(root, recursive=T))
     dumps <- sapply(sapply(entries, get, x="name"), getFile)
     junk <- setdiff(path.expand(allfiles), path.expand(dumps))
     junk <- setdiff(junk, repofile)
     if(length(junk)>0){
-        cat("found some:\n")
-        cat(paste(junk, collapse="\n"))
-    } else cat("ok.")
-    cat("\n")
+        handleErr("CHECK_EXTRA_INFO_FAILED", junk)
+    } else handleErr("CHECK_EXTRA_INFO_SUCCESS")
     invisible()
 }
 
@@ -528,9 +520,6 @@ print.repo <- function(x, tags=NULL, tagfun="OR",
 #' unlink(rp_path, TRUE)
 repo_print <- function(tags=NULL, tagfun="OR", find=NULL, all=F, show="ds")
 {
-    ## TODO: Part of the code is now in function entriesToMat,
-    ## should be removed from here.
-
     if(!is.null(tags) & !is.null(find))
         stop("Please provide either tags or find.")
     
@@ -545,43 +534,16 @@ repo_print <- function(tags=NULL, tagfun="OR", find=NULL, all=F, show="ds")
             return(invisible())
         } else {
             entr <- entr[w]
+            a <- entriesToMat(w)
         }
+    } else {
+      a <- entriesToMat(1:length(entr))
     }
 
     
-    labels <- c("ID", "a@><", "Dims", "Tags", "Size")
-    names <- sapply(entr, get, x="name")
-
-    a <- matrix(NA, length(names), length(labels))
-    colnames(a) <- labels
-
-    attachs <- depends <- hasattach <- allows <- rep(" ", length(entr))
     
-    tagsets <- lapply(entr, get, x="tags")
-    attachs[sapply(tagsets, is.element, el="attachment")] <- "x"
-    depends[sapply(lapply(entr, get, x="depends"), length)>0] <- "x"
-    allows[!sapply(lapply(names, dependants), length)>0] <- "x"
-    hasattach[!sapply((sapply(names, attachments)), is.null)] <- "x"
-
-    flags <- paste0(attachs, hasattach, depends, allows)
-
-    descriptions <- sapply(entr, get, x="description")
-    
-                                        #tagsets <- lapply(tagsets, setdiff, y="attachment")
-                                        #tagsets <- lapply(tagsets, setdiff, y="hide")
-                                        #tagsets <- lapply(tagsets, setdiff, y="stash")
-
-    prefixes <- rep("", length(names))
-    prefixes[attachs == "x"] <- "@"                        
-    
-    a[,"ID"] <- paste0(prefixes, names)
-    a[,2] <- flags
-    a[,"Dims"] <- sapply(lapply(entr, get, x="dims"), paste, collapse="x"); a[a[,"Dims"]=="", "Dims"] <- "-"            
-    a[,"Tags"] <- sapply(tagsets, paste, collapse=", ")
-    a[,"Size"] <- sapply(lapply(entr, get, x="size"), hmnRead)
-    ##a[,"URL"] <- sapply(entr, get, x="URL")
-
     h <- rep(F,length(entr))
+    tagsets <- lapply(entr, get, x="tags")
     hidden <- sapply(tagsets, is.element, el="hide")
 
     if(!all)
@@ -592,15 +554,14 @@ repo_print <- function(tags=NULL, tagfun="OR", find=NULL, all=F, show="ds")
         message("All matched entries are hidden, use all=T.")
         return(invisible(NULL))
     }
-
     
     cols <- c(T, sapply(c("f","d","t","s"), grepl, show))
-    m <- as.data.frame(a[!h,cols], nm="")
+    a <- as.data.frame(a[!h,cols], nm="")
 
     if(sum(!h)>1)
-        print(m, quote=F, row.names=F) else print(t(m), quote=F, row.names=F)
+        print(a, quote=F, row.names=F) else print(t(a), quote=F, row.names=F)
 
-    invisible(m)
+    invisible(a)
 }
 
 
@@ -744,6 +705,7 @@ repo_info <- function(name = NULL, tags = NULL)
 #' unlink(rp_path, TRUE)
 repo_rm <- function(name = NULL, tags = NULL, force = F)
 {
+##:ess-bp-start::browser@nil:##
     checkIndexUnchanged()                   
     
     if(!xor(missing(name),missing(tags)))
@@ -1113,54 +1075,63 @@ repo_tag <- function(name = NULL, newtags, tags = NULL)
 #' @examples
 #' rp_path <- file.path(tempdir(), "example_repo")
 #' rp <- repo_open(rp_path, TRUE)
-#' expr <- expression(
+#' 
+#'
+#' ## First run
+#' system.time(rp$lazydo(
 #'     {
-#'         v <- vector("numeric", 10)
-#'         for(i in 1:10) {
-#'             v[i] <- i
-#'             Sys.sleep(1/10)
-#'         }
-#'         print("Done.")
-#'         v
+#'         Sys.sleep(1/10)
+#'         x <- 10
 #'     }
-#' )
-#' 
-#' system.time(v <- rp$lazydo(expr)) # first run
-#' ## Repo needs to build resource.
-#' ## [1] "Done."
-#' ##    user  system elapsed 
-#' ##   0.006   0.000   1.007
+#' ))
 #'
-#' system.time(v <- rp$lazydo(expr)) # second run
-#' ## Repo found precomputed resource.
-#' ##    user  system elapsed 
-#' ##   0.000   0.004   0.001
-#'
-#' ## The item's name in the repo can be obtained using digest:
-#' library(digest)
-#' resname <- digest(expr)
-#' ## Or as the name of the last item added:
-#' resname <- tail(rp$entries(),1)[[1]]$name
+#' ## lazydo is building resource from code.
+#' ## Cached item name is: f3c27f11f99dce20919976701d921c62
+#' ##   user  system elapsed 
+#' ##  0.004   0.000   0.108 
 #' 
+#' ## Second run
+#' system.time(rp$lazydo(
+#'     {
+#'         Sys.sleep(1/10)
+#'         x <- 10
+#'     }
+#' ))
+#'
+#' ## lazydo found precomputed resource.
+#' ##   user  system elapsed 
+#' ##  0.001   0.000   0.001 
+#'
+#' 
+#' ## The item's name in the repo can be obtained as the name of the
+#' ## last item added:
+#'
+#' l <- length(rp$entries())
+#' resname <- rp$entries()[[l]]$name
+#' cat(rp$entries()[[l]]$description)
+#' ## {
+#' ##    Sys.sleep(1/10)
+#' ##    x <- 10
+#' ## }
 #' rp$rm(resname) ## single cached item cleared
 #'
 #' ## wiping temporary repo
 #' unlink(rp_path, TRUE)
 repo_lazydo <- function(expr, force=F, env=parent.frame())
 {
-    if(!is.expression(expr))
-        handleErr("LAZY_NOT_EXPR")
+    ## if(!is.expression(expr))
+    ##     handleErr("LAZY_NOT_EXPR")
     
-    src <- as.character(expr)
+    src <- paste(deparse(substitute(expr)), collapse="\n")
     resname <- digest(src)
 
     if(checkName(resname) || force)
     {
         handleErr("LAZY_NOT_FOUND")
         res <- eval(expr, envir=env)
-        get("this", thisEnv)$put(res, resname)
+        get("this", thisEnv)$stash(res, resname)
         get("this", thisEnv)$set(resname,
-                                 description=quote(expr),
+                                 description=src,
                                  addtags="lazydo")
         handleErr("LAZY_NAME", resname)
         return(res)
@@ -1361,9 +1332,7 @@ repo_attach <- function(filepath, description=NULL, tags=NULL,
 #' A very simplified call to put that only requires to specify
 #' a variable name.
 #'
-#' @details This function is now deprecated, as most parameters of
-#'     \code{put} are now optional. The latter should be used
-#'     instead.
+#' @details
 #'
 #'     The \code{name} parameter is used to search the parent (or a
 #'     different specified) environment for the actual object to
@@ -1391,9 +1360,6 @@ repo_attach <- function(filepath, description=NULL, tags=NULL,
 #' }
 repo_stash <- function(object, rename = deparse(substitute(object)))
 {
-    .Deprecated("put", "repo",
-                paste("Since now most parameters of the put command",
-                      "are optional, stash is deprecated."))
     name <- deparse(substitute(object))
     if(!stopOnEmpty(T)){
         e <- getEntry(rename)
@@ -1411,7 +1377,6 @@ repo_stash <- function(object, rename = deparse(substitute(object)))
 
 #' Remove all stashed data
 #'
-#' @details Note \code{stash} is now deprecated.
 #' @param force If TRUE, no confirmation is asked.
 #' @return Used for side effects.
 #' @seealso repo_rm, repo_stash
@@ -1429,9 +1394,6 @@ repo_stash <- function(object, rename = deparse(substitute(object)))
 #' }
 repo_stashclear <- function(force=F)
 {
-    .Deprecated("", "repo",
-                paste("Since now most parameters of the put command",
-                      "are optional, stash and stashclear are deprecated."))
     get("this", thisEnv)$rm(tags=c("stash", "hide"), force=force)
 }
 
@@ -1451,12 +1413,21 @@ repo_stashclear <- function(force=F)
 #' ## Repository creation
 #' rp_path <- file.path(tempdir(), "example_repo")
 #' rp <- repo_open(rp_path, TRUE)
+#' remote_URL <- paste0("https://github.com/franapoli/repo/blob/",
+#'                      "untested/inst/remote_sample.RDS?raw=true")
 #'
 #' ## The following item will have remote source
 #' rp$put("Local content", "item1", "Sample item 1", "tag",
-#'          URL="http://www.francesconapolitano.it/repo/remote")
+#'          URL = remote_URL)
 #' print(rp$get("item1"))
-#' rp$pull("item1")
+#'
+#' ## suppressWarnings(try(rp$pull("item1"), TRUE))
+#'  tryCatch(rp$pull("item1"),
+#'          error = function(e)
+#'              message("There were warnings whle accessing remote content"),
+#'          warning = function(w)
+#'              message("Could not download remote content")
+#'          )
 #' print(rp$get("item1"))
 #'
 #' ## wiping temporary repo
@@ -1625,8 +1596,16 @@ repo_put <- function(obj, name=NULL, description=NULL, tags=NULL,
     if(asattach)
         if(!file.exists(obj))
             handleErr("ATTACHMENT_FILE_NOT_FOUND", obj)
-
+##:ess-bp-start::browser@nil:##
+    
     notexist <- checkName(name)
+
+    if(!notexist & replace==F) {
+        entry <- getEntry(name)
+        if("stash" %in% entry$tags)
+            replace <- T
+    }
+    
     if(!notexist & !replace & !addversion)
         handleErr("ID_EXISTING", name)
     

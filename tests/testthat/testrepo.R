@@ -30,6 +30,57 @@ wipe_test_repo("repo1")
 wipe_test_repo("repo2")
 wipe_test_repo("temp")
 
+##############
+context("stash")
+##############
+
+rp <- repo_open(build_test_repo("repo1"))
+stashed <- 1:3
+rp$stash(stashed)
+rp$stash(stashed, rename="renamed stashed")
+
+test_that("stashed items added", {
+    expect_true(rp$has("stashed"))
+    expect_true(rp$has("renamed stashed"))
+    expect_equal(rp$get("stashed"), rp$get("renamed stashed"))
+    expect_equal(length(rp$entries()), 3)
+})
+
+rp$put("overwrite", "stashed")
+rp$stash("renamed overwrite", "renamed stashed")
+
+test_that("stashed item overwritten", {
+    expect_equal(length(rp$entries()), 3)
+    expect_equal(rp$get("stashed"), "overwrite")
+    expect_equal(rp$get("renamed stashed"), "renamed overwrite")
+})
+
+rp$stashclear(force=T)
+
+test_that("clearing stash", {
+    expect_equal(length(rp$entries()), 2)
+    expect_failure(expect_error(rp$put(NA, "renamed stashed")))
+})
+
+wipe_test_repo("repo1")
+
+
+##############
+context("lazydo")
+##############
+
+rp <- repo_open(build_test_repo("repo1"))
+
+test_that("lazydo building and loading", {
+    expect_message(rp$lazydo(2*10+80), ".*building.*")
+    expect_equal(rp$get(names(rp$entries())[[2]]), 2*10+80)
+    expect_message(cached <- rp$lazydo(2*10+80), ".*precomputed.*")
+    expect_equal(cached, 2*10+80)
+    expect_message(rp$lazydo(expr, force=T), ".*building.*")
+})
+
+wipe_test_repo("repo1")
+
 
 ##############
 context("repository and items creation")

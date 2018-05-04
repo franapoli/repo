@@ -1,6 +1,37 @@
 
 # News
 
+May 4, 2018, v2.1.3
+
++ Significant speedup of all operations involving a search through the
+items, including `find` and `print`. These are now usable with large
+repositories (tested with tens of thousands items).
+
+Dic 6, 2017, v2.1.2.2
+
++ Changed error and warning calls with `call.=F`
+
+Nov 27, 2017, v2.1.2.1
+
++ `stash` is not deprecated anymore, as it is useful to lazydo
+
++ fixed some `stash` behaviour, like when `put`-ing an item with the
+same name of `stash`-ed item, which now does not throw an error.
+
++ `lazydo` with `force=T` will not throw an error for existing item,
+which is now a `stash`-ed item
+
++ `laxydo` now does not take an object of type `expression`, but an
+expression directly.
+
+
+11/18/17, v2.1.2
+
++ Fixed broken link to remote sample
+
++ Changed the outputs of `repo_check`, which can now be
+`suppressedMessages`-ed.
+
 08/03/17, v2.1.1 - Major release submitted to CRAN
 
 08/01/17, v2.1.1 - CRAN candidate release
@@ -37,8 +68,6 @@ as follows:
 
 New features:
 
-+ Minor releases (vX.X.X, which go to the dev branch) like this one
-  will have a new-features summary.
 + Descriptions and tags are no more mandatory
 + Alternative versions of the same chunk can now be defined like this:
 ```
