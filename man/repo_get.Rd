@@ -4,10 +4,15 @@
 \alias{repo_get}
 \title{Retrieve an item from the repo.}
 \usage{
-repo_get(name)
+repo_get(name, enableSuggestions = T)
 }
 \arguments{
 \item{name}{An item's name.}
+
+\item{enableSuggestions}{If set to TRUE (default), enables some
+checks on \code{name} that are meant to gracefully handle
+errors and provide suggestions of similar names. If FALSE, the
+execution will be significantly faster in large repositories.}
 }
 \value{
 The previously stored object, or its file system path for

@@ -949,6 +949,10 @@ repo_build <- function(name, src=NULL, recursive=T, force=F, env=parent.frame(),
 #' Retrieve an item from the repo.
 #' 
 #' @param name An item's name.
+#' @param enableSuggestions If set to TRUE (default), enables some
+#'     checks on \code{name} that are meant to gracefully handle
+#'     errors and provide suggestions of similar names. If FALSE, the
+#'     execution will be significantly faster in large repositories.
 #' @return The previously stored object, or its file system path for
 #'     attachments.
 #' @examples
@@ -959,21 +963,25 @@ repo_build <- function(name, src=NULL, recursive=T, force=F, env=parent.frame(),
 #'
 #' ## wiping temporary repo
 #' unlink(rp_path, TRUE)
-repo_get <- function(name)
+
+repo_get <- function(name, enableSuggestions=T)
 {
     name <- forkedName(name)
-    if(checkName(name)){                
-        enames <- sapply(entries, get, x="name")
-        x <- agrep(name, enames)
-        if(length(x)>0) {
-            x <- x[abs(sapply(enames[x],nchar) - nchar(name))<=3]
-            message(paste0(
-                "Maybe you were looking for: ",
-                paste0(enames[x], collapse=", ")
-            ))
+
+    if(enableSuggestions) {
+        if(checkName(name)){
+            enames <- sapply(entries, get, x="name")
+            x <- agrep(name, enames)
+            if(length(x)>0) {
+                x <- x[abs(sapply(enames[x],nchar) - nchar(name))<=3]
+                message(paste0(
+                    "Maybe you were looking for: ",
+                    paste0(enames[x], collapse=", ")
+                ))
+            }
+            handleErr("ID_NOT_FOUND", name)
+            return(invisible())
         }
-        handleErr("ID_NOT_FOUND", name)
-        return(invisible())
     }
     entry <- getEntry(name)
     root <- get("root",thisEnv)
