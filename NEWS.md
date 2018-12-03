@@ -1,6 +1,11 @@
 
 # News
 
+Dec 3, 2018, v2.1.3.1
+
++ `repo_get` now allows to suppress name suggestions for faster serach
+  in large repositories.
+
 May 4, 2018, v2.1.3
 
 + Significant speedup of all operations involving a search through the
