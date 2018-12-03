@@ -1,3 +1,7 @@
+## Workflow
+## library(devtools)
+## library(testthat)
+
 ##############
 context("global functions")
 ##############
@@ -76,6 +80,7 @@ test_that("lazydo building and loading", {
     expect_equal(rp$get(names(rp$entries())[[2]]), 2*10+80)
     expect_message(cached <- rp$lazydo(2*10+80), ".*precomputed.*")
     expect_equal(cached, 2*10+80)
+    expect_message(rp$lazydo(100), ".*building.*")
     expect_message(rp$lazydo(2*10+80, force=T), ".*building.*")
 })
 
