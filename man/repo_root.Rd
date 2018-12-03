@@ -7,7 +7,7 @@
 repo_root()
 }
 \value{
-character cotaining the path to the root of the repo.
+character containing the path to the root of the repo.
 }
 \description{
 Show path to repo root

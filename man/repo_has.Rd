@@ -2,7 +2,7 @@
 % Please edit documentation in R/repo_public.R
 \name{repo_has}
 \alias{repo_has}
-\title{Check wether a repository has an item}
+\title{Check whether a repository has an item}
 \usage{
 repo_has(name)
 }
@@ -13,5 +13,5 @@ repo_has(name)
 TRUE if \code{name} is in the repository, FALSE otherwise.
 }
 \description{
-Check wether a repository has an item
+Check whether a repository has an item
 }

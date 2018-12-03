@@ -874,7 +874,7 @@ repo_chunk <- function(name)
     return(invisible(ch))
 }
 
-##' Check wether a repository has an item
+##' Check whether a repository has an item
 ##'
 ##' @param name Item name.
 ##' @return TRUE if \code{name} is in the repository, FALSE otherwise.
@@ -888,7 +888,7 @@ repo_has <- function(name)
 ##'
 ##' In order to be \code{build}able, a repository item must have an
 ##' associated source file and code chunk.
-##' @param name Namo of an item in the repo.
+##' @param name Name of an item in the repo.
 ##' @param src Path to a source file containing the code block
 ##'     associated with the resource. Not necessary if \code{name} is
 ##'     already in the repository and has an associated source item.
@@ -896,7 +896,7 @@ repo_has <- function(name)
 ##'     recursively (T by default).
 ##' @param force Re-build dependencies recursively even if already in
 ##'     the repo (F by default).
-##' @param env Environment in which to run the code chunk assciated
+##' @param env Environment in which to run the code chunk associated
 ##'     with the item to build. Parent environment by default.
 ##' @param built A list of items already built used for recursion (not
 ##'     meant to be passed directly).
@@ -1066,7 +1066,7 @@ repo_tag <- function(name = NULL, newtags, tags = NULL)
 #' and returned. Otherwise, the expression is executed and the result
 #' stashed.
 #'
-#' @param expr An object of class exrepssion (the code to run).
+#' @param expr An object of class expression (the code to run).
 #' @param force If TRUE, execute expr anyway
 #' @param env Environment for expr, defaults to parent.
 #' @return Results of the expression (either loaded or computed on the
@@ -1200,7 +1200,7 @@ repo_untag <- function(name = NULL, rmtags, tags = NULL)
 #' @param prj New item's project as a list of character.
 #' @param src New item's provenance as a list of character.
 #' @param chunk New item's chunk name.
-#' @param depends List of item names indicating dependancies.
+#' @param depends List of item names indicating dependencies.
 #' @param addtags Tags to be added to current item's tags. Can not be
 #'     used together with the parameter "tags".
 #' @param URL A character containing an URL where the item is supposed
@@ -1510,17 +1510,17 @@ repo_project <- function(name, description, replace=T)
 #'     default. See \code{build}.
 #' @param depends Character vector: items that depend on this
 #'     item. Default is NULL.
-#' @param replace One of: V, F, "addversion" to define behaviour when
+#' @param replace One of: V, F, "addversion" to define behavior when
 #'     an item by the same name exists. If V, overwrite it. If F stop
 #'     with an error. If "addversion" the new item is stored as a new
 #'     version and the old item is renamed by appending a "#N"
 #'     suffix. Default is F.
-#' @param asattach Specifies that the item is to be trated as an
+#' @param asattach Specifies that the item is to be treated as an
 #'     attachment (see attach). Default is F.
 #' @param to Vector of character. Specifies which item this item is
 #'     attached to. Default is NULL.
-#' @param URL Remote URL where the \code{pull} function expets to
-#'     download actual item data from. Dafault is NULL.
+#' @param URL Remote URL where the \code{pull} function expects to
+#'     download actual item data from. Default is NULL.
 #' @param checkRelations Check if items referenced by this item
 #'     exist. Default is T.
 #' @param addversion Deprecated, use the \code{replace} parameter
@@ -1742,7 +1742,7 @@ repo_put <- function(obj, name=NULL, description=NULL, tags=NULL,
 
 #' Show path to repo root
 #' 
-#' @return character cotaining the path to the root of the repo.
+#' @return character containing the path to the root of the repo.
 #' @examples
 #' rp_path <- file.path(tempdir(), "example_repo")
 #' rp <- repo_open(rp_path, TRUE)
@@ -1757,7 +1757,7 @@ repo_root <- function()
 }
 
 
-#' Returns item's dependancies
+#' Returns item's dependencies
 #'
 #' @param name The name of a repository item.
 #' @return The items on which the input item depends.
@@ -1795,7 +1795,7 @@ repo_load <- function(names, overwrite_existing=F, env=parent.frame())
 #' Set repository-wide options
 #'
 #' @param ... options to set
-#' @return if optional paramters are not passed, the current options
+#' @return if optional parameters are not passed, the current options
 #'     are returned
 
 repo_options <- function(...)

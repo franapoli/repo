@@ -7,7 +7,7 @@
 repo_lazydo(expr, force = F, env = parent.frame())
 }
 \arguments{
-\item{expr}{An object of class exrepssion (the code to run).}
+\item{expr}{An object of class expression (the code to run).}
 
 \item{force}{If TRUE, execute expr anyway}
 

@@ -34,13 +34,13 @@ default. See \code{build}.}
 \item{depends}{Character vector: items that depend on this
 item. Default is NULL.}
 
-\item{replace}{One of: V, F, "addversion" to define behaviour when
+\item{replace}{One of: V, F, "addversion" to define behavior when
 an item by the same name exists. If V, overwrite it. If F stop
 with an error. If "addversion" the new item is stored as a new
 version and the old item is renamed by appending a "#N"
 suffix. Default is F.}
 
-\item{asattach}{Specifies that the item is to be trated as an
+\item{asattach}{Specifies that the item is to be treated as an
 attachment (see attach). Default is F.}
 
 \item{to}{Vector of character. Specifies which item this item is
@@ -49,8 +49,8 @@ attached to. Default is NULL.}
 \item{addversion}{Deprecated, use the \code{replace} parameter
 instead.}
 
-\item{URL}{Remote URL where the \code{pull} function expets to
-download actual item data from. Dafault is NULL.}
+\item{URL}{Remote URL where the \code{pull} function expects to
+download actual item data from. Default is NULL.}
 
 \item{checkRelations}{Check if items referenced by this item
 exist. Default is T.}
