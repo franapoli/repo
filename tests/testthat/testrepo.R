@@ -263,14 +263,13 @@ message(paste("File", SRCNAME, "created:", file.exists(SRCNAME)))
 eval(parse(text=srccode))
 
 
-test_that("test source correctly loaded", {
-    expect_equal(x, 1)
-    expect_equal(y, 2)
-    expect_equal(z, 3)
-    expect_equal(rp$get("i1"), 1)
-    expect_equal(rp$get("i2"), 2)
-    expect_equal(rp$get("i3"), 3)
-})
+expect_equal(x, 1)
+expect_equal(y, 2)
+expect_equal(z, 3)
+expect_equal(rp$get("i1"), 1)
+expect_equal(rp$get("i2"), 2)
+expect_equal(rp$get("i3"), 3)
+
 
 
 ## overwriting objs in workspace and repo:
@@ -293,8 +292,29 @@ test_that("obj and dependencies build", {
 })
 
 
-wipe_test_repo("temp")
+context("file naming convention")
+rp$put(1,"com1") ## reserved windows name
+rp$put(2,"com2")
+rp$put(3,"com3")
 
+expect_equal(rp$get("com1"), 1)
+expect_equal(rp$get("com2"), 2)
+expect_equal(rp$get("com3"), 3)
+
+expect_equal(rp$attr("com1", "path"), file.path(rp$root(), "_", "_"))
+expect_equal(rp$attr("com2", "path"), file.path(rp$root(), "_", "_1"))
+expect_equal(rp$attr("com3", "path"), file.path(rp$root(), "_", "_2"))
+
+nm <- "item\\name\ndirty"
+rp$put("x", nm)
+expect_equal(rp$get(nm), "x")
+expect_equal(rp$attr(nm, "path"), file.path(rp$root(), "i", "item_name_dirty"))
+
+rp$put(1,"com3")
+
+
+
+wipe_test_repo("temp")
 
 
 

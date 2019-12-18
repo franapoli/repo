@@ -521,7 +521,10 @@ help(repo_func)
 
 
 ```{r, include=F}
-unlink(rp$root(), recursive=T)
+## cleaning the tempdir causes CRAN checks to fail on some platforms,
+## so it is now left behind
+##
+## unlink(rp$root(), recursive=T)
 ```
 
 <hr/><small><i>Based on Repo build  `r packageVersion("repo")`</i></small>

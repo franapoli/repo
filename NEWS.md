@@ -1,6 +1,22 @@
 
 # News
 
+Dev 18, 2019, v2.1.4
+
++ Completely renewd naming convention for the stored files. This
+  change is transparent to the user and will not affect previous
+  code. Also existing repositories can be used with this new version
+  (previous files will be left untouched, new ones will follow the new
+  convention). But now the directory tree of the repository has been
+  greatly simplified and is human readable. Each item is stored 1
+  level (as opposed to 3) under the repo root and using a sanitized
+  version of the item name (as opposed to a random string). Possible
+  name collisions are avoided by appending a progressive number. Item
+  name is still stored as is in the repository (and will still collide
+  with previously stored items by the same name as expected).
+  
++ fix in the vignette to pass CRAN checks on some platforms
+
 Dec 3, 2018, v2.1.3.1
 
 + `repo_get` now allows to suppress name suggestions for faster serach

@@ -2,3 +2,5 @@
 ^\.travis\.yml$
 ^Rmd$
 ^hooks$
+^doc$
+^Meta$

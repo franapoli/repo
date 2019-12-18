@@ -9,6 +9,7 @@ output: github_document
 [![](http://cranlogs.r-pkg.org/badges/repo)](https://cran.r-project.org/package=repo)
 <sup><sub>Master branch:</sub></sup> [![Travis-CI Build Status](https://travis-ci.org/franapoli/repo.svg?branch=master)](https://travis-ci.org/franapoli/repo)
 <sup><sub>Dev branch:</sub></sup> [![Travis-CI Build Status](https://travis-ci.org/franapoli/repo.svg?branch=dev)](https://travis-ci.org/franapoli/repo)
+<sup><sub>Untested branch:</sub></sup> [![Travis-CI Build Status](https://travis-ci.org/franapoli/repo.svg?branch=untested)](https://travis-ci.org/franapoli/repo)
 <!-- Grab your social icons from https://github.com/carlsednaoui/gitsocial -->
 [1.2]: http://i.imgur.com/wWzX9uB.png (me on Twitter)
 [1]: http://www.twitter.com/franapoli
@@ -84,21 +85,21 @@ Repository contents:
 
 ```r
     print(rp)
-#>              ID Dims Size
-#>             God    1 42 B
-#>            user    1 40 B
-#>  The Pi costant    1 45 B
-#>               r   10 60 B
-#>       diameters   10 65 B
-#>  circumferences   10 94 B
-#>           areas   10 93 B
+#>              ID Dims  Size
+#>             God    1  51 B
+#>            user    1  49 B
+#>  The Pi costant    1  55 B
+#>               r   10  99 B
+#>       diameters   10  75 B
+#>  circumferences   10 103 B
+#>           areas   10 103 B
 ```
 
 ```r
     rp$info()
-#> Root:            /tmp/RtmpIjPq16/kZJJAjPdwgCB 
+#> Root:            /tmp/RtmpuWggyW/zW79im0Pc1xO 
 #> Number of items: 7 
-#> Total size:      439 B
+#> Total size:      535 B
 ```
 
 ```r
@@ -107,12 +108,12 @@ Repository contents:
 #> Description:  This are the areas
 #> Tags:         
 #> Dimensions:   10
-#> Timestamp:    2017-08-04 15:40:03
-#> Size on disk: 93 B
+#> Timestamp:    2019-12-18 16:20:56
+#> Size on disk: 103 B
 #> Provenance:   
 #> Attached to:  -
-#> Stored in:    sk/nr/zy/sknrzyen718nms80t89timt6fyrc2zvx
-#> MD5 checksum: 65b946a5ffd6d1a63572e1ccfe3a9e08
+#> Stored in:    o7/bu/g5/o7bug58bbc1n94cnrgsb7ozc5b4txe1s
+#> MD5 checksum: 56ad410055fedb0cae012d813a130291
 #> URL:          -
 ```
 
@@ -131,12 +132,11 @@ Visualizing dependencies:
 + [Master](https://github.com/franapoli/repo/tree/master): stable major
 releases, usually in sync with lastest CRAN version.
 
-+ [Dev](https://github.com/franapoli/repo/tree/dev): fairly stable
-minor releases.
++ [Dev](https://github.com/franapoli/repo/tree/dev): minor releases
+passing automatic checks.
 
-+ [Untested](https://github.com/franapoli/repo/tree/untested):
-unstable, in progress versions. Latest news appear in the "NEWS.md"
-file of this branch.
++ [Untested](https://github.com/franapoli/repo/tree/untested): in
+progress versions and prototype code, not necessarily working.
 
 
 ## Manuals
@@ -156,15 +156,13 @@ Repo is on CRAN and can be installed from within R as follows:
 
     > install.packages("repo")
     
-However, CRAN versions are not updated very often. Latest stable
-release can be downloaded from Github at
+Latest stable release can be downloaded from Github at
 [https://github.com/franapoli/repo](https://www.github.com/franapoli/repo/).
 Repo can then be installed from the downloaded sources as follows:
 
     > install.packages("path-to-downloaded-source", repos=NULL)
 
-`devtools` users can download and install at once the latest development
-version from github as follows:
+`devtools` users can install directly from github as follows:
 
     > install_github("franapoli/repo", ref="dev")
 

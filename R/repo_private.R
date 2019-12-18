@@ -510,16 +510,45 @@ getSource <- function(name)
         }
 
 
+
     ## **
     ## this is now only used by storeData, neads cleaning
     buildpath <- function(resname)
+    {
+        ## this utility function is taken from the fs pakage by Jim Hester
+        path_sanitize <- function (filename, replacement = "_") 
         {
-            resname <- paste0(sample(c(0:9,letters), 32, T),collapse="")
-            return(list(root,
-                        substr(resname, 1, 2),
-                        substr(resname, 3, 4),
-                        substr(resname, 5, 6),
-                        resname))
+            illegal <- "[/\\?<>\\:*|\":]"
+            control <- "[[:cntrl:]]"
+            reserved <- "^[.]+$"
+            windows_reserved <- "^(con|prn|aux|nul|com[0-9]|lpt[0-9])([.].*)?$"
+            windows_trailing <- "[. ]+$"
+            filename <- gsub(illegal, replacement, filename)
+            filename <- gsub(control, replacement, filename)
+            filename <- gsub(reserved, replacement, filename)
+            filename <- gsub(windows_reserved, replacement, filename, 
+                             ignore.case = TRUE)
+            filename <- gsub(windows_trailing, replacement, filename)
+            filename <- substr(filename, 1, 255)
+            if (replacement == "") {
+                return(filename)
+            }
+            path_sanitize(filename, "")
+        }
+
+        resname <- path_sanitize(resname)
+        path <- file.path(root, substr(resname, 1 ,1), resname)
+
+        if(file.exists(path)) {
+            i <- 1
+            while(file.exists(paste0(path, i)))
+                i <- 1+1
+            resname <- paste0(resname, i)
+        }
+        
+        return(list(root,
+                    substr(resname, 1, 1),
+                    resname))
         }
 
     ## check if an item name already exists
@@ -562,14 +591,10 @@ getSource <- function(name)
 
     ## stores data in RDS format or copies it if it's an attachment
     storeData <- function(name, obj, attach=F)
-        {
+    {
             opath <- buildpath(name)
             if(!file.exists(do.call(file.path, opath[1:2])))
                 dir.create(do.call(file.path, opath[1:2]))
-            if(!file.exists(do.call(file.path, opath[1:3])))
-                dir.create(do.call(file.path, opath[1:3]))
-            if(!file.exists(do.call(file.path, opath[1:4])))
-                dir.create(do.call(file.path, opath[1:4]))
 
             fpath <- do.call(file.path, opath)
 
