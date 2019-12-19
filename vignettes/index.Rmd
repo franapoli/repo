@@ -335,7 +335,7 @@ rp$load("myiris")
 "myiris" %in% ls()
 ```
 
-The `info` command can provide addtional information about an entry:
+The `info` command can provide additional information about an entry:
 
 
 ```{r}
@@ -351,14 +351,14 @@ repository:
 * Overwrite an existing object (`rp$put(replace=T)`)
 * Add a new version of an existing object (`rp$put(replace="addversion")`)
 
-Plus, item contents for an existing entry can be dowloaded if an URL
+Plus, item contents for an existing entry can be downloaded if an URL
 is provided with it (`rp$pull`).
 
 ### Versioning
 
 The K-means algorithm will likely provide different solutions over
 multiple runs. Alternative solutions can be stored as new versions of
-the `iris_5clu` item as fllows:
+the `iris_5clu` item as follows:
 
 
 ```{r}
@@ -456,7 +456,7 @@ print(rp$get("item1"))
 The `handlers` method returns a list of functions by the same names of
 the items in the repo. Each of these functions can call Repo methods
 (`get` by default) on the corresponding items. In this way all item
-names are loaded, which may be usefule for example to exploit
+names are loaded, which may be useful for example to exploit
 auto-completion features of the editor.
 
 

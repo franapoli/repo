@@ -19,7 +19,7 @@ Dev 18, 2019, v2.1.4
 
 Dec 3, 2018, v2.1.3.1
 
-+ `repo_get` now allows to suppress name suggestions for faster serach
++ `repo_get` now allows to suppress name suggestions for faster search
   in large repositories.
 
 May 4, 2018, v2.1.3
@@ -183,7 +183,7 @@ related to an input item.
 additional parameters (...) to pass to `graphics:pie` and
 `igraph:plot` respectively. `pies` now merges together all items with
 size < 5% of the total. `dependencies` now supports tags to filter
-nodes to be showed. Also missing documentation for `pies` has ben
+nodes to be showed. Also missing documentation for `pies` has been
 added.
 
 
@@ -231,7 +231,7 @@ code). Documentation updated accordingly.
 
 01/04/2016
 
-+ Bugfixes in lazydo
++ Bug fixes in lazydo
 
 + Minor additions to docs
 
