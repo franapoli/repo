@@ -9,7 +9,7 @@ human accessible.
 ## Test environments
 * Ubuntu 19.04
 * Travis Ci
-* devtools (check_on_debian, check_on_windows, release)
+* devtools (check_on_debian, check_on_windows, check_rhub)
 
 ## R CMD check results
 There were no ERRORs, WARNINGs or NOTEs
