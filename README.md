@@ -88,7 +88,7 @@ print(rp)
 
 ```r
 rp$info()
-#> Root:            /tmp/RtmpdfvsAV 
+#> Root:            /tmp/RtmpB7SDue 
 #> Number of items: 7 
 #> Total size:      535 B
 ```
@@ -99,11 +99,11 @@ rp$info("areas")
 #> Description:  These are the areas
 #> Tags:         
 #> Dimensions:   10
-#> Timestamp:    2019-12-22 16:32:17
+#> Timestamp:    2019-12-22 16:37:46
 #> Size on disk: 103 B
 #> Provenance:   
 #> Attached to:  -
-#> Stored in:    a/areas
+#> Stored in:    /tmp/RtmpB7SDue/a/areas
 #> MD5 checksum: 56ad410055fedb0cae012d813a130291
 #> URL:          -
 ```
