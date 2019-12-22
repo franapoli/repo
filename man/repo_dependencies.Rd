@@ -4,8 +4,8 @@
 \alias{repo_dependencies}
 \title{Build and/or plots a dependency graph}
 \usage{
-repo_dependencies(tags = NULL, tagfun = "OR", depends = T, attached = T,
-  generated = T, plot = T, ...)
+repo_dependencies(tags = NULL, tagfun = "OR", depends = T,
+  attached = T, generated = T, plot = T, ...)
 }
 \arguments{
 \item{tags}{Only show nodes matching tags}

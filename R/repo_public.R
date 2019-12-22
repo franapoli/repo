@@ -674,9 +674,9 @@ repo_info <- function(name = NULL, tags = NULL)
                       paste(entries[[e]]$dims, collapse="x"),
                       as.character(entries[[e]]$timestamp),
                       hmnRead(entries[[e]]$size),
-                      paste(entries[[e]]$source, collapse=", "),
-                      att, entries[[e]]$dump, entries[[e]]
-                      $checksum, url)
+                      paste(entries[[e]]$source, collapse=", "), att,
+                      file.path(get("root",thisEnv), entries[[e]]$dump),
+                      entries[[e]] $checksum, url)
             cat(paste0(format(labels, width=maxlen+1), vals, "\n"), sep="")
             cat("\n")
         }

@@ -5,8 +5,8 @@
 \title{Edit an existing item.}
 \usage{
 repo_set(name, obj = NULL, newname = NULL, description = NULL,
-  tags = NULL, prj = NULL, src = NULL, chunk = NULL, depends = NULL,
-  addtags = NULL, URL = NULL, buildURL = NULL)
+  tags = NULL, prj = NULL, src = NULL, chunk = NULL,
+  depends = NULL, addtags = NULL, URL = NULL, buildURL = NULL)
 }
 \arguments{
 \item{name}{An item name.}

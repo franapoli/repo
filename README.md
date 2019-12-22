@@ -1,19 +1,13 @@
 ---
 output: github_document
+
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 
+[![](http://www.r-pkg.org/badges/version/repo)](https://cran.r-project.org/package=repo) <sup><sub>Master: </sub></sup>[![Travis-CI Build Status](https://travis-ci.org/franapoli/repo.svg?branch=master)](https://travis-ci.org/franapoli/repo) <sup><sub>Dev: </sub></sup>[![Travis-CI Build Status](https://travis-ci.org/franapoli/repo.svg?branch=dev)](https://travis-ci.org/franapoli/repo)
 
-[![](http://cranlogs.r-pkg.org/badges/repo)](https://cran.r-project.org/package=repo)
-<sup><sub>Master branch:</sub></sup> [![Travis-CI Build Status](https://travis-ci.org/franapoli/repo.svg?branch=master)](https://travis-ci.org/franapoli/repo)
-<sup><sub>Dev branch:</sub></sup> [![Travis-CI Build Status](https://travis-ci.org/franapoli/repo.svg?branch=dev)](https://travis-ci.org/franapoli/repo)
-<sup><sub>Untested branch:</sub></sup> [![Travis-CI Build Status](https://travis-ci.org/franapoli/repo.svg?branch=untested)](https://travis-ci.org/franapoli/repo)
-<!-- Grab your social icons from https://github.com/carlsednaoui/gitsocial -->
-[1.2]: http://i.imgur.com/wWzX9uB.png (me on Twitter)
-[1]: http://www.twitter.com/franapoli
-<!-- Grab your social icons from https://github.com/carlsednaoui/gitsocial -->
 
 ## Repo
 
@@ -27,64 +21,61 @@ Bioinformatics.
 
 Latest news are found in the NEWS.md file of the "Untested" branch.
 
-Repo is developed by Francesco Napolitano [![alt text][1.2]][1]
-
 
 ## Minimal example
 
-Repository creation in the default folder:
+Creating a dummy repository under the R temporary folder (skipping
+confirmation):
 
 
 ```r
-    library(repo)
-    rp <- repo_open()
+library(repo)
+rp <- repo_open(tempdir(), force=T)
+#> Repo created.
 ```
 
-
-
-
-Putting some stuff (it is saved on permanent storage). In this case,
-just values and names are specified:
+Storing data. In this case, just item values and names are specified:
 
 
 ```r
-    rp$put(Inf, "God")
-    rp$put(0, "user")
+God <- Inf
+rp$put(God)          ## item name inferred from variable name
+rp$put(0, "user")    ## item name specified
 ```
 
-Putting specifying dependencies:
+More data with specified dependencies:
 
 
 ```r
-    rp$put(pi, "The Pi costant", depends="God")
-    rp$put(1:10, "r", depends="user")
+rp$put(pi, "The Pi costant", depends="God")
+rp$put(1:10, "r", depends="user")
 ```
 
-Getting stuff from the repository on the fly:
+Loading items from the repository on the fly using names:
 
 
 ```r
-    diam <- 2 * rp$get("r")
-    circum <- 2 * rp$get("The Pi costant") * rp$get("r")
-    area <- rp$get("The Pi costant") * rp$get("r") ^ 2
+diam <- 2 * rp$get("r")
+circum <- 2 * rp$get("The Pi costant") * rp$get("r")
+area <- rp$get("The Pi costant") * rp$get("r") ^ 2
 ```
 
-Putting with verbose descriptions:
+Storing more data with verbose descriptions:
 
 
 ```r
-    rp$put(diam, "diameters", "These are the diameters", depends = "r")
-    rp$put(circum, "circumferences", "These are the circumferences",
-           depends = c("The Pi costant", "r"))
-    rp$put(area, "areas", "This are the areas",
-           depends = c("The Pi costant", "r"))
+rp$put(diam, "diameters", "These are the diameters", depends = "r")
+rp$put(circum, "circumferences", "These are the circumferences",
+       depends = c("The Pi costant", "r"))
+rp$put(area, "areas", "These are the areas",
+       depends = c("The Pi costant", "r"))
 ```
 
-Repository contents:
+Showing repository contents:
 
 
 ```r
-    print(rp)
+print(rp)
 #>              ID Dims  Size
 #>             God    1  51 B
 #>            user    1  49 B
@@ -96,23 +87,23 @@ Repository contents:
 ```
 
 ```r
-    rp$info()
-#> Root:            /tmp/RtmpuWggyW/zW79im0Pc1xO 
+rp$info()
+#> Root:            /tmp/RtmpdfvsAV 
 #> Number of items: 7 
 #> Total size:      535 B
 ```
 
 ```r
-    rp$info("areas")
+rp$info("areas")
 #> ID:           areas
-#> Description:  This are the areas
+#> Description:  These are the areas
 #> Tags:         
 #> Dimensions:   10
-#> Timestamp:    2019-12-18 16:20:56
+#> Timestamp:    2019-12-22 16:32:17
 #> Size on disk: 103 B
 #> Provenance:   
 #> Attached to:  -
-#> Stored in:    o7/bu/g5/o7bug58bbc1n94cnrgsb7ozc5b4txe1s
+#> Stored in:    a/areas
 #> MD5 checksum: 56ad410055fedb0cae012d813a130291
 #> URL:          -
 ```
@@ -121,11 +112,19 @@ Visualizing dependencies:
 
 
 ```r
-    rp$dependencies()
+rp$dependencies()
 ```
 
 ![plot of chunk depgraph](inst/README-depgraph-1.png)
 
+Manual acces to stored data:
+
+
+```r
+fpath <- rp$attr("r", "path")
+readRDS(fpath)
+#>  [1]  1  2  3  4  5  6  7  8  9 10
+```
 
 ## Development branches
 

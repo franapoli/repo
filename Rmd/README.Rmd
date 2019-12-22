@@ -1,5 +1,6 @@
 ---
 output: github_document
+
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -11,15 +12,8 @@ knitr::opts_chunk$set(
   fig.path = "inst/README-"
 )
 ```
+[![](http://www.r-pkg.org/badges/version/repo)](https://cran.r-project.org/package=repo) <sup><sub>Master: </sub></sup>[![Travis-CI Build Status](https://travis-ci.org/franapoli/repo.svg?branch=master)](https://travis-ci.org/franapoli/repo) <sup><sub>Dev: </sub></sup>[![Travis-CI Build Status](https://travis-ci.org/franapoli/repo.svg?branch=dev)](https://travis-ci.org/franapoli/repo)
 
-[![](http://cranlogs.r-pkg.org/badges/repo)](https://cran.r-project.org/package=repo)
-<sup><sub>Master branch:</sub></sup> [![Travis-CI Build Status](https://travis-ci.org/franapoli/repo.svg?branch=master)](https://travis-ci.org/franapoli/repo)
-<sup><sub>Dev branch:</sub></sup> [![Travis-CI Build Status](https://travis-ci.org/franapoli/repo.svg?branch=dev)](https://travis-ci.org/franapoli/repo)
-<sup><sub>Untested branch:</sub></sup> [![Travis-CI Build Status](https://travis-ci.org/franapoli/repo.svg?branch=untested)](https://travis-ci.org/franapoli/repo)
-<!-- Grab your social icons from https://github.com/carlsednaoui/gitsocial -->
-[1.2]: http://i.imgur.com/wWzX9uB.png (me on Twitter)
-[1]: http://www.twitter.com/franapoli
-<!-- Grab your social icons from https://github.com/carlsednaoui/gitsocial -->
 
 ## Repo
 
@@ -33,77 +27,74 @@ Bioinformatics.
 
 Latest news are found in the NEWS.md file of the "Untested" branch.
 
-Repo is developed by Francesco Napolitano [![alt text][1.2]][1]
-
 
 ## Minimal example
 
-Repository creation in the default folder:
+Creating a dummy repository under the R temporary folder (skipping
+confirmation):
 
-```{r, eval=F}
-    library(repo)
-    rp <- repo_open()
+```{r}
+library(repo)
+rp <- repo_open(tempdir(), force=T)
 ```
 
-```{r, eval=T, include=F}
-    library(repo)
-    subdir <- paste(sample(c(LETTERS, letters, as.character(0:9)), 12, T), collapse="")
-    tsubdir <- file.path(tempdir(), subdir)
-    rp <- repo_open(tsubdir, T)
+Storing data. In this case, just item values and names are specified:
+
+```{r}
+God <- Inf
+rp$put(God)          ## item name inferred from variable name
+rp$put(0, "user")    ## item name specified
 ```
 
-
-Putting some stuff (it is saved on permanent storage). In this case,
-just values and names are specified:
+More data with specified dependencies:
 
 ```{r}
-    rp$put(Inf, "God")
-    rp$put(0, "user")
-```    
-
-Putting specifying dependencies:
-
-```{r}
-    rp$put(pi, "The Pi costant", depends="God")
-    rp$put(1:10, "r", depends="user")
+rp$put(pi, "The Pi costant", depends="God")
+rp$put(1:10, "r", depends="user")
 ```
 
-Getting stuff from the repository on the fly:
+Loading items from the repository on the fly using names:
 
 ```{r}
-    diam <- 2 * rp$get("r")
-    circum <- 2 * rp$get("The Pi costant") * rp$get("r")
-    area <- rp$get("The Pi costant") * rp$get("r") ^ 2
-```    
-
-Putting with verbose descriptions:
-
-```{r}
-    rp$put(diam, "diameters", "These are the diameters", depends = "r")
-    rp$put(circum, "circumferences", "These are the circumferences",
-           depends = c("The Pi costant", "r"))
-    rp$put(area, "areas", "This are the areas",
-           depends = c("The Pi costant", "r"))
+diam <- 2 * rp$get("r")
+circum <- 2 * rp$get("The Pi costant") * rp$get("r")
+area <- rp$get("The Pi costant") * rp$get("r") ^ 2
 ```
 
-Repository contents:
+Storing more data with verbose descriptions:
 
 ```{r}
-    print(rp)
+rp$put(diam, "diameters", "These are the diameters", depends = "r")
+rp$put(circum, "circumferences", "These are the circumferences",
+       depends = c("The Pi costant", "r"))
+rp$put(area, "areas", "These are the areas",
+       depends = c("The Pi costant", "r"))
+```
+
+Showing repository contents:
+
+```{r}
+print(rp)
 ```
 ```{r}
-    rp$info()
+rp$info()
 ```
 ```{r}
-    rp$info("areas")
+rp$info("areas")
 ```
 
 Visualizing dependencies:
 
 ```{r, depgraph}
-    rp$dependencies()
-```    
+rp$dependencies()
+```
 
+Manual acces to stored data:
+
+```{r}
+fpath <- rp$attr("r", "path")
+readRDS(fpath)
+```
 
 ## Development branches
 

@@ -1,7 +1,12 @@
 
 # News
 
-Dev 18, 2019, v2.1.4
+Dec 22, 2019, v2.1.4.1
+
++ Now `repo_info` shows full paths.
++ Updated Readme
+
+Dec 18, 2019, v2.1.4
 
 + Completely renewd naming convention for the stored files. This
   change is transparent to the user and will not affect previous
