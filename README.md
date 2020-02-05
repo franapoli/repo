@@ -1,13 +1,11 @@
----
-output: github_document
-
----
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-
-[![](http://www.r-pkg.org/badges/version/repo)](https://cran.r-project.org/package=repo) <sup><sub>Master: </sub></sup>[![Travis-CI Build Status](https://travis-ci.org/franapoli/repo.svg?branch=master)](https://travis-ci.org/franapoli/repo) <sup><sub>Dev: </sub></sup>[![Travis-CI Build Status](https://travis-ci.org/franapoli/repo.svg?branch=dev)](https://travis-ci.org/franapoli/repo)
-
+[![](http://www.r-pkg.org/badges/version/repo)](https://cran.r-project.org/package=repo)
+<sup><sub>Master: </sub></sup>[![Travis-CI Build
+Status](https://travis-ci.org/franapoli/repo.svg?branch=master)](https://travis-ci.org/franapoli/repo)
+<sup><sub>Dev: </sub></sup>[![Travis-CI Build
+Status](https://travis-ci.org/franapoli/repo.svg?branch=dev)](https://travis-ci.org/franapoli/repo)
 
 ## Repo
 
@@ -19,16 +17,14 @@ easily located and loaded through the repo interface.
 A [paper about Repo](http://rdcu.be/pklt) has been published in BMC
 Bioinformatics.
 
-Latest news are found in the NEWS.md file of the "Untested" branch.
-
+Latest news are found in the NEWS.md file of the “Untested” branch.
 
 ## Minimal example
 
 Creating a dummy repository under the R temporary folder (skipping
 confirmation):
 
-
-```r
+``` r
 library(repo)
 rp <- repo_open(tempdir(), force=T)
 #> Repo created.
@@ -36,8 +32,7 @@ rp <- repo_open(tempdir(), force=T)
 
 Storing data. In this case, just item values and names are specified:
 
-
-```r
+``` r
 God <- Inf
 rp$put(God)          ## item name inferred from variable name
 rp$put(0, "user")    ## item name specified
@@ -45,16 +40,14 @@ rp$put(0, "user")    ## item name specified
 
 More data with specified dependencies:
 
-
-```r
+``` r
 rp$put(pi, "The Pi costant", depends="God")
 rp$put(1:10, "r", depends="user")
 ```
 
 Loading items from the repository on the fly using names:
 
-
-```r
+``` r
 diam <- 2 * rp$get("r")
 circum <- 2 * rp$get("The Pi costant") * rp$get("r")
 area <- rp$get("The Pi costant") * rp$get("r") ^ 2
@@ -62,8 +55,7 @@ area <- rp$get("The Pi costant") * rp$get("r") ^ 2
 
 Storing more data with verbose descriptions:
 
-
-```r
+``` r
 rp$put(diam, "diameters", "These are the diameters", depends = "r")
 rp$put(circum, "circumferences", "These are the circumferences",
        depends = c("The Pi costant", "r"))
@@ -73,8 +65,7 @@ rp$put(area, "areas", "These are the areas",
 
 Showing repository contents:
 
-
-```r
+``` r
 print(rp)
 #>              ID Dims  Size
 #>             God    1  51 B
@@ -86,14 +77,14 @@ print(rp)
 #>           areas   10 103 B
 ```
 
-```r
+``` r
 rp$info()
 #> Root:            /tmp/RtmppFMwnb 
 #> Number of items: 7 
 #> Total size:      535 B
 ```
 
-```r
+``` r
 rp$info("areas")
 #> ID:           areas
 #> Description:  These are the areas
@@ -110,8 +101,7 @@ rp$info("areas")
 
 Visualizing dependencies:
 
-
-```r
+``` r
 rp$dependencies()
 ```
 
@@ -119,8 +109,7 @@ rp$dependencies()
 
 Manual acces to stored data:
 
-
-```r
+``` r
 fpath <- rp$attr("r", "path")
 readRDS(fpath)
 #>  [1]  1  2  3  4  5  6  7  8  9 10
@@ -128,49 +117,43 @@ readRDS(fpath)
 
 ## Development branches
 
-+ [Master](https://github.com/franapoli/repo/tree/master): stable major
-releases, usually in sync with lastest CRAN version.
+  - [Master](https://github.com/franapoli/repo/tree/master): stable
+    major releases, usually in sync with lastest CRAN version.
 
-+ [Dev](https://github.com/franapoli/repo/tree/dev): minor releases
-passing automatic checks.
+  - [Dev](https://github.com/franapoli/repo/tree/dev): minor releases
+    passing automatic checks.
 
-+ [Untested](https://github.com/franapoli/repo/tree/untested): in
-progress versions and prototype code, not necessarily working.
-
+  - [Untested](https://github.com/franapoli/repo/tree/untested): in
+    progress versions and prototype code, not necessarily working.
 
 ## Manuals
 
 Besides inline help, two documents are available as introductory
 material:
 
-+ [A paper published on BMC Bioinformatics](http://rdcu.be/pklt)
+  - [A paper published on BMC Bioinformatics](http://rdcu.be/pklt)
 
-+ [An introductory
-vignette](https://rawgit.com/franapoli/repo/gh-pages/index.html).
-
+  - [An introductory
+    vignette](https://rawgit.com/franapoli/repo/gh-pages/index.html).
 
 ## Download and Installation
 
 Repo is on CRAN and can be installed from within R as follows:
 
-
-```r
+``` r
 install.packages("repo")
 ```
-    
+
 Latest stable release can be downloaded from Github at
 [https://github.com/franapoli/repo](https://www.github.com/franapoli/repo/).
 Repo can then be installed from the downloaded sources as follows:
 
-
-```r
+``` r
 install.packages("path-to-downloaded-source", repos=NULL)
 ```
 
 `devtools` users can install Repo directly from github as follows:
 
-
-```r
+``` r
 install_github("franapoli/repo", ref="dev")
 ```
-
