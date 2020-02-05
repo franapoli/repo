@@ -4,8 +4,14 @@
 \alias{repo_build}
 \title{Builds a resource using the associated code chunk}
 \usage{
-repo_build(name, src = NULL, recursive = T, force = F,
-  env = parent.frame(), built = list())
+repo_build(
+  name,
+  src = NULL,
+  recursive = T,
+  force = F,
+  env = parent.frame(),
+  built = list()
+)
 }
 \arguments{
 \item{name}{Name of an item in the repo.}

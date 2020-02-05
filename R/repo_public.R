@@ -490,7 +490,6 @@ print.repo <- function(x, tags=NULL, tagfun="OR",
 #' @param find Character to match any filed (see Details).
 #' @param all Show also items tagged with "hide".
 #' @param show Select columns to show.
-#' @param ... Further arguments passed to or from other methods
 #' @return Used for side effects.
 #' @details The \code{tagfun} param specifies how to combine multiple
 #' tags when matching items. It can be either a character or a

@@ -1,15 +1,26 @@
 
-This fixes a problem with compiling the vignette. I was explictly
-creating a randomfolder, than removing it at the end. This version
-does not remove it anymore.
+This responds to the following email:
 
-This update also includes a new feature that makes stored data more
-human accessible.
+> Please see the problems shown on
+> <https://cran.r-project.org/web/checks/check_results_repo.html>.
+> 
+> Specifically, see the warnings about 'Documented arguments not in
+> \usage' in the r-devel checks.  These are from a recent bug fix
+> (PR#16223, see
+> <https://bugs.r-project.org/bugzilla/show_bug.cgi?id=16223>): can
+> you please fix your man pages as necessary?  (In most cases, remove
+> the documentation for argument '...'.)
+> 
+> Please correct before 2020-02-17 to safely retain your package on
+> CRAN.
+
+I just implemented the suggestion.
 
 ## Test environments
 * Ubuntu 19.04
 * Travis Ci
-* devtools (check_on_debian, check_on_windows, check_rhub)
+* devtools (check_win_devel)
+* rhub (debian-gcc-devel)
 
 ## R CMD check results
 There were no ERRORs, WARNINGs or NOTEs

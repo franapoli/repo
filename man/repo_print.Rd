@@ -4,8 +4,7 @@
 \alias{repo_print}
 \title{Show a summary of the repository contents.}
 \usage{
-repo_print(tags = NULL, tagfun = "OR", find = NULL, all = F,
-  show = "ds")
+repo_print(tags = NULL, tagfun = "OR", find = NULL, all = F, show = "ds")
 }
 \arguments{
 \item{tags}{A list of character tags. Only items matching all the
@@ -18,8 +17,6 @@ tags will be shown.}
 \item{all}{Show also items tagged with "hide".}
 
 \item{show}{Select columns to show.}
-
-\item{...}{Further arguments passed to or from other methods}
 }
 \value{
 Used for side effects.
