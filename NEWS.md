@@ -1,6 +1,10 @@
 
 # News
 
+Feb 5, 2020, v2.1.5
+
++ fixed minor documentation bug as asked by CRAN
+
 Dec 22, 2019, v2.1.4.1
 
 + Now `repo_info` shows full paths.
