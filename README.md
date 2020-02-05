@@ -88,7 +88,7 @@ print(rp)
 
 ```r
 rp$info()
-#> Root:            /tmp/RtmpB7SDue 
+#> Root:            /tmp/RtmppFMwnb 
 #> Number of items: 7 
 #> Total size:      535 B
 ```
@@ -99,11 +99,11 @@ rp$info("areas")
 #> Description:  These are the areas
 #> Tags:         
 #> Dimensions:   10
-#> Timestamp:    2019-12-22 16:37:46
+#> Timestamp:    2019-12-22 17:01:45
 #> Size on disk: 103 B
 #> Provenance:   
 #> Attached to:  -
-#> Stored in:    /tmp/RtmpB7SDue/a/areas
+#> Stored in:    /tmp/RtmppFMwnb/a/areas
 #> MD5 checksum: 56ad410055fedb0cae012d813a130291
 #> URL:          -
 ```
@@ -153,16 +153,24 @@ vignette](https://rawgit.com/franapoli/repo/gh-pages/index.html).
 
 Repo is on CRAN and can be installed from within R as follows:
 
-    > install.packages("repo")
+
+```r
+install.packages("repo")
+```
     
 Latest stable release can be downloaded from Github at
 [https://github.com/franapoli/repo](https://www.github.com/franapoli/repo/).
 Repo can then be installed from the downloaded sources as follows:
 
-    > install.packages("path-to-downloaded-source", repos=NULL)
 
-`devtools` users can install directly from github as follows:
+```r
+install.packages("path-to-downloaded-source", repos=NULL)
+```
 
-    > install_github("franapoli/repo", ref="dev")
+`devtools` users can install Repo directly from github as follows:
 
+
+```r
+install_github("franapoli/repo", ref="dev")
+```
 

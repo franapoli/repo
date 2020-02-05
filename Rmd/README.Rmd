@@ -123,16 +123,21 @@ vignette](https://rawgit.com/franapoli/repo/gh-pages/index.html).
 
 Repo is on CRAN and can be installed from within R as follows:
 
-    > install.packages("repo")
+```{r, eval=F}
+install.packages("repo")
+```
     
 Latest stable release can be downloaded from Github at
 [https://github.com/franapoli/repo](https://www.github.com/franapoli/repo/).
 Repo can then be installed from the downloaded sources as follows:
 
-    > install.packages("path-to-downloaded-source", repos=NULL)
+```{r, eval=F}
+install.packages("path-to-downloaded-source", repos=NULL)
+```
 
-`devtools` users can install directly from github as follows:
+`devtools` users can install Repo directly from github as follows:
 
-    > install_github("franapoli/repo", ref="dev")
-
+```{r, eval=F}
+install_github("franapoli/repo", ref="dev")
+```
 
