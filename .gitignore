@@ -4,3 +4,5 @@ readme_example.md
 doc
 Meta
 .Rproj.user
+vignettes/index.R
+vignettes/index.html

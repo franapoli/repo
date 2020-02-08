@@ -118,7 +118,7 @@ readRDS(fpath)
 ## Development branches
 
   - [Master](https://github.com/franapoli/repo/tree/master): stable
-    major releases, usually in sync with lastest CRAN version.
+    major releases, usually in sync with the latest CRAN version.
 
   - [Dev](https://github.com/franapoli/repo/tree/dev): minor releases
     passing automatic checks.
