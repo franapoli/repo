@@ -1,6 +1,11 @@
 
 # News
 
+May 16, 2021, v2.1.6
+
++ fixed dependency issues as requested by CRAN
++ fixed reference DOI in description
+
 Feb 5, 2020, v2.1.5
 
 + fixed minor documentation bug as asked by CRAN

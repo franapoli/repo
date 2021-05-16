@@ -1,30 +1,19 @@
 
-This responds to the following email:
+This fixes rmarkdown/knitr dependency:
+https://github.com/yihui/knitr/issues/1864
 
-> Please see the problems shown on
-> <https://cran.r-project.org/web/checks/check_results_repo.html>.
-> 
-> Specifically, see the warnings about 'Documented arguments not in
-> \usage' in the r-devel checks.  These are from a recent bug fix
-> (PR#16223, see
-> <https://bugs.r-project.org/bugzilla/show_bug.cgi?id=16223>): can
-> you please fix your man pages as necessary?  (In most cases, remove
-> the documentation for argument '...'.)
-> 
-> Please correct before 2020-02-17 to safely retain your package on
-> CRAN.
-
-I just implemented the suggestion.
+Just added the following as suggested:
+Suggests: rmarkdown
+VignetteBuilder: knitr
 
 ## Test environments
-* Ubuntu 19.04
-* Travis Ci
-* devtools (check_win_devel)
-* rhub (debian-gcc-devel)
+* rhub (default platforms)
 
 ## R CMD check results
-There were no ERRORs, WARNINGs or NOTEs
+There were no ERRORs, WARNINGs. Ther was the following NOTE:
+* checking for future file timestamps ... NOTE
+unable to verify current time
 
 ## Downstream dependencies
-No downstream dependencies.
+gep2pep (also by me) is a rev dep, however repo's source is untouched
 
