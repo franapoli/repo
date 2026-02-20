@@ -11,14 +11,14 @@
 
 * fixed minor documentation bug as asked by CRAN
 
-# repo 2.1.4.1 (2019-12-22)
+# repo 2.1.5 (2019-12-22)
 
 * Now `repo_info` shows full paths.
 * Updated Readme
 
 # repo 2.1.4 (2019-12-18)
 
-* Completely renewd naming convention for the stored files. This
+* Completely renewed naming convention for the stored files. This
   change is transparent to the user and will not affect previous
   code. Also existing repositories can be used with this new version
   (previous files will be left untouched, new ones will follow the new

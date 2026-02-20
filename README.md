@@ -107,7 +107,7 @@ rp$dependencies()
 
 ![plot of chunk depgraph](inst/README-depgraph-1.png)
 
-Manual acces to stored data:
+Manual access to stored data:
 
 ``` r
 fpath <- rp$attr("r", "path")

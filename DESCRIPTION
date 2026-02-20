@@ -2,10 +2,14 @@ Encoding: UTF-8
 Package: repo
 Type: Package
 Title: A Data-Centered Data Flow Manager
-Version: 2.1.6.2
-Date: (2026-02-20
+Version: 2.1.5
+Date: 2026-02-20
 Author: Francesco Napolitano <franapoli@gmail.com>
 Maintainer: Francesco Napolitano <franapoli@gmail.com>
+Authors@R: person(given = "Francesco",
+                  family = "Napolitano",
+                  role = c("aut", "cre"),
+                  email = "franapoli@gmail.com")
 Description: A data manager meant to avoid manual storage/retrieval of
     data to/from the file system. It builds one (or more) centralized
     repository where R objects are stored with rich annotations,
