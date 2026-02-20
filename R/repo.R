@@ -23,11 +23,9 @@
 #'
 #' For a complete list of functions, use \code{library(help = "repo")}.
 #' 
-#' @docType package
-#' @name repo-package
 #' @author Francesco Napolitano \email{franapoli@@gmail.com}
-#' @aliases repo
-NULL
+#' @keywords internal
+"_PACKAGE"
 
 #' Open an existing repository or create a new one.
 #'

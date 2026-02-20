@@ -680,7 +680,7 @@ getSource <- function(name)
                    if(is.character(tagfun) && tagfun=="OR")
                        tagfun <- function(x, tags=tags)any(tags %in% x)
 
-                   if(class(tagfun)!="function")
+                   if (!is.function(tagfun))
                        stop("tagfun must be either a function or one of OR, AND, NOT")
 
                    w <- sapply(tagsets, tagfun, tags)

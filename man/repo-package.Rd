@@ -2,11 +2,11 @@
 % Please edit documentation in R/repo.R
 \docType{package}
 \name{repo-package}
-\alias{repo-package}
 \alias{repo}
+\alias{repo-package}
 \title{Repo: The Data-centered Data Flow Manager}
 \description{
-Repo: The Data-centered Data Flow Manager
+A data manager meant to avoid manual storage/retrieval of data to/from the file system. It builds one (or more) centralized repository where R objects are stored with rich annotations, including corresponding code chunks, and easily searched and retrieved. See Napolitano (2017) \doi{10.1186/s12859-017-1510-6} for further information.
 }
 \details{
 The Repo package is meant to help with the management of R data
@@ -27,3 +27,4 @@ For a complete list of functions, use \code{library(help = "repo")}.
 \author{
 Francesco Napolitano \email{franapoli@gmail.com}
 }
+\keyword{internal}

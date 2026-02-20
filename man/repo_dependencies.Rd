@@ -44,7 +44,7 @@ means that item \code{i} is in relation \code{x} with item
 \details{
 The relation between any two items \code{i} and \code{j} can have
     values 1, 2 or 3, respectively meaning:
-\itemize{
+\describe{
   \item{depends on: }{to build item \code{i}, item \code{j} was necessary.}
   \item{attached to: }{item \code{i} is an attachment item and is attached to
         item \code{j}.}

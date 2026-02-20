@@ -59,7 +59,7 @@ repo_related <- function(names, type="all", excludeseed=F)
 #'     function.
 #' @details The relation between any two items \code{i} and \code{j} can have
 #'     values 1, 2 or 3, respectively meaning:
-#' \itemize{
+#' \describe{
 #'   \item{depends on: }{to build item \code{i}, item \code{j} was necessary.}
 #'   \item{attached to: }{item \code{i} is an attachment item and is attached to
 #'         item \code{j}.}
@@ -900,12 +900,13 @@ repo_has <- function(name)
 ##' @param built A list of items already built used for recursion (not
 ##'     meant to be passed directly).
 ##' @return Nothing, used for side effects.
-##' @details Code chunks are defined as in the following example: ```
-##'	## chunk "item 1" {
+##' @details Code chunks are defined as in the following example:
+##' \preformatted{
+##'	## chunk "item 1" \{
 ##'         x <- code_to_make_x()
 ##'         rp$put(x, "item 1")
-##'	## }
-##'```
+##'	## \}
+##'}
 ##'
 ##' `item 1` must be associated to the source (`src` parameter of
 ##' `put`) containing the chunk code.

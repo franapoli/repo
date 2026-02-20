@@ -2,8 +2,8 @@ Encoding: UTF-8
 Package: repo
 Type: Package
 Title: A Data-Centered Data Flow Manager
-Version: 2.1.6
-Date: 2021-05-16
+Version: 2.1.6.2
+Date: (2026-02-20
 Author: Francesco Napolitano <franapoli@gmail.com>
 Maintainer: Francesco Napolitano <franapoli@gmail.com>
 Description: A data manager meant to avoid manual storage/retrieval of
@@ -23,4 +23,4 @@ Suggests:
     testthat,
     rmarkdown
 VignetteBuilder: knitr
-RoxygenNote: 7.0.2
+RoxygenNote: 7.3.3
