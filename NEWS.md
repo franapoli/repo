@@ -1,4 +1,4 @@
-# repo 2.1.6.2 (2026-02-20)
+# repo 2.1.7 (2026-02-20)
 
 * Fixed NEWS.md formatting to comply with CRAN standards.
 
