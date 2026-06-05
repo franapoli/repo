@@ -138,7 +138,7 @@ Change log:
 
 # repo 2.0.5.10 (2017-02-22)
 
-* A [paper about Repo](http://rdcu.be/pklt) has been published in BMC
+* A [paper about Repo](https://doi.org/10.1186/s12859-017-1510-6) has been published in BMC
   Bioinformatics.
 * Added some testing code.
 

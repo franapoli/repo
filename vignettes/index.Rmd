@@ -30,7 +30,7 @@ operations.
 
 Additional information can be found in the paper: Napolitano,
 F. [*repo: an R package for data-centered management of bioinformatic
-pipelines*](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/s12859-017-1510-6). **BMC
+pipelines*](https://doi.org/10.1186/s12859-017-1510-6). **BMC
 Bioinformatics** 18, 112 (2017).
 
 Repo latest version can be found at: https://github.com/franapoli/repo

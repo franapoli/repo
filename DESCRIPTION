@@ -3,9 +3,7 @@ Package: repo
 Type: Package
 Title: A Data-Centered Data Flow Manager
 Version: 2.1.7
-Date: 2026-02-20
-Author: Francesco Napolitano <franapoli@gmail.com>
-Maintainer: Francesco Napolitano <franapoli@gmail.com>
+Date: 2026-06-05
 Authors@R: person(given = "Francesco",
                   family = "Napolitano",
                   role = c("aut", "cre"),

@@ -8,6 +8,9 @@ have now been fixed:
 * Aligned VignetteIndexEntry title with YAML title
 * Fixed .Rbuildignore to exclude spurious files from the build
 * Fixed a bug in the repo_pies() example (data(1) -> data1)
+* Removed redundant Author field (kept only Authors@R) in DESCRIPTION
+* Updated Date field in DESCRIPTION
+* Fixed stale/redirected URLs in README.md, NEWS.md and vignette
 
 ## Test environments
 

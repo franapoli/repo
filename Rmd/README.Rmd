@@ -12,7 +12,7 @@ knitr::opts_chunk$set(
   fig.path = "inst/README-"
 )
 ```
-[![](http://www.r-pkg.org/badges/version/repo)](https://cran.r-project.org/package=repo) <sup><sub>Master: </sub></sup>[![Travis-CI Build Status](https://travis-ci.org/franapoli/repo.svg?branch=master)](https://travis-ci.org/franapoli/repo) <sup><sub>Dev: </sub></sup>[![Travis-CI Build Status](https://travis-ci.org/franapoli/repo.svg?branch=dev)](https://travis-ci.org/franapoli/repo)
+[![](http://www.r-pkg.org/badges/version/repo)](https://cran.r-project.org/package=repo)
 
 
 ## Repo
@@ -22,7 +22,7 @@ files in a central local repository, together with tags, annotations,
 provenance and dependence information. Any saved object can then be
 easily located and loaded through the repo interface.
 
-A [paper about Repo](http://rdcu.be/pklt) has been published in BMC
+A [paper about Repo](https://doi.org/10.1186/s12859-017-1510-6) has been published in BMC
 Bioinformatics.
 
 Latest news are found in the NEWS.md file of the "Untested" branch.
@@ -113,10 +113,9 @@ progress versions and prototype code, not necessarily working.
 Besides inline help, two documents are available as introductory
 material:
 
-+ [A paper published on BMC Bioinformatics](http://rdcu.be/pklt)
++ [A paper published on BMC Bioinformatics](https://doi.org/10.1186/s12859-017-1510-6)
 
-+ [An introductory
-vignette](https://rawgit.com/franapoli/repo/gh-pages/index.html).
++ [An introductory vignette](https://cran.r-project.org/web/packages/repo/vignettes/index.html).
 
 
 ## Download and Installation
@@ -128,7 +127,7 @@ install.packages("repo")
 ```
     
 Latest stable release can be downloaded from Github at
-[https://github.com/franapoli/repo](https://www.github.com/franapoli/repo/).
+[https://github.com/franapoli/repo](https://github.com/franapoli/repo).
 Repo can then be installed from the downloaded sources as follows:
 
 ```{r, eval=F}
