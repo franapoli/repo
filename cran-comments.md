@@ -1,14 +1,23 @@
+## Resubmission
 
-This mostly updates the NEWS files and adds the Authors@R to the description.
-Minor fixes to docs got rid of some NOTEs as well.
-Actual code did not change.
+This package was previously on CRAN but was archived due to check failures
+(missing pre-built vignette in inst/doc, and related warnings). Those issues
+have now been fixed:
+
+* Added pre-built vignette output in inst/doc/
+* Aligned VignetteIndexEntry title with YAML title
+* Fixed .Rbuildignore to exclude spurious files from the build
+* Fixed a bug in the repo_pies() example (data(1) -> data1)
 
 ## Test environments
-* rhub (default platforms) and check_win_devel
+
+* macOS aarch64 (local), R 4.5.2
+* rhub: Linux (R-devel), Windows (R-devel)
 
 ## R CMD check results
-There were no ERRORs, WARNINGs or NOTEs
+
+There were no ERRORs, WARNINGs or NOTEs.
 
 ## Downstream dependencies
-gep2pep (also by me) is a rev dep, however repo's source is untouched
 
+gep2pep (also by me) is a reverse dependency, but repo's source is unchanged.
