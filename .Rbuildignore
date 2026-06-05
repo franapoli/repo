@@ -10,3 +10,7 @@
 ^\.Rproj\.user$
 ^\.github$
 ^CRAN-SUBMISSION$
+^\.\.Rcheck$
+^\.Rhistory$
+^CLAUDE\.md$
+^\.claude$

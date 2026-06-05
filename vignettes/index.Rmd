@@ -1,10 +1,10 @@
 ---
-title: "The *Repo* R Data Manager"
+title: "The Repo R Data Manager"
 date:
 author: "Francesco Napolitano"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Getting started with Repo}
+  %\VignetteIndexEntry{The Repo R Data Manager}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

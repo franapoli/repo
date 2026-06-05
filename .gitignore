@@ -1,7 +1,6 @@
 .Rhistory
-inst/doc
 readme_example.md
-doc
+/doc
 Meta
 .Rproj.user
 vignettes/index.R
