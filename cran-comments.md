@@ -1,4 +1,9 @@
-## Resubmission
+## Resubmission (2nd)
+
+As requested by Uwe Ligges: replaced invalid vignette URL in README.md
+with the canonical CRAN package URL (https://CRAN.R-project.org/package=repo).
+
+## Resubmission (1st)
 
 This package was previously on CRAN but was archived due to check failures
 (missing pre-built vignette in inst/doc, and related warnings). Those issues
