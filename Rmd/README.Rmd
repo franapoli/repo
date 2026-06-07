@@ -115,7 +115,7 @@ material:
 
 + [A paper published on BMC Bioinformatics](https://doi.org/10.1186/s12859-017-1510-6)
 
-+ [An introductory vignette](https://cran.r-project.org/web/packages/repo/vignettes/index.html).
++ [An introductory vignette](https://CRAN.R-project.org/package=repo).
 
 
 ## Download and Installation

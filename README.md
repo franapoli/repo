@@ -88,7 +88,7 @@ print(rp)
 
 ``` r
 rp$info()
-#> Root:            /private/var/folders/9p/3xvkrqpn37nb1hfwnznx05pc0000gn/T/RtmpCRtqpM 
+#> Root:            /private/var/folders/9p/3xvkrqpn37nb1hfwnznx05pc0000gn/T/Rtmpl2BLaS 
 #> Number of items: 7 
 #> Total size:      535 B
 ```
@@ -99,11 +99,11 @@ rp$info("areas")
 #> Description:  These are the areas
 #> Tags:         
 #> Dimensions:   10
-#> Timestamp:    2026-06-05 23:48:22.619849
+#> Timestamp:    2026-06-08 00:35:08.349265
 #> Size on disk: 103 B
 #> Provenance:   
 #> Attached to:  -
-#> Stored in:    /private/var/folders/9p/3xvkrqpn37nb1hfwnznx05pc0000gn/T/RtmpCRtqpM/a/areas
+#> Stored in:    /private/var/folders/9p/3xvkrqpn37nb1hfwnznx05pc0000gn/T/Rtmpl2BLaS/a/areas
 #> MD5 checksum: 51059bc2427b4d738b45e7cd6a932ff7
 #> URL:          -
 ```
@@ -145,7 +145,7 @@ material:
 
 + [A paper published on BMC Bioinformatics](https://doi.org/10.1186/s12859-017-1510-6)
 
-+ [An introductory vignette](https://cran.r-project.org/web/packages/repo/vignettes/index.html).
++ [An introductory vignette](https://CRAN.R-project.org/package=repo).
 
 
 ## Download and Installation
