@@ -3,7 +3,7 @@ Package: repo
 Type: Package
 Title: A Data-Centered Data Flow Manager
 Version: 2.1.7
-Date: 2026-06-05
+Date: 2026-08-04
 Authors@R: person(given = "Francesco",
                   family = "Napolitano",
                   role = c("aut", "cre"),

@@ -3,6 +3,10 @@
 \name{repo_open}
 \alias{repo_open}
 \title{Open an existing repository or create a new one.}
+\usage{
+repo_open(root = normalizePath(file.path("~", ".R_repo"), mustWork = F),
+  force = F)
+}
 \arguments{
 \item{root}{Path to store data in. Defaults to "~/.R_repo".}
 

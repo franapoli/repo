@@ -1,3 +1,14 @@
+## Resubmission (3rd)
+
+Fixed issues found in CRAN incoming pre-tests:
+
+* Updated Date field in DESCRIPTION (was over a month old)
+* Added missing \usage section to man/repo_open.Rd (caused NOTE on Debian)
+
+Remaining NOTEs are unavoidable:
+* "New submission / Package was archived" — inherent to resubmission
+* "Possibly misspelled: Napolitano" — this is the maintainer's surname
+
 ## Resubmission (2nd)
 
 As requested by Uwe Ligges: replaced invalid vignette URL in README.md
